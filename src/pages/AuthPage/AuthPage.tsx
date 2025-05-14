@@ -1,4 +1,11 @@
-import { Image } from "@nextui-org/react";
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Image,
+} from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import SignInForm from "./SignInForm";
@@ -6,7 +13,8 @@ import SignUpForm from "./SignUpForm";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import ResetPasswordForm from "./ResetPasswordForm";
 import VerifyAccountForm from "./VerifyAccountForm";
-
+import { getI18n, useTranslation } from "react-i18next";
+import { MdOutlineLanguage, MdKeyboardArrowDown } from "react-icons/md";
 type AuthType =
   | "signIn"
   | "signUp"
@@ -23,6 +31,9 @@ export default function AuthPage() {
     setAuthType(type || "signIn");
   }, [searchParams]);
 
+  const i18n = getI18n();
+  const { t } = useTranslation();
+
   const form = useMemo(() => {
     switch (authType) {
       case "signIn":
@@ -38,18 +49,55 @@ export default function AuthPage() {
     }
   }, [authType]);
 
+  const getCurrentYear = () => {
+    const date = new Date();
+    return date.getFullYear();
+  };
   return (
     <div className="flex gap-8 items-center justify-center h-dvh">
-      <div className="w-1/3 p-8 pr-0 overflow-hidden h-full">
+      <div className="w-1/2 pr-0 overflow-hidden h-full">
         <Image
           removeWrapper
           className="h-full w-full object-cover"
-          alt="Authen image"
-          src="/auth-image.jpg"
+          src="/event2.png"
         />
       </div>
-      <div className="w-2/3 p-8 pl-0">
+
+      <div className="w-1/2 p-8 pl-0 relative h-full">
+        <Image
+          removeWrapper
+          className="w-60 object-contain mx-auto"
+          src="/auth-icon.png"
+        />
         <div className="max-w-[700px] mx-auto flex flex-col gap-6">{form}</div>
+
+        <div className="p-8 pl-0 w-full absolute top-0 left-0 flex items-center justify-center">
+          <div className="w-full max-w-[700px] flex items-center justify-between">
+            <div className="text-primary-200 text-sm">
+              © {getCurrentYear()} EventBox
+            </div>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button className="text-primary-200" variant="light">
+                  <MdOutlineLanguage />{" "}
+                  {i18n.resolvedLanguage === "en" ? "ENG" : "VI"}{" "}
+                  <MdKeyboardArrowDown />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                selectedKeys={[i18n.resolvedLanguage]}
+                selectionMode="single"
+                variant="flat"
+                onAction={(key) => {
+                  i18n.changeLanguage(key.toString());
+                }}
+              >
+                <DropdownItem key="vi">{t("vietnamese")}</DropdownItem>
+                <DropdownItem key="en">{t("english")}</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        </div>
       </div>
     </div>
   );

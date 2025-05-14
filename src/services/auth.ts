@@ -1,13 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import cookies from "../libs/cookies";
 import { onError } from "../utils/error-handlers";
-import { Credentials, IResponseData, IUser } from "../types";
+import { IResponseData, IUser } from "../types";
 import { useNavigate } from "react-router-dom";
 import { rawAxios } from "../hooks/useAxiosIns";
 import { toast } from "react-hot-toast";
 import useAuthStore from "../stores/auth";
 import useAppStore from "../stores/app";
+import { useTranslation } from "react-i18next";
 const useAuth = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     setAccessToken,
@@ -16,7 +18,7 @@ const useAuth = () => {
     setUser,
     reset: resetAuthStore,
   } = useAuthStore();
-  const { reset: resetAppStore } = useAppStore();
+  const { reset: resetAppStore, deviceId } = useAppStore();
 
   const saveCredentialsAndRedirect = (
     user: IUser,
@@ -34,32 +36,52 @@ const useAuth = () => {
   const verifyAccountMutation = useMutation({
     mutationFn: (params: { email: string; signature: string }) => {
       return rawAxios.post<
-        IResponseData<{ user: IUser; credentials: Credentials }>
-      >(`/api/v1/auth/verify-account`, {
-        email: params.email,
-        signature: params.signature,
-      });
+        IResponseData<{
+          user: IUser;
+          access_token: string;
+          refresh_token: string;
+        }>
+      >(
+        `/v1/auth/verify`,
+        {
+          username: params.email,
+          otp: params.signature,
+        },
+        {
+          headers: {
+            "x-device-id": deviceId,
+          },
+        }
+      );
     },
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message || "Verified successfully");
+      toast.success(t(res.data.message));
       const data = res.data?.data;
       const user = data?.user;
-      const accessToken = data?.credentials?.access_token;
-      const refreshToken = data?.credentials?.refresh_token;
+      const accessToken = data?.access_token;
+      const refreshToken = data?.refresh_token;
       saveCredentialsAndRedirect(user, accessToken, refreshToken);
     },
   });
 
   const signOutMutation = useMutation({
     mutationFn: () => {
-      return rawAxios.post<IResponseData<unknown>>(`/api/v1/auth/sign-out`, {
-        client: "web",
-      });
+      return rawAxios.post<IResponseData<unknown>>(
+        `/v1/auth/logout`,
+        {
+          client: "web",
+        },
+        {
+          headers: {
+            "x-device-id": deviceId,
+          },
+        }
+      );
     },
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message || "Signed out successfully");
+      toast.success(t(res.data.message));
       resetAuthStore();
       resetAppStore();
     },
@@ -68,20 +90,32 @@ const useAuth = () => {
   const signInMutation = useMutation({
     mutationFn: (params: { email: string; password: string }) => {
       return rawAxios.post<
-        IResponseData<{ user: IUser; credentials: Credentials }>
-      >("/api/v1/auth/authenticate", {
-        email: params.email,
-        password: params.password,
-      });
+        IResponseData<{
+          user: IUser;
+          access_token: string;
+          refresh_token: string;
+        }>
+      >(
+        "v1/auth/login",
+        {
+          username: params.email,
+          password: params.password,
+        },
+        {
+          headers: {
+            "x-device-id": deviceId,
+          },
+        }
+      );
     },
 
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message);
+      toast.success(t(res.data.message));
       const data = res.data?.data;
       const user = data?.user;
-      const accessToken = data?.credentials?.access_token;
-      const refreshToken = data?.credentials?.refresh_token;
+      const accessToken = data?.access_token;
+      const refreshToken = data?.refresh_token;
       saveCredentialsAndRedirect(user, accessToken, refreshToken);
     },
   });
@@ -93,29 +127,34 @@ const useAuth = () => {
       firstName: string;
       lastName: string;
     }) =>
-      rawAxios.post<IResponseData<{ user: IUser; credentials: Credentials }>>(
-        "/api/v1/auth/register",
+      rawAxios.post<IResponseData<boolean>>(
+        "/v1/auth/register",
         {
-          email: params.email,
+          username: params.email,
           password: params.password,
-          firstName: params.firstName,
-          lastName: params.lastName,
+          first_name: params.firstName,
+          last_name: params.lastName,
+        },
+        {
+          headers: {
+            "x-device-id": deviceId,
+          },
         }
       ),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message);
+      toast.success(t(res.data.message));
     },
   });
 
   const forgotPasswordMutation = useMutation({
     mutationFn: (params: { email: string }) =>
-      rawAxios.post<IResponseData<unknown>>("/api/v1/auth/forgot-password", {
-        email: params.email,
+      rawAxios.post<IResponseData<unknown>>("/v1/auth/forgot-password/otp", {
+        username: params.email,
       }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message);
+      toast.success(t(res.data.message));
     },
   });
 
@@ -125,46 +164,46 @@ const useAuth = () => {
       newPassword: string;
       signature: string;
     }) =>
-      rawAxios.post<IResponseData<unknown>>("/api/v1/auth/reset-password", {
-        email: params.email,
-        new_password: params.newPassword,
-        signature: params.signature,
+      rawAxios.post<IResponseData<unknown>>("/api/v1/auth/reset-password/otp", {
+        username: params.email,
+        password: params.newPassword,
+        otp: params.signature,
       }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message);
+      toast.success(t(res.data.message));
     },
   });
 
   const resendVerifyAccountMutation = useMutation({
     mutationFn: (params: { email: string }) =>
-      rawAxios.post<IResponseData<unknown>>(
-        "/api/v1/auth/verify-account/resend",
-        {
-          email: params.email,
-        }
-      ),
+      rawAxios.post<IResponseData<unknown>>("/v1/auth/verify/resend", {
+        username: params.email,
+      }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message);
+      toast.success(t(res.data.message));
     },
   });
 
   const signInWithGoogleMutation = useMutation({
     mutationFn: (params: { access_token: string }) =>
-      rawAxios.post<IResponseData<{ user: IUser; credentials: Credentials }>>(
-        "/api/v1/auth/google",
-        {
-          access_token: params.access_token,
-        }
-      ),
+      rawAxios.post<
+        IResponseData<{
+          user: IUser;
+          access_token: string;
+          refresh_token: string;
+        }>
+      >("/v1/auth/google", {
+        access_token: params.access_token,
+      }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(res.data.message);
+      toast.success(t(res.data.message));
       const data = res.data?.data;
       const user = data?.user;
-      const accessToken = data?.credentials?.access_token;
-      const refreshToken = data?.credentials?.refresh_token;
+      const accessToken = data?.access_token;
+      const refreshToken = data?.refresh_token;
       saveCredentialsAndRedirect(user, accessToken, refreshToken);
     },
   });

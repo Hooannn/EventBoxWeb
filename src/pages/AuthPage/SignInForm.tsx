@@ -1,38 +1,25 @@
-import { Input, Button, Link, Image } from "@nextui-org/react";
+import { Input, Button, Link, Image } from "@heroui/react";
 import { useGoogleLogin } from "@react-oauth/google";
-import { AxiosError } from "axios";
 import { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../../services/auth";
-import { IResponseData } from "../../types";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 type SignInInputs = {
   email: string;
   password: string;
 };
 export default function SignInForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignInInputs>();
+  const { t } = useTranslation();
+  const { handleSubmit, control } = useForm<SignInInputs>();
 
   const { signInMutation, signInWithGoogleMutation } = useAuth();
 
   const onSubmit: SubmitHandler<SignInInputs> = (data) => {
-    signInMutation.mutateAsync(data).catch((err) => {
-      if (
-        (err as AxiosError<IResponseData<unknown>>).response?.data?.message ===
-        "User is disabled"
-      ) {
-        searchParams.set("type", "verifyAccount");
-        searchParams.set("email", btoa(data.email));
-        setSearchParams(searchParams);
-      }
-    });
+    signInMutation.mutate(data);
   };
 
   const [isVisible, setIsVisible] = useState(false);
@@ -43,24 +30,22 @@ export default function SignInForm() {
     },
     onError: (errorResponse) => {
       toast.error(
-        errorResponse?.error_description ||
-          errorResponse?.error ||
-          "Something went wrong. Please try again"
+        errorResponse?.error_description || errorResponse?.error || t("error")
       );
     },
   });
 
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [searchParams, setSearchParams] = useSearchParams();
+
   return (
     <>
-      <div>
-        <h3 className="font-medium text-3xl">Welcome to Panorama,</h3>
-        <h3 className="font-medium text-3xl">Sign In to Continue.</h3>
+      <div className="text-center">
+        <h3 className="font-medium text-3xl">{t("welcome_login")}</h3>
       </div>
-      <div>
+      <div className="text-center">
         <div className="font-medium">
-          Don't have an account?{" "}
+          {t("don't have an account?")}{" "}
           <Link
             className="cursor-pointer"
             color="foreground"
@@ -71,54 +56,92 @@ export default function SignInForm() {
               setSearchParams(searchParams);
             }}
           >
-            Create a account
+            {t("create an account")}
           </Link>
         </div>
-        <div className="font-medium">It takes less than a minute</div>
+        <div className="font-medium">{t("it takes less than a minute")}</div>
       </div>
-      <div className="mt-6 flex flex-col gap-3">
-        <Input
-          errorMessage={errors.email?.message}
-          {...register("email", {
-            required: "Email is required",
+      <div className="flex flex-col gap-3">
+        <Controller
+          name="email"
+          control={control}
+          render={({
+            field: { name, value, onChange, onBlur, ref },
+            fieldState: { invalid, error },
+          }) => (
+            <Input
+              ref={ref}
+              isRequired
+              errorMessage={error?.message}
+              validationBehavior="aria"
+              isInvalid={invalid}
+              color="primary"
+              variant="bordered"
+              radius="none"
+              type="email"
+              onBlur={onBlur}
+              name={name}
+              value={value}
+              onChange={onChange}
+              label="Email"
+              placeholder={t("enter your email").toString()}
+            />
+          )}
+          rules={{
+            required: t("email is required").toString(),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-              message: "Invalid email address",
+              message: t("invalid email address").toString(),
             },
-          })}
-          color="primary"
-          variant="bordered"
-          type="email"
-          label="Email"
-          placeholder="Enter your email"
+          }}
         />
-        <Input
-          errorMessage={errors.password?.message}
-          {...register("password", {
-            required: "Password is required",
+        <Controller
+          name="password"
+          control={control}
+          render={({
+            field: { name, value, onChange, onBlur, ref },
+            fieldState: { invalid, error },
+          }) => (
+            <Input
+              ref={ref}
+              isRequired
+              errorMessage={error?.message}
+              validationBehavior="aria"
+              isInvalid={invalid}
+              radius="none"
+              color="primary"
+              label={t("password")}
+              variant="bordered"
+              placeholder={t("enter your password").toString()}
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility}
+                >
+                  {isVisible ? (
+                    <AiOutlineEyeInvisible className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <AiOutlineEye className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+              type={isVisible ? "text" : "password"}
+              onBlur={onBlur}
+              name={name}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+          rules={{
+            required: t("password is required").toString(),
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters long",
+              message: t(
+                "password must be at least 6 characters long"
+              ).toString(),
             },
-          })}
-          color="primary"
-          label="Password"
-          variant="bordered"
-          placeholder="Enter your password"
-          endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility}
-            >
-              {isVisible ? (
-                <AiOutlineEyeInvisible className="text-2xl text-default-400 pointer-events-none" />
-              ) : (
-                <AiOutlineEye className="text-2xl text-default-400 pointer-events-none" />
-              )}
-            </button>
-          }
-          type={isVisible ? "text" : "password"}
+          }}
         />
 
         <div className="mx-auto">
@@ -132,7 +155,7 @@ export default function SignInForm() {
             size="sm"
             underline="always"
           >
-            Forgot password?
+            {t("forgot password?")}
           </Link>
         </div>
       </div>
@@ -143,20 +166,22 @@ export default function SignInForm() {
           }
           onClick={handleSubmit(onSubmit)}
           color="primary"
+          radius="none"
           size="lg"
         >
-          Sign In
+          {t("sign in")}
         </Button>
         <Button
           isLoading={
             signInMutation.isPending || signInWithGoogleMutation.isPending
           }
           variant="flat"
+          radius="none"
           onClick={() => googleLogin()}
           size="lg"
         >
           <Image src="/google_icon.png" width={28} height={28} />
-          Sign In with Google
+          {t("continue with google")}
         </Button>
       </div>
     </>

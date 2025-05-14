@@ -1,20 +1,18 @@
-import { Input, Button, Link } from "@nextui-org/react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { Input, Button, Link } from "@heroui/react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { AiOutlineMail } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../../services/auth";
+import { useTranslation } from "react-i18next";
 
 type ForgotPasswordInputs = {
   email: string;
 };
 
 export default function ForgotPasswordForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ForgotPasswordInputs>();
+  const { handleSubmit, control } = useForm<ForgotPasswordInputs>();
 
+  const { t } = useTranslation();
   const { forgotPasswordMutation } = useAuth();
 
   const onSubmit: SubmitHandler<ForgotPasswordInputs> = async (data) => {
@@ -27,13 +25,12 @@ export default function ForgotPasswordForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   return (
     <>
-      <div>
-        <h3 className="font-medium text-3xl">Forgot password,</h3>
-        <h3 className="font-medium text-3xl">Submit your email to continue.</h3>
+      <div className="text-center">
+        <h3 className="font-medium text-3xl">{t("forgot_password_title")}</h3>
       </div>
-      <div>
+      <div className="text-center">
         <div className="font-medium">
-          Don't have an account?{" "}
+          {t("don't have an account?")}{" "}
           <Link
             className="cursor-pointer"
             color="foreground"
@@ -44,29 +41,47 @@ export default function ForgotPasswordForm() {
               setSearchParams(searchParams);
             }}
           >
-            Create a account
+            {t("create an account")}
           </Link>
         </div>
-        <div className="font-medium">It takes less than a minute</div>
+        <div className="font-medium">{t("it takes less than a minute")}</div>
       </div>
       <div className="mt-6 flex flex-col gap-3">
-        <Input
-          startContent={
-            <AiOutlineMail className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-          }
-          errorMessage={errors.email?.message}
-          {...register("email", {
-            required: "Email is required",
+        <Controller
+          name="email"
+          control={control}
+          render={({
+            field: { name, value, onChange, onBlur, ref },
+            fieldState: { invalid, error },
+          }) => (
+            <Input
+              startContent={
+                <AiOutlineMail className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+              }
+              ref={ref}
+              isRequired
+              errorMessage={error?.message}
+              validationBehavior="aria"
+              isInvalid={invalid}
+              color="primary"
+              variant="bordered"
+              radius="none"
+              type="email"
+              onBlur={onBlur}
+              name={name}
+              value={value}
+              onChange={onChange}
+              label="Email"
+              placeholder={t("enter your email").toString()}
+            />
+          )}
+          rules={{
+            required: t("email is required").toString(),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-              message: "Invalid email address",
+              message: t("invalid email address").toString(),
             },
-          })}
-          color="primary"
-          variant="bordered"
-          type="email"
-          label="Email"
-          placeholder="Enter your email"
+          }}
         />
       </div>
       <div className="flex flex-col gap-2 mt-4">
@@ -76,7 +91,7 @@ export default function ForgotPasswordForm() {
           color="primary"
           size="lg"
         >
-          Submit
+          {t("submit")}
         </Button>
       </div>
     </>

@@ -7,6 +7,8 @@ interface AppStore {
   fcmToken?: string;
   setEnabledPushNotifications: (enabled: boolean) => void;
   setSavedFcmToken: (token: string) => void;
+  deviceId?: string;
+  setDeviceId: (deviceId: string) => void;
   reset: () => void;
 }
 
@@ -21,6 +23,7 @@ const useAppStore = create<AppStore>()(
       setEnabledPushNotifications: (enabledPushNotifications) =>
         set((state) => ({ enabledPushNotifications })),
       setSavedFcmToken: (fcmToken) => ({ fcmToken }),
+      setDeviceId: (deviceId) => ({ deviceId }),
       reset: () => {
         set(initialState);
       },

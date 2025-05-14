@@ -9,7 +9,7 @@ import {
   User,
   Button,
   Badge,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { AiOutlineBell, AiOutlineSearch } from "react-icons/ai";
 import useAuthStore from "../stores/auth";
 

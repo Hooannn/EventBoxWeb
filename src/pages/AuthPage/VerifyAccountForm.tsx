@@ -1,16 +1,17 @@
-import { Input, Button, Link } from "@nextui-org/react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { AiOutlineLock } from "react-icons/ai";
+import { Button, Link, InputOtp } from "@heroui/react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../../services/auth";
+import { useTranslation } from "react-i18next";
 
 type VerifyAccountInputs = {
   code: string;
 };
 export default function VerifyAccountForm() {
+  const { t } = useTranslation();
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<VerifyAccountInputs>();
 
@@ -25,15 +26,12 @@ export default function VerifyAccountForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   return (
     <>
-      <div>
-        <h3 className="font-medium text-3xl">Verify account,</h3>
-        <h3 className="font-medium text-3xl">
-          Submit your signature code to continue.
-        </h3>
+      <div className="text-center">
+        <h3 className="font-medium text-3xl">{t("verify_account_title")}</h3>
       </div>
-      <div>
+      <div className="text-center">
         <div className="font-medium">
-          Already done?{" "}
+          {t("already done?")}{" "}
           <Link
             className="cursor-pointer"
             color="foreground"
@@ -44,44 +42,55 @@ export default function VerifyAccountForm() {
               setSearchParams(searchParams);
             }}
           >
-            Back to Sign In
+            {t("back to sign in")}
           </Link>
         </div>
       </div>
-      <div className="mt-6 flex flex-col gap-3">
-        <Input
-          startContent={
-            <AiOutlineLock className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-          }
-          errorMessage={errors.code?.message}
-          {...register("code", {
-            required: "Signature code is required",
-          })}
-          color="primary"
-          variant="bordered"
-          label="Signature code"
-          placeholder="Enter your code"
+      <div className="flex flex-col gap-3 items-center">
+        <Controller
+          control={control}
+          name="code"
+          render={({ field }) => (
+            <InputOtp
+              {...field}
+              size="lg"
+              description={t("enter the code we sent to your email")}
+              errorMessage={errors.code && errors.code.message}
+              isInvalid={!!errors.code}
+              length={6}
+            />
+          )}
+          rules={{
+            required: t("otp is required").toString(),
+            minLength: {
+              value: 6,
+              message: t("please enter a valid OTP").toString(),
+            },
+          }}
         />
       </div>
       <div className="flex flex-col gap-2 mt-4">
         <Button
           isLoading={verifyAccountMutation.isPending}
           onClick={handleSubmit(onSubmit)}
+          radius="none"
           color="primary"
           size="lg"
         >
-          Submit
+          {t("submit")}
         </Button>
         <Button
+          variant="bordered"
           isLoading={resendVerifyAccountMutation.isPending}
           onClick={() => {
             resendVerifyAccountMutation.mutate({
               email: atob(searchParams.get("email")?.toString() ?? ""),
             });
           }}
+          radius="none"
           size="lg"
         >
-          Re-send verify code
+          {t("re-send verify code")}
         </Button>
       </div>
     </>

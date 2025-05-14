@@ -1,11 +1,12 @@
-import { Input, Button, Link, Image } from "@nextui-org/react";
+import { Input, Button, Link, Image } from "@heroui/react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../../services/auth";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 type SignUpInputs = {
   firstName: string;
@@ -16,12 +17,9 @@ type SignUpInputs = {
 };
 
 export default function SignUpForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<SignUpInputs>();
+  const { handleSubmit, control, watch } = useForm<SignUpInputs>();
+  const { t } = useTranslation();
+
   const watchPassword = watch("password", "");
   const onSubmit: SubmitHandler<SignUpInputs> = async (data) => {
     await signUpMutation.mutateAsync({
@@ -56,15 +54,12 @@ export default function SignUpForm() {
   const [searchParams, setSearchParams] = useSearchParams();
   return (
     <>
-      <div>
-        <h3 className="font-medium text-3xl">Welcome to Panorama,</h3>
-        <h3 className="font-medium text-3xl">
-          Create a new account to continue.
-        </h3>
+      <div className="text-center">
+        <h3 className="font-medium text-3xl">{t("welcome_signup")}</h3>
       </div>
-      <div>
+      <div className="text-center">
         <div className="font-medium">
-          Already have an account?{" "}
+          {t("already have an account?")}{" "}
           <Link
             className="cursor-pointer"
             onClick={() => {
@@ -74,107 +69,199 @@ export default function SignUpForm() {
             color="foreground"
             underline="always"
           >
-            Sign In
+            {t("sign in")}
           </Link>
         </div>
       </div>
-      <div className="mt-6 flex flex-col gap-3">
-        <div className="flex gap-3">
-          <Input
-            errorMessage={errors.firstName?.message}
-            {...register("firstName", {
-              required: "First name is required",
-            })}
-            color="primary"
-            variant="bordered"
-            className="w-1/2"
-            label="First name"
-            placeholder="Enter your first name"
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-1">
+          <Controller
+            name="firstName"
+            control={control}
+            rules={{
+              required: t("first name is required").toString(),
+            }}
+            render={({
+              field: { name, value, onChange, onBlur, ref },
+              fieldState: { invalid, error },
+            }) => (
+              <Input
+                ref={ref}
+                isRequired
+                errorMessage={error?.message}
+                radius="none"
+                validationBehavior="aria"
+                isInvalid={invalid}
+                color="primary"
+                variant="bordered"
+                className="w-1/2"
+                onBlur={onBlur}
+                name={name}
+                value={value}
+                onChange={onChange}
+                label={t("first name").toString()}
+                placeholder={t("enter your first name").toString()}
+              />
+            )}
           />
 
-          <Input
-            errorMessage={errors.lastName?.message}
-            {...register("lastName", {
-              required: "Last name is required",
-            })}
-            color="primary"
-            className="w-1/2"
-            variant="bordered"
-            label="Last name"
-            placeholder="Enter your last name"
+          <Controller
+            name="lastName"
+            control={control}
+            rules={{
+              required: t("last name is required").toString(),
+            }}
+            render={({
+              field: { name, value, onChange, onBlur, ref },
+              fieldState: { invalid, error },
+            }) => (
+              <Input
+                ref={ref}
+                isRequired
+                errorMessage={error?.message}
+                validationBehavior="aria"
+                isInvalid={invalid}
+                color="primary"
+                radius="none"
+                variant="bordered"
+                className="w-1/2"
+                onBlur={onBlur}
+                name={name}
+                value={value}
+                onChange={onChange}
+                label={t("last name").toString()}
+                placeholder={t("enter your last name").toString()}
+              />
+            )}
           />
         </div>
 
-        <Input
-          errorMessage={errors.email?.message}
-          {...register("email", {
-            required: "Email is required",
+        <Controller
+          name="email"
+          control={control}
+          render={({
+            field: { name, value, onChange, onBlur, ref },
+            fieldState: { invalid, error },
+          }) => (
+            <Input
+              ref={ref}
+              isRequired
+              errorMessage={error?.message}
+              validationBehavior="aria"
+              isInvalid={invalid}
+              color="primary"
+              variant="bordered"
+              radius="none"
+              type="email"
+              onBlur={onBlur}
+              name={name}
+              value={value}
+              onChange={onChange}
+              label="Email"
+              placeholder={t("enter your email").toString()}
+            />
+          )}
+          rules={{
+            required: t("email is required").toString(),
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-              message: "Invalid email address",
+              message: t("invalid email address").toString(),
             },
-          })}
-          color="primary"
-          variant="bordered"
-          type="email"
-          label="Email"
-          placeholder="Enter your email"
+          }}
         />
 
-        <Input
-          errorMessage={errors.password?.message}
-          {...register("password", {
-            required: "Password is required",
+        <Controller
+          name="password"
+          control={control}
+          render={({
+            field: { name, value, onChange, onBlur, ref },
+            fieldState: { invalid, error },
+          }) => (
+            <Input
+              ref={ref}
+              isRequired
+              errorMessage={error?.message}
+              validationBehavior="aria"
+              isInvalid={invalid}
+              radius="none"
+              color="primary"
+              label={t("password")}
+              variant="bordered"
+              placeholder={t("enter your password").toString()}
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility}
+                >
+                  {isVisible ? (
+                    <AiOutlineEyeInvisible className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <AiOutlineEye className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+              type={isVisible ? "text" : "password"}
+              onBlur={onBlur}
+              name={name}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+          rules={{
+            required: t("password is required").toString(),
             minLength: {
               value: 6,
-              message: "Password must be at least 6 characters long",
+              message: t(
+                "password must be at least 6 characters long"
+              ).toString(),
             },
-          })}
-          color="primary"
-          label="Password"
-          variant="bordered"
-          placeholder="Enter your password"
-          endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility}
-            >
-              {isVisible ? (
-                <AiOutlineEyeInvisible className="text-2xl text-default-400 pointer-events-none" />
-              ) : (
-                <AiOutlineEye className="text-2xl text-default-400 pointer-events-none" />
-              )}
-            </button>
-          }
-          type={isVisible ? "text" : "password"}
+          }}
         />
 
-        <Input
-          errorMessage={errors.confirmPassword?.message}
-          {...register("confirmPassword", {
-            required: "Confirm password is required",
+        <Controller
+          name="confirmPassword"
+          control={control}
+          render={({
+            field: { name, value, onChange, onBlur, ref },
+            fieldState: { invalid, error },
+          }) => (
+            <Input
+              ref={ref}
+              isRequired
+              errorMessage={error?.message}
+              validationBehavior="aria"
+              isInvalid={invalid}
+              radius="none"
+              color="primary"
+              label={t("confirm password")}
+              variant="bordered"
+              placeholder={t("enter your password again").toString()}
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility2}
+                >
+                  {isVisible2 ? (
+                    <AiOutlineEyeInvisible className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <AiOutlineEye className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+              type={isVisible2 ? "text" : "password"}
+              onBlur={onBlur}
+              name={name}
+              value={value}
+              onChange={onChange}
+            />
+          )}
+          rules={{
+            required: t("confirm password is required").toString(),
             validate: (value) =>
-              value === watchPassword || "Passwords do not match",
-          })}
-          color="primary"
-          label="Confirm password"
-          variant="bordered"
-          placeholder="Enter your password again"
-          endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility2}
-            >
-              {isVisible2 ? (
-                <AiOutlineEyeInvisible className="text-2xl text-default-400 pointer-events-none" />
-              ) : (
-                <AiOutlineEye className="text-2xl text-default-400 pointer-events-none" />
-              )}
-            </button>
-          }
-          type={isVisible2 ? "text" : "password"}
+              value === watchPassword || t("passwords do not match").toString(),
+          }}
         />
 
         <div className="mx-auto">
@@ -188,7 +275,7 @@ export default function SignUpForm() {
             size="sm"
             underline="always"
           >
-            Forgot password?
+            {t("forgot password?")}
           </Link>
         </div>
       </div>
@@ -196,19 +283,21 @@ export default function SignUpForm() {
         <Button
           isLoading={signUpMutation.isPending}
           onClick={handleSubmit(onSubmit)}
+          radius="none"
           color="primary"
           size="lg"
         >
-          Sign Up
+          {t("sign up")}
         </Button>
         <Button
           isLoading={signUpMutation.isPending}
+          radius="none"
           variant="flat"
           onClick={() => googleLogin()}
           size="lg"
         >
           <Image src="/google_icon.png" width={28} height={28} />
-          Sign Up with Google
+          {t("continue with google")}
         </Button>
       </div>
     </>
