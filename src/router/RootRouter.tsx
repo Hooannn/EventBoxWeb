@@ -3,6 +3,8 @@ import PrivateRoute from "../components/PrivateRoute";
 import DashboardPage from "../pages/DashboardPage";
 import ErrorPage from "../pages/ErrorPage";
 import MainLayout from "../layouts/MainLayout";
+import OrganizationPage from "../pages/OrganizationPage";
+import OrganizationLayout from "../layouts/OrganizationLayout";
 const rootRouter = [
   {
     path: "/",
@@ -17,6 +19,23 @@ const rootRouter = [
       {
         path: "/",
         element: <DashboardPage />,
+      },
+    ],
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/organization",
+    element: (
+      <Suspense>
+        <PrivateRoute>
+          <OrganizationLayout />
+        </PrivateRoute>
+      </Suspense>
+    ),
+    children: [
+      {
+        path: ":id",
+        element: <OrganizationPage />,
       },
     ],
     errorElement: <ErrorPage />,

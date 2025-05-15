@@ -18,7 +18,7 @@ import { IResponseData } from "../types";
 import { onError } from "../utils/error-handlers";
 import useAuthStore from "../stores/auth";
 import useAppStore from "../stores/app";
-import { toast } from "react-hot-toast";
+import { addToast } from "@heroui/react";
 const FirebaseContext = createContext<{
   instance: firebase.FirebaseApp | null;
   disabledPushNotifications?: (toastOnFinishing: boolean) => Promise<void>;
@@ -63,7 +63,13 @@ export const FirebaseProvider = ({
     if (firebaseApp) {
       await deleteToken(getMessaging(firebaseApp));
       setEnabledPushNotifications(false);
-      if (toastOnFinishing) toast.success("Disabled push notifications");
+      if (toastOnFinishing)
+        addToast({
+          title: "Disabled push notifications",
+          color: "success",
+          timeout: 4000,
+          radius: "none",
+        });
     }
   };
 
@@ -80,12 +86,24 @@ export const FirebaseProvider = ({
             registerFcmTokenMutation.mutateAsync(token).then(() => {
               setSavedFcmToken(token);
             });
-            if (toastOnFinishing) toast.success("Enabled push notifications");
+            if (toastOnFinishing)
+              addToast({
+                title: "Enabled push notifications",
+                color: "success",
+                timeout: 4000,
+                radius: "none",
+              });
           })
           .catch((err) => {
             reject(err.message);
             setEnabledPushNotifications(false);
-            toast.error(err.message || JSON.stringify(err));
+            addToast({
+              title: "Error enabling push notifications",
+              description: err.message,
+              color: "danger",
+              timeout: 4000,
+              radius: "none",
+            });
           });
       });
 

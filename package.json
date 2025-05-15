@@ -17,11 +17,14 @@
     "dayjs": "^1.11.10",
     "firebase": "^10.7.1",
     "framer-motion": "^10.17.4",
+    "i18next": "22.1.2",
+    "i18next-browser-languagedetector": "7.0.1",
+    "i18next-http-backend": "2.0.2",
     "lottie-react": "^2.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.49.2",
-    "react-hot-toast": "^2.4.1",
+    "react-i18next": "12.1.1",
     "react-icons": "^4.12.0",
     "react-pro-sidebar": "^1.1.0-alpha.1",
     "react-quill": "^2.0.0",
@@ -29,11 +32,7 @@
     "react-share": "^5.0.3",
     "socket.io-client": "^4.7.2",
     "universal-cookie": "^4.0.4",
-    "zustand": "^4.4.7",
-    "i18next": "22.1.2",
-    "i18next-browser-languagedetector": "7.0.1",
-    "i18next-http-backend": "2.0.2",
-    "react-i18next": "12.1.1"
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",

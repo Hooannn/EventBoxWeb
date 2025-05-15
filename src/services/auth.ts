@@ -3,11 +3,11 @@ import cookies from "../libs/cookies";
 import { onError } from "../utils/error-handlers";
 import { IResponseData, IUser } from "../types";
 import { useNavigate } from "react-router-dom";
-import { rawAxios } from "../hooks/useAxiosIns";
-import { toast } from "react-hot-toast";
+import useAxiosIns, { rawAxios } from "../hooks/useAxiosIns";
 import useAuthStore from "../stores/auth";
 import useAppStore from "../stores/app";
 import { useTranslation } from "react-i18next";
+import { addToast } from "@heroui/react";
 const useAuth = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -18,7 +18,17 @@ const useAuth = () => {
     setUser,
     reset: resetAuthStore,
   } = useAuthStore();
-  const { reset: resetAppStore, deviceId } = useAppStore();
+  const axios = useAxiosIns();
+  const { reset: resetAppStore, deviceId, setDeviceId } = useAppStore();
+
+  const getDeviceId = () => {
+    if (!deviceId) {
+      const newDeviceId = `${crypto.randomUUID()}`;
+      setDeviceId(newDeviceId);
+      return newDeviceId;
+    }
+    return deviceId;
+  };
 
   const saveCredentialsAndRedirect = (
     user: IUser,
@@ -49,14 +59,20 @@ const useAuth = () => {
         },
         {
           headers: {
-            "x-device-id": deviceId,
+            "X-Device-ID": getDeviceId(),
           },
         }
       );
     },
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
       const data = res.data?.data;
       const user = data?.user;
       const accessToken = data?.access_token;
@@ -67,21 +83,27 @@ const useAuth = () => {
 
   const signOutMutation = useMutation({
     mutationFn: () => {
-      return rawAxios.post<IResponseData<unknown>>(
+      return axios.post<IResponseData<unknown>>(
         `/v1/auth/logout`,
         {
           client: "web",
         },
         {
           headers: {
-            "x-device-id": deviceId,
+            "X-Device-ID": getDeviceId(),
           },
         }
       );
     },
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
       resetAuthStore();
       resetAppStore();
     },
@@ -103,7 +125,7 @@ const useAuth = () => {
         },
         {
           headers: {
-            "x-device-id": deviceId,
+            "X-Device-ID": getDeviceId(),
           },
         }
       );
@@ -111,7 +133,13 @@ const useAuth = () => {
 
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
       const data = res.data?.data;
       const user = data?.user;
       const accessToken = data?.access_token;
@@ -137,13 +165,19 @@ const useAuth = () => {
         },
         {
           headers: {
-            "x-device-id": deviceId,
+            "X-Device-ID": getDeviceId(),
           },
         }
       ),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
     },
   });
 
@@ -154,7 +188,13 @@ const useAuth = () => {
       }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
     },
   });
 
@@ -171,7 +211,13 @@ const useAuth = () => {
       }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
     },
   });
 
@@ -182,7 +228,13 @@ const useAuth = () => {
       }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
     },
   });
 
@@ -199,7 +251,13 @@ const useAuth = () => {
       }),
     onError: onError,
     onSuccess: (res) => {
-      toast.success(t(res.data.message));
+      addToast({
+        title: t("success"),
+        description: t(res.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
       const data = res.data?.data;
       const user = data?.user;
       const accessToken = data?.access_token;

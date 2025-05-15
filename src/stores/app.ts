@@ -14,6 +14,8 @@ interface AppStore {
 
 const initialState = {
   enabledPushNotifications: true,
+  fcmToken: undefined,
+  deviceId: undefined,
 };
 
 const useAppStore = create<AppStore>()(
@@ -21,9 +23,9 @@ const useAppStore = create<AppStore>()(
     (set) => ({
       ...initialState,
       setEnabledPushNotifications: (enabledPushNotifications) =>
-        set((state) => ({ enabledPushNotifications })),
-      setSavedFcmToken: (fcmToken) => ({ fcmToken }),
-      setDeviceId: (deviceId) => ({ deviceId }),
+        set((_) => ({ enabledPushNotifications })),
+      setSavedFcmToken: (fcmToken) => set((_) => ({ fcmToken })),
+      setDeviceId: (deviceId) => set((_) => ({ deviceId })),
       reset: () => {
         set(initialState);
       },

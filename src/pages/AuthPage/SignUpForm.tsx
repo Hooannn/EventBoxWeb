@@ -1,11 +1,10 @@
-import { Input, Button, Link, Image } from "@heroui/react";
+import { Input, Button, Link, Image, addToast } from "@heroui/react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../../services/auth";
-import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 
 type SignUpInputs = {
@@ -41,11 +40,16 @@ export default function SignUpForm() {
       signInWithGoogleMutation.mutate(tokenResponse);
     },
     onError: (errorResponse) => {
-      toast.error(
-        errorResponse?.error_description ||
+      addToast({
+        title: t("error"),
+        description:
+          errorResponse?.error_description ||
           errorResponse?.error ||
-          "Something went wrong. Please try again"
-      );
+          t("error"),
+        timeout: 4000,
+        radius: "none",
+        color: "danger",
+      });
     },
   });
 

@@ -5,7 +5,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../../services/auth";
-import toast from "react-hot-toast";
+import { addToast } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 
 type SignInInputs = {
@@ -29,9 +29,16 @@ export default function SignInForm() {
       signInWithGoogleMutation.mutate(tokenResponse);
     },
     onError: (errorResponse) => {
-      toast.error(
-        errorResponse?.error_description || errorResponse?.error || t("error")
-      );
+      addToast({
+        title: t("error"),
+        description:
+          errorResponse?.error_description ||
+          errorResponse?.error ||
+          t("error"),
+        timeout: 4000,
+        radius: "none",
+        color: "danger",
+      });
     },
   });
 

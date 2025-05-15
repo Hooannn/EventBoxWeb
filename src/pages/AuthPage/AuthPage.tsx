@@ -78,9 +78,13 @@ export default function AuthPage() {
             </div>
             <Dropdown>
               <DropdownTrigger>
-                <Button className="text-primary-200" variant="light">
+                <Button
+                  className="text-primary-200"
+                  variant="light"
+                  radius="none"
+                >
                   <MdOutlineLanguage />{" "}
-                  {i18n.resolvedLanguage === "en" ? "ENG" : "VI"}{" "}
+                  {i18n.resolvedLanguage === "en" ? "ENG" : "VIE"}{" "}
                   <MdKeyboardArrowDown />
                 </Button>
               </DropdownTrigger>
