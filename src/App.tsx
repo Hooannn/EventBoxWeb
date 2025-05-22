@@ -9,7 +9,6 @@ const GG_CLIENT_ID = import.meta.env.VITE_GG_CLIENT_ID;
 const queryClient = new QueryClient();
 export default function App() {
   const { deviceId, setDeviceId } = useAppStore();
-
   useEffect(() => {
     if (!deviceId) {
       const newDeviceId = `${crypto.randomUUID()}`;

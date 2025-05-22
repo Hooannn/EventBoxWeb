@@ -13,7 +13,7 @@ export default function OrganizationCard({
   return (
     <div
       onClick={onClick}
-      className="p-4 border rounded-none shadow-md hover:shadow-lg transition-shadow duration-200 bg-white"
+      className="p-4 border cursor-pointer rounded-none shadow-md hover:shadow-lg transition-shadow duration-200 bg-white"
     >
       <div className="flex items-center justify-center gap-2">
         <Avatar

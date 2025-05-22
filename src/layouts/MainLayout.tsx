@@ -12,15 +12,24 @@ import {
   MdOutlineLanguage,
   MdKeyboardArrowDown,
   MdOutlineNotifications,
+  MdOutlineCorporateFare,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
 
 export default function MainLayout() {
   const i18n = getI18n();
   const { t } = useTranslation();
+
+  const menuItems = [
+    {
+      to: "/",
+      icon: <MdOutlineCorporateFare size={20} />,
+      label: t("dashboard"),
+    },
+  ];
   return (
     <div className="flex bg-gray-50">
-      <Sidebar />
+      <Sidebar menuItems={menuItems} />
       <div className="flex flex-col h-dvh w-full">
         <div className="h-20 flex justify-between items-center py-2">
           <div className="w-1/3"></div>
@@ -70,7 +79,7 @@ export default function MainLayout() {
             </Badge>
           </div>
         </div>
-        <div className="h-full px-4 pb-4 overflow-auto relative">
+        <div className="h-full px-6 pb-4 overflow-auto relative">
           <Outlet />
         </div>
       </div>

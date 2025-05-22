@@ -12,19 +12,19 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
   const { t } = useTranslation();
   const axios = useAxiosIns();
-  const getOrganizations = useQuery({
+  const getOrganizationsQuery = useQuery({
     queryKey: ["fetch/organizations", user?.id],
     queryFn: () =>
       axios.get<IResponseData<IOrganization[]>>("/v1/organizations/me"),
     refetchOnWindowFocus: false,
   });
 
-  const organizations = getOrganizations.data?.data?.data || [];
+  const organizations = getOrganizationsQuery.data?.data?.data || [];
 
   const navigate = useNavigate();
   return (
     <>
-      {getOrganizations.isLoading ? (
+      {getOrganizationsQuery.isLoading ? (
         <LoadingOverlay />
       ) : (
         <>

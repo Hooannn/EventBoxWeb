@@ -3,6 +3,14 @@ import axios from "axios";
 import useRefreshToken from "./useRefreshToken";
 import useAuthStore from "../stores/auth";
 
+export const provincesOpenAPI = axios.create({
+  baseURL: import.meta.env.VITE_VN_PROVINCES_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  },
+});
+
 export const rawAxios = axios.create({
   baseURL: import.meta.env.VITE_API_ENDPOINT,
   headers: {

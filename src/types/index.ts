@@ -79,7 +79,7 @@ export interface ICategory {
   name_vi: string;
 }
 
-export type IEventStatus = "draft" | "archived" | "published";
+export type IEventStatus = "draft" | "archived" | "published" | "pending";
 
 export interface IEvent {
   id: string;
@@ -198,3 +198,4 @@ export interface IPayment {
   receivable_amount_currency?: string | null;
 }
 export * from "./fetch";
+export * from "./external";

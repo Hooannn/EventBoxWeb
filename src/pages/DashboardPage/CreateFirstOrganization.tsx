@@ -1,5 +1,4 @@
 import {
-  MdOutlineLanguage,
   MdOutlineMail,
   MdOutlinePhone,
   MdOutlineCorporateFare,
@@ -307,7 +306,11 @@ export default function CreateFirstOrganization() {
                 validationBehavior="aria"
                 isInvalid={invalid}
                 startContent={
-                  <MdOutlineLanguage className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+                  <div className="pointer-events-none flex items-center">
+                    <span className="text-default-400 text-small">
+                      https://
+                    </span>
+                  </div>
                 }
                 radius="none"
                 color="primary"

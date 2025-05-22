@@ -1,5 +1,4 @@
 import { Sidebar as ProSidebar, Menu } from "react-pro-sidebar";
-import { AiFillVideoCamera, AiOutlineCarryOut } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/auth";
@@ -15,15 +14,17 @@ import {
 } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import useAuth from "../services/auth";
-import {
-  MdLogout,
-  MdOutlinePersonPin,
-  MdOutlineCorporateFare,
-} from "react-icons/md";
+import { MdLogout, MdOutlinePersonPin } from "react-icons/md";
 import LoadingOverlay from "../components/Loading";
 import { getUserAvatar } from "../utils";
 
-export default function Sidebar() {
+export interface MenuItem {
+  to: string;
+  label: string;
+  icon: JSX.Element;
+}
+
+export default function Sidebar({ menuItems }: { menuItems?: MenuItem[] }) {
   const { t } = useTranslation();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<string>("Dashboard");
@@ -41,27 +42,9 @@ export default function Sidebar() {
     navigate(item.to);
   };
 
-  const menuItems = [
-    {
-      to: "/",
-      icon: <MdOutlineCorporateFare size={20} />,
-      label: t("dashboard"),
-    },
-    {
-      to: "/calendar",
-      icon: <AiOutlineCarryOut size={25} />,
-      label: "Calendar",
-    },
-    {
-      to: "/meeting",
-      icon: <AiFillVideoCamera size={25} />,
-      label: "Video",
-    },
-  ];
-
   useEffect(() => {
     setActiveTab(
-      menuItems.find((item) => item.to === location.pathname)?.label as string
+      menuItems?.find((item) => item.to === location.pathname)?.label as string
     );
   }, [location]);
 
@@ -84,7 +67,7 @@ export default function Sidebar() {
             />
           </div>
           <Menu>
-            {menuItems.map((item) => (
+            {menuItems?.map((item) => (
               <Tooltip
                 key={item.label}
                 placement="right"
