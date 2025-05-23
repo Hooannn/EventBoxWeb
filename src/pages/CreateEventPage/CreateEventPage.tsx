@@ -1,17 +1,19 @@
 import { Tabs, Tab, Chip, Button } from "@heroui/react";
-import { Key, useState } from "react";
+import { Key, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import InformationStep from "./InformationStep";
+import InformationStep, { InformationStepHandles } from "./InformationStep";
 import ShowsAndTicketTypeStep from "./ShowsAndTicketTypeStep";
 import PaymentInformationStep from "./PaymentInformationStep";
 
 export default function CreateEventPage() {
   const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState("information");
+
+  const informationStepRef = useRef<InformationStepHandles>(null);
   const steps = [
     {
       title: t("information").toString(),
-      content: <InformationStep />,
+      content: <InformationStep ref={informationStepRef} />,
       key: "information",
     },
     {
@@ -25,6 +27,15 @@ export default function CreateEventPage() {
       key: "paymentInformation",
     },
   ];
+
+  const onSave = async () => {
+    const data = await informationStepRef.current?.submit();
+    console.log("Save", data);
+  };
+
+  const onContinue = () => {
+    console.log("Continue");
+  };
 
   const stepContent = () => {
     return steps.find((step) => step.key === activeStep)?.content;
@@ -66,18 +77,25 @@ export default function CreateEventPage() {
           <Button
             size="sm"
             variant="flat"
+            onPress={onSave}
             color="secondary"
             className="px-6"
             radius="none"
           >
             {t("save")}
           </Button>
-          <Button className="px-6" size="sm" color="secondary" radius="none">
+          <Button
+            onPress={onContinue}
+            className="px-6"
+            size="sm"
+            color="secondary"
+            radius="none"
+          >
             {t("continue")}
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto">{stepContent()}</div>
+      <div className="flex-1 overflow-auto p-2">{stepContent()}</div>
     </div>
   );
 }

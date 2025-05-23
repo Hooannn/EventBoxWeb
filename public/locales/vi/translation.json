@@ -564,5 +564,9 @@
   "{{label}} is required": "{{label}} là bắt buộc",
   "place": "Địa điểm",
   "discovery": "Khám phá",
-  "keyword": "Từ khóa"
+  "keyword": "Từ khóa",
+  "organization": "Tổ chức",
+  "separate by comma": "Phân cách bằng dấu phẩy",
+  "help users find your event": "Giúp người dùng tìm kiếm sự kiện của bạn",
+  "please upload logo and background image": "Vui lòng tải lên logo và ảnh nền"
 }

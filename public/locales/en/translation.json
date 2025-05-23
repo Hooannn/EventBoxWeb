@@ -561,5 +561,9 @@
   "{{label}} is required": "{{label}} is required",
   "place": "Place",
   "discovery": "Discovery",
-  "keyword": "Keyword"
+  "keyword": "Keyword",
+  "organization": "Organization",
+  "separate by comma": "Separate by comma",
+  "help users find your event": "Help users find your event",
+  "please upload logo and background image": "Please upload logo and background image"
 }

@@ -40,7 +40,7 @@ export default function OrganizationPage() {
                 <div className="flex items-center space-x-2">
                   <span>{t("published")}</span>
                   <Chip size="sm" color="success" radius="none" variant="flat">
-                    1
+                    0
                   </Chip>
                 </div>
               }
@@ -53,7 +53,7 @@ export default function OrganizationPage() {
                 <div className="flex items-center space-x-2">
                   <span>{t("pending")}</span>
                   <Chip size="sm" color="success" radius="none" variant="flat">
-                    1
+                    0
                   </Chip>
                 </div>
               }
@@ -65,7 +65,7 @@ export default function OrganizationPage() {
                 <div className="flex items-center space-x-2">
                   <span>{t("draft")}</span>
                   <Chip size="sm" color="success" radius="none" variant="flat">
-                    1
+                    0
                   </Chip>
                 </div>
               }
@@ -77,7 +77,7 @@ export default function OrganizationPage() {
                 <div className="flex items-center space-x-2">
                   <span>{t("archived")}</span>
                   <Chip size="sm" color="success" radius="none" variant="flat">
-                    1
+                    0
                   </Chip>
                 </div>
               }
