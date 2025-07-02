@@ -8,7 +8,7 @@ export interface IRole {
 }
 
 export interface IUser {
-  id: string;
+  id: number;
   created_at: string;
   updated_at: string;
   activated_at: string;
@@ -22,11 +22,11 @@ export interface IUser {
 }
 
 export type IAssetUsage =
-  | "avatar"
-  | "event_logo"
-  | "event_banner"
-  | "ticket_logo"
-  | "event_featured_image";
+  | "AVATAR"
+  | "EVENT_LOGO"
+  | "EVENT_BANNER"
+  | "TICKET_LOGO"
+  | "EVENT_FEATURED_IMAGE";
 
 export interface IAsset {
   id: string;
@@ -47,7 +47,7 @@ export interface IAsset {
 }
 
 export interface IOrganization {
-  id: string;
+  id: number;
   created_at: string;
   updated_at: string;
   user_organizations: IUserOrganization[];
@@ -60,14 +60,16 @@ export interface IOrganization {
   paypal_account: string;
 }
 
+export type IOrganizationRole = "OWNER" | "MANAGER" | "STAFF";
 export interface IUserOrganization {
-  user_id: string;
-  organization_id: string;
+  id: {
+    user_id: number;
+    organization_id: number;
+  };
   user: IUser;
   created_at: string;
   updated_at: string;
-  role: IRole;
-  role_id: number;
+  role: IOrganizationRole;
 }
 
 export interface ICategory {
@@ -79,11 +81,11 @@ export interface ICategory {
   name_vi: string;
 }
 
-export type IEventStatus = "draft" | "archived" | "published" | "pending";
+export type IEventStatus = "DRAFT" | "ARCHIVED" | "PUBLISHED" | "PENDING";
 
 export interface IEvent {
-  id: string;
-  organization_id: string;
+  id: number;
+  organization_id: number;
   organization: IOrganization;
   created_at: string;
   updated_at: string;
@@ -135,7 +137,7 @@ export interface ITicket {
   stock: number;
 }
 
-export type IOrderStatus = "pending" | "canceled" | "processing" | "fulfilled";
+export type IOrderStatus = "PENDING" | "CANCELED" | "PROCESSING" | "FULFILLED";
 export interface IOrder {
   id: number;
   created_at: string;
@@ -159,7 +161,7 @@ export interface ITicketItem {
   traces: ITicketItemTrace[];
 }
 
-export type ITicketItemTraceEvent = "checked-in" | "went-out";
+export type ITicketItemTraceEvent = "CHECKED_IN" | "WENT_OUT";
 
 export interface ITicketItemTrace {
   created_at: string;

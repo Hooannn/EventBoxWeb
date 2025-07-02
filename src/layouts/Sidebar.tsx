@@ -1,6 +1,5 @@
 import { Sidebar as ProSidebar, Menu } from "react-pro-sidebar";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/auth";
 import {
   Avatar,
@@ -21,13 +20,12 @@ import { getUserAvatar } from "../utils";
 export interface MenuItem {
   to: string;
   label: string;
+  isActive: boolean;
   icon: JSX.Element;
 }
 
 export default function Sidebar({ menuItems }: { menuItems?: MenuItem[] }) {
   const { t } = useTranslation();
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState<string>("Dashboard");
   const { signOutMutation } = useAuth();
   const { user } = useAuthStore();
   const signOut = () => {
@@ -41,12 +39,6 @@ export default function Sidebar({ menuItems }: { menuItems?: MenuItem[] }) {
   }) => {
     navigate(item.to);
   };
-
-  useEffect(() => {
-    setActiveTab(
-      menuItems?.find((item) => item.to === location.pathname)?.label as string
-    );
-  }, [location]);
 
   return (
     <>
@@ -77,7 +69,7 @@ export default function Sidebar({ menuItems }: { menuItems?: MenuItem[] }) {
                   key={item.label}
                   color="primary"
                   onClick={() => onMenuItemClick(item)}
-                  variant={item.label === activeTab ? "bordered" : "light"}
+                  variant={item.isActive ? "bordered" : "light"}
                   className="w-full my-2"
                   size="lg"
                   radius="md"

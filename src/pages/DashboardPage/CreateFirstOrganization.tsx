@@ -4,6 +4,7 @@ import {
   MdOutlineCorporateFare,
   MdAttachFile,
   MdOutlineClose,
+  MdOutlineArrowBack,
 } from "react-icons/md";
 import { Input, Button, Textarea, Avatar, addToast } from "@heroui/react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -25,7 +26,12 @@ type CreateOrganizationInputs = {
   logo_base64?: string;
 };
 
-export default function CreateFirstOrganization() {
+export default function CreateFirstOrganization(props: {
+  title: string;
+  onSuccess: () => void;
+  showBackButton: boolean;
+  onBack: () => void;
+}) {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const { handleSubmit, control } = useForm<CreateOrganizationInputs>();
@@ -34,7 +40,7 @@ export default function CreateFirstOrganization() {
   const axios = useAxiosIns();
   const createOrgMutation = useMutation({
     mutationFn: (params: CreateOrganizationInputs) =>
-      axios.post<IResponseData<unknown>>(`/v1/organizations/`, params),
+      axios.post<IResponseData<unknown>>(`/v1/organizations`, params),
     onError,
     onSuccess(data) {
       addToast({
@@ -47,6 +53,7 @@ export default function CreateFirstOrganization() {
       queryClient.invalidateQueries({
         queryKey: ["fetch/organizations", user?.id],
       });
+      props.onSuccess();
     },
   });
 
@@ -57,9 +64,21 @@ export default function CreateFirstOrganization() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-8 shadow-md rounded-lg bg-white h-full">
+    <div className="flex flex-col gap-4 p-8 shadow-md rounded-none bg-white h-full relative">
+      {props.showBackButton && (
+        <Button
+          onPress={props.onBack}
+          radius="none"
+          color="primary"
+          variant="light"
+          className="absolute top-4 left-4 z-10"
+        >
+          <MdOutlineArrowBack size={16} />
+          {t("back")}
+        </Button>
+      )}
       <h1 className="text-2xl font-bold text-center text-default-900">
-        {t("create your first organization to get started")}
+        {props.title}
       </h1>
       <div className="flex items-center pt-8">
         <div className="w-1/3 flex justify-center items-center">

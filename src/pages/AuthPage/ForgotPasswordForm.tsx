@@ -89,6 +89,7 @@ export default function ForgotPasswordForm() {
           isLoading={forgotPasswordMutation.isPending}
           onClick={handleSubmit(onSubmit)}
           color="primary"
+          radius="none"
           size="lg"
         >
           {t("submit")}

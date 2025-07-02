@@ -568,5 +568,21 @@
   "organization": "Tổ chức",
   "separate by comma": "Phân cách bằng dấu phẩy",
   "help users find your event": "Giúp người dùng tìm kiếm sự kiện của bạn",
-  "please upload logo and background image": "Vui lòng tải lên logo và ảnh nền"
+  "please upload logo and background image": "Vui lòng tải lên logo và ảnh nền",
+  "create new organization": "Tạo tổ chức mới",
+  "this action cannot be undone": "Thao tác này sẽ không thể hoàn tác",
+  "you are about to delete an organization": "Bạn đang xóa tổ chức này",
+  "owner": "Chủ sở hữu",
+  "staff": "Nhân viên",
+  "manager": "Quản lý",
+  "add member": "Thêm thành viên",
+  "member": "Thành viên",
+  "enter email": "Nhập email",
+  "scanning permissions": "Quyền quét",
+  "access permissions": "Quyền truy cập",
+  "allow this member to check-in attendees": "Cho phép thành viên này quét vé check-in người tham dự",
+  "ticket scanning": "Quét vé",
+  "view check-in reports": "Xem báo cáo check-in",
+  "view orders": "Xem đơn hàng",
+  "export orders report": "Xuất báo cáo đơn hàng"
 }

@@ -29,7 +29,12 @@ export default function DashboardPage() {
       ) : (
         <>
           {organizations.length === 0 ? (
-            <CreateFirstOrganization />
+            <CreateFirstOrganization
+              title={t("create your first organization to get started")}
+              showBackButton={false}
+              onSuccess={() => {}}
+              onBack={() => {}}
+            />
           ) : (
             <div className="flex flex-col gap-4 p-4">
               <h1 className="text-2xl font-bold">{t("your organizations")}</h1>

@@ -8,7 +8,7 @@ import EventList from "./EventList";
 export default function OrganizationPage() {
   const { t } = useTranslation();
 
-  const [activeTab, setActiveTab] = useState<IEventStatus>("published");
+  const [activeTab, setActiveTab] = useState<IEventStatus>("PUBLISHED");
   return (
     <div className="flex h-full w-full flex-col space-y-4 p-4">
       <div className="flex items-center justify-between">
@@ -35,7 +35,7 @@ export default function OrganizationPage() {
           >
             <Tab
               className="min-w-[150px]"
-              key="published"
+              key="PUBLISHED"
               title={
                 <div className="flex items-center space-x-2">
                   <span>{t("published")}</span>
@@ -48,7 +48,7 @@ export default function OrganizationPage() {
 
             <Tab
               className="min-w-[150px]"
-              key="pending"
+              key="PENDING"
               title={
                 <div className="flex items-center space-x-2">
                   <span>{t("pending")}</span>
@@ -58,7 +58,7 @@ export default function OrganizationPage() {
                 </div>
               }
             />
-            <Tab
+            {/* <Tab
               className="min-w-[150px]"
               key="draft"
               title={
@@ -69,10 +69,10 @@ export default function OrganizationPage() {
                   </Chip>
                 </div>
               }
-            />
+            /> */}
             <Tab
               className="min-w-[150px]"
-              key="archived"
+              key="ARCHIVED"
               title={
                 <div className="flex items-center space-x-2">
                   <span>{t("archived")}</span>

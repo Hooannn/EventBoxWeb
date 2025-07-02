@@ -6,6 +6,9 @@ import MainLayout from "../layouts/MainLayout";
 import OrganizationPage from "../pages/OrganizationPage";
 import OrganizationLayout from "../layouts/OrganizationLayout";
 import CreateEventPage from "../pages/CreateEventPage";
+import CreateFirstOrganization from "../pages/DashboardPage/CreateFirstOrganization";
+import { t } from "i18next";
+import OrganizationSettingsPage from "../pages/OrganizationSettingsPage";
 const rootRouter = [
   {
     path: "/",
@@ -20,6 +23,17 @@ const rootRouter = [
       {
         path: "/",
         element: <DashboardPage />,
+      },
+      {
+        path: "/create-organization",
+        element: (
+          <CreateFirstOrganization
+            title={t("create new organization").toString()}
+            showBackButton
+            onBack={() => window.history.back()}
+            onSuccess={() => window.history.back()}
+          />
+        ),
       },
     ],
     errorElement: <ErrorPage />,
@@ -41,6 +55,10 @@ const rootRouter = [
       {
         path: ":id/create-event",
         element: <CreateEventPage />,
+      },
+      {
+        path: ":id/settings",
+        element: <OrganizationSettingsPage />,
       },
     ],
     errorElement: <ErrorPage />,

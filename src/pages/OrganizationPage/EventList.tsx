@@ -17,10 +17,10 @@ export default function EventList({
   const { t } = useTranslation();
 
   const statusMap: Record<IEventStatus, JSX.Element> = {
-    published: <MdOutlineConfirmationNumber size={140} />,
-    pending: <MdOutlinePendingActions size={140} />,
-    draft: <MdOutlineInventory2 size={140} />,
-    archived: <MdOutlineArchive size={140} />,
+    PUBLISHED: <MdOutlineConfirmationNumber size={140} />,
+    PENDING: <MdOutlinePendingActions size={140} />,
+    DRAFT: <MdOutlineInventory2 size={140} />,
+    ARCHIVED: <MdOutlineArchive size={140} />,
   };
   return (
     <>
@@ -31,7 +31,7 @@ export default function EventList({
           <h1 className="text-xl font-bold">{t("no events found")}</h1>
           <p>
             {t("you have no {{status}} events. Create one to get started", {
-              status: t(status).toLowerCase(),
+              status: t(status.toLowerCase()).toLowerCase(),
             }).toString()}
           </p>
         </div>

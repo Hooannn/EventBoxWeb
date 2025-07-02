@@ -5,7 +5,7 @@ const getUserAvatar = (user?: IUser) => {
     return undefined;
   }
   if (user.assets && user.assets.length > 0) {
-    const avatar = user.assets.find((asset) => asset.usage === "avatar");
+    const avatar = user.assets.find((asset) => asset.usage === "AVATAR");
     if (avatar) {
       return avatar.secure_url;
     }
@@ -18,7 +18,7 @@ const getOrganizationLogo = (org?: IOrganization) => {
     return undefined;
   }
   if (org.assets && org.assets.length > 0) {
-    const logo = org.assets.find((asset) => asset.usage === "avatar");
+    const logo = org.assets.find((asset) => asset.usage === "AVATAR");
     if (logo) {
       return logo.secure_url;
     }
@@ -26,4 +26,19 @@ const getOrganizationLogo = (org?: IOrganization) => {
   return undefined;
 };
 
-export { getUserAvatar, getOrganizationLogo };
+const organizationRoleColors: Record<
+  string,
+  | "success"
+  | "default"
+  | "primary"
+  | "secondary"
+  | "warning"
+  | "danger"
+  | undefined
+> = {
+  OWNER: "warning",
+  MANAGER: "primary",
+  STAFF: "secondary",
+};
+
+export { getUserAvatar, getOrganizationLogo, organizationRoleColors };

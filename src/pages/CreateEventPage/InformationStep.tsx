@@ -79,7 +79,7 @@ const InformationStep = forwardRef<
 
   const getEventCategoriesQuery = useQuery({
     queryKey: ["fetch/event/categories"],
-    queryFn: () => axiosIns.get<IResponseData<ICategory[]>>("/v1/categories/"),
+    queryFn: () => axiosIns.get<IResponseData<ICategory[]>>("/v1/categories"),
     refetchOnWindowFocus: false,
   });
   const categories = getEventCategoriesQuery.data?.data?.data || [];

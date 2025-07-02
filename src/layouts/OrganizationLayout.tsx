@@ -23,9 +23,9 @@ import {
   MdOutlineArrowBack,
   MdOutlineLocalActivity,
   MdOutlinePayment,
-  MdPeopleOutline,
   MdOutlineLeaderboard,
   MdOutlineTaskAlt,
+  MdOutlineSettings,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
 
@@ -33,48 +33,53 @@ export default function OrganizationLayout() {
   const i18n = getI18n();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const params = useParams();
   const navigate = useNavigate();
 
-  const menuItems = [
+  const menuItems = () => [
     {
-      to: "/",
-      icon: <MdOutlineLocalActivity size={20} />,
+      to: `${params.id}${location.search}`,
+      icon: <MdOutlineLocalActivity size={25} />,
+      isActive: location.pathname === `/organization/${params.id}`,
       label: t("event"),
     },
     {
-      to: "/overall",
+      to: `${params.id}/overall${location.search}`,
       icon: <MdOutlineLeaderboard size={25} />,
+      isActive: location.pathname === `/organization/${params.id}/overall`,
       label: t("overall"),
     },
     {
-      to: "/check-in",
+      to: `${params.id}/check-in${location.search}`,
       icon: <MdOutlineTaskAlt size={25} />,
+      isActive: location.pathname === `/organization/${params.id}/check-in`,
       label: "Check-in",
     },
     {
-      to: "/orders",
+      to: `${params.id}/orders${location.search}`,
       icon: <MdOutlinePayment size={25} />,
+      isActive: location.pathname === `/organization/${params.id}/orders`,
       label: t("orders"),
     },
     {
-      to: "/members",
-      icon: <MdPeopleOutline size={25} />,
-      label: t("members"),
+      to: `${params.id}/settings${location.search}`,
+      icon: <MdOutlineSettings size={25} />,
+      isActive: location.pathname === `/organization/${params.id}/settings`,
+      label: t("settings"),
     },
   ];
 
-  const location = useLocation();
   return (
     <>
       <div className="flex bg-gray-50">
-        <Sidebar menuItems={menuItems} />
+        <Sidebar menuItems={menuItems()} />
         <div className="flex flex-col h-dvh w-full">
           <div className="h-20 flex justify-between items-center py-2">
             <div className="w-1/3 flex items-center gap-2 px-4">
               <Button
                 onPress={() => {
-                  navigate(-1);
+                  navigate("/");
                 }}
                 isIconOnly
                 variant="light"

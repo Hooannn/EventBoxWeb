@@ -565,5 +565,21 @@
   "organization": "Organization",
   "separate by comma": "Separate by comma",
   "help users find your event": "Help users find your event",
-  "please upload logo and background image": "Please upload logo and background image"
+  "please upload logo and background image": "Please upload logo and background image",
+  "create new organization": "Create new organization",
+  "this action cannot be undone": "This action cannot be undone",
+  "you are about to delete an organization": "You are about to delete an organization",
+  "owner": "Owner",
+  "staff": "Staff",
+  "manager": "Manager",
+  "add member": "Add member",
+  "member": "Member",
+  "enter email": "Enter email",
+  "scanning permissions": "Scanning permissions",
+  "access permissions": "Access permissions",
+  "allow this member to check-in attendees": "Allow this member to check-in attendees",
+  "ticket scanning": "Ticket scanning",
+  "view check-in reports": "View check-in reports",
+  "view orders": "View orders",
+  "export orders report": "Export orders report"
 }

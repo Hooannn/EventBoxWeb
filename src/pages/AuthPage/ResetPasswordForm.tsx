@@ -186,8 +186,9 @@ export default function ResetPasswordForm() {
           onClick={handleSubmit(onSubmit)}
           color="primary"
           size="lg"
+          radius="none"
         >
-          Submit
+          {t("submit")}
         </Button>
       </div>
     </>

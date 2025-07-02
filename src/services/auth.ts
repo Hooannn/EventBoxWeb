@@ -86,7 +86,7 @@ const useAuth = () => {
       return axios.post<IResponseData<unknown>>(
         `/v1/auth/logout`,
         {
-          client: "web",
+          platform: "WEB",
         },
         {
           headers: {
@@ -204,7 +204,7 @@ const useAuth = () => {
       newPassword: string;
       signature: string;
     }) =>
-      rawAxios.post<IResponseData<unknown>>("/api/v1/auth/reset-password/otp", {
+      rawAxios.post<IResponseData<unknown>>("/v1/auth/reset-password/otp", {
         username: params.email,
         password: params.newPassword,
         otp: params.signature,
