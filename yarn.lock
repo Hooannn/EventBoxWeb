@@ -1993,6 +1993,13 @@
   dependencies:
     "@swc/helpers" "^0.5.0"
 
+"@internationalized/date@^3.8.2":
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/@internationalized/date/-/date-3.8.2.tgz#977620c1407cc6830fd44cb505679d23c599e119"
+  integrity sha512-/wENk7CbvLbkUvX1tu0mwq49CVkkWpkXubGel6birjRPyo6uQ4nQpnq5xZu823zRCwwn82zgHrvgF1vZyvmVgA==
+  dependencies:
+    "@swc/helpers" "^0.5.0"
+
 "@internationalized/message@^3.1.7":
   version "3.1.7"
   resolved "https://registry.yarnpkg.com/@internationalized/message/-/message-3.1.7.tgz#bf5d3332a685d946949bfb7447aa212bbe44ad5d"

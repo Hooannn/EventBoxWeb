@@ -10,36 +10,56 @@ export default function CreateEventPage() {
   const [activeStep, setActiveStep] = useState("information");
 
   const informationStepRef = useRef<InformationStepHandles>(null);
-  const steps = [
+  const showsAndTicketTypeStepRef = useRef(null);
+  const paymentInformationStepRef = useRef(null);
+
+  const [stepData, setStepData] = useState<{
+    information: null | Record<string, unknown>;
+    showsAndTicketType: null | Record<string, unknown>;
+    paymentInformation: null | Record<string, unknown>;
+  }>({
+    information: null,
+    showsAndTicketType: null,
+    paymentInformation: null,
+  });
+
+  const onContinue = async () => {
+    console.log("stepData", stepData);
+    if (activeStep === "information") {
+      const data = await informationStepRef.current?.submit();
+      if (data) {
+        setStepData((prev) => ({
+          ...prev,
+          information: data,
+        }));
+        setActiveStep("showsAndTicketType");
+      }
+      return;
+    } else if (activeStep === "showsAndTicketType") {
+      console.log("Submitting shows and ticket type step");
+    } else if (activeStep === "paymentInformation") {
+      console.log("Submitting payment information step");
+    }
+  };
+
+  const steps = () => [
     {
       title: t("information").toString(),
-      content: <InformationStep ref={informationStepRef} />,
       key: "information",
+      disabled: false,
     },
     {
       title: t("shows and ticket type").toString(),
-      content: <ShowsAndTicketTypeStep />,
       key: "showsAndTicketType",
+      disabled: stepData.information === null,
     },
     {
       title: t("payment information").toString(),
-      content: <PaymentInformationStep />,
+      disabled:
+        stepData.showsAndTicketType === null || stepData.information === null,
       key: "paymentInformation",
     },
   ];
-
-  const onSave = async () => {
-    const data = await informationStepRef.current?.submit();
-    console.log("Save", data);
-  };
-
-  const onContinue = () => {
-    console.log("Continue");
-  };
-
-  const stepContent = () => {
-    return steps.find((step) => step.key === activeStep)?.content;
-  };
   return (
     <div className="p-4 flex flex-col gap-4 overflow-hidden h-full w-full">
       <div className="flex flex-row items-center justify-between">
@@ -53,9 +73,10 @@ export default function CreateEventPage() {
             selectedKey={activeStep}
             onSelectionChange={setActiveStep as (key: Key) => void}
           >
-            {steps.map((step, index) => (
+            {steps().map((step, index) => (
               <Tab
                 key={step.key}
+                // isDisabled={step.disabled}
                 title={
                   <div className="flex items-center space-x-2">
                     <Chip
@@ -75,16 +96,6 @@ export default function CreateEventPage() {
         </div>
         <div className="flex flex-row items-center gap-2">
           <Button
-            size="sm"
-            variant="flat"
-            onPress={onSave}
-            color="secondary"
-            className="px-6"
-            radius="none"
-          >
-            {t("save")}
-          </Button>
-          <Button
             onPress={onContinue}
             className="px-6"
             size="sm"
@@ -95,7 +106,17 @@ export default function CreateEventPage() {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-2">{stepContent()}</div>
+      <div className="flex-1 overflow-auto p-2">
+        <div className={`${activeStep !== "information" && "hidden"}`}>
+          {<InformationStep ref={informationStepRef} />}
+        </div>
+        <div className={`${activeStep !== "showsAndTicketType" && "hidden"}`}>
+          {<ShowsAndTicketTypeStep />}
+        </div>
+        <div className={`${activeStep !== "paymentInformation" && "hidden"}`}>
+          {<PaymentInformationStep />}
+        </div>
+      </div>
     </div>
   );
 }

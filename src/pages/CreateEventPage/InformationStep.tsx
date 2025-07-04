@@ -12,11 +12,11 @@ import {
 } from "@heroui/react";
 import ReactQuill, { Range } from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { getI18n, useTranslation } from "react-i18next";
 import { MdOutlineClose, MdOutlineDriveFolderUpload } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
-import { ICategory, IKeyword, IProvince, IResponseData } from "../../types";
+import { ICategory, IProvince, IResponseData } from "../../types";
 import axios from "axios";
 import useAxiosIns from "../../hooks/useAxiosIns";
 import {

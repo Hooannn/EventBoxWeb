@@ -1,4 +1,6 @@
+import { DateValue } from "@heroui/react";
 import { IOrganization, IUser } from "../types";
+import dayjs from "../libs/dayjs";
 
 const getUserAvatar = (user?: IUser) => {
   if (!user) {
@@ -37,8 +39,35 @@ const organizationRoleColors: Record<
   | undefined
 > = {
   OWNER: "warning",
-  MANAGER: "primary",
+  MANAGER: "success",
   STAFF: "secondary",
 };
 
-export { getUserAvatar, getOrganizationLogo, organizationRoleColors };
+const isOwner = (user: IUser, organization: IOrganization) => {
+  return (
+    organization.user_organizations?.find(
+      (uo) => uo.id.user_id === user.id && uo.role === "OWNER"
+    ) !== undefined
+  );
+};
+
+const priceFormat = (price: number) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(price);
+};
+
+const dateFormat = (dateValue: DateValue) => {
+  const date = dateValue.toDate("Asia/Saigon");
+  return dayjs(date).format("DD/MM/YYYY, HH:mm");
+};
+
+export {
+  getUserAvatar,
+  dateFormat,
+  getOrganizationLogo,
+  organizationRoleColors,
+  isOwner,
+  priceFormat,
+};

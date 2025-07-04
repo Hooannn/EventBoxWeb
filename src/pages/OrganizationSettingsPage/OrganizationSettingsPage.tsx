@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosIns from "../../hooks/useAxiosIns";
-import { IOrganization, IResponseData, IUser } from "../../types";
+import {
+  IOrganization,
+  IOrganizationRole,
+  IResponseData,
+  IUser,
+} from "../../types";
 import { useNavigate, useParams } from "react-router";
 import {
   addToast,
@@ -31,7 +36,7 @@ import {
   useDisclosure,
   User,
 } from "@heroui/react";
-import { Key, useCallback, useEffect, useState } from "react";
+import { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { onError } from "../../utils/error-handlers";
@@ -45,8 +50,10 @@ import {
   MdOutlinePhone,
   MdOutlineSearch,
 } from "react-icons/md";
-import { getUserAvatar, organizationRoleColors } from "../../utils";
+import { getUserAvatar, isOwner, organizationRoleColors } from "../../utils";
 import AddMemberModal from "./AddMemberModal";
+import MemberCellActions from "./MemberCellActions";
+import useAuthStore from "../../stores/auth";
 type UpdateOrganizationInputs = {
   name: string;
   description: string;
@@ -139,6 +146,8 @@ export default function OrganizationSettingsPage() {
     refetchOnWindowFocus: false,
   });
 
+  const { user: currentUser } = useAuthStore();
+
   const [activeTab, setActiveTab] = useState<Key>("information");
 
   const organization = getOrganizationQuery.data?.data?.data;
@@ -210,6 +219,7 @@ export default function OrganizationSettingsPage() {
   } = useDisclosure();
 
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState(
     new Set<string>(["OWNER", "MANAGER", "STAFF"])
   );
@@ -217,13 +227,41 @@ export default function OrganizationSettingsPage() {
   const filterMembers = () => {
     const data = organization?.user_organizations ?? [];
 
-    return data.filter((item) => roleFilter.has(item.role));
+    const filteredByRole = data.filter((item) => roleFilter.has(item.role));
+
+    const filteredBySearchTerm = filteredByRole.filter((item) => {
+      const user = item.user;
+      return (
+        user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        `${user.first_name} ${user.last_name}`
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+
+    return filteredBySearchTerm;
+  };
+
+  const showDeleteButton = (
+    user: IUser,
+    organization?: IOrganization
+  ): boolean => {
+    if (!currentUser || !organization) return false;
+
+    return isOwner(currentUser, organization) && !isOwner(user, organization);
   };
 
   const tableItems = filterMembers().slice((page - 1) * 10, page * 10);
 
   const renderCell = useCallback(
-    (user: IUser, item: unknown, columnKey: unknown) => {
+    (
+      user: IUser,
+      item: unknown,
+      columnKey: unknown,
+      organization?: IOrganization
+    ) => {
       const cellValue = (item as never)[columnKey as never];
 
       switch (columnKey) {
@@ -256,9 +294,17 @@ export default function OrganizationSettingsPage() {
           );
         case "actions":
           return (
-            <Button color="secondary" variant="light">
-              {t("details")}
-            </Button>
+            <MemberCellActions
+              organizationId={params.id ?? ""}
+              user={user}
+              role={(item as { role: IOrganizationRole }).role}
+              showDeleteButton={showDeleteButton(user, organization)}
+              onActionDone={() => {
+                queryClient.invalidateQueries({
+                  queryKey: ["fetch/organization/id", params.id],
+                });
+              }}
+            />
           );
         default:
           return cellValue;
@@ -611,6 +657,11 @@ export default function OrganizationSettingsPage() {
                   onOpenChange={onAddMemberModalOpenChange}
                   onClose={onAddMemberModalClose}
                   organizationId={params.id ?? ""}
+                  onSuccess={() => {
+                    queryClient.invalidateQueries({
+                      queryKey: ["fetch/organization/id", params.id],
+                    });
+                  }}
                 />
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
@@ -619,6 +670,8 @@ export default function OrganizationSettingsPage() {
                         radius="none"
                         color="primary"
                         variant="bordered"
+                        value={searchTerm}
+                        onValueChange={setSearchTerm}
                         startContent={
                           <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                         }
@@ -717,7 +770,12 @@ export default function OrganizationSettingsPage() {
                         <TableRow key={item.email}>
                           {(columnKey) => (
                             <TableCell>
-                              {renderCell(item.user, item, columnKey)}
+                              {renderCell(
+                                item.user,
+                                item,
+                                columnKey,
+                                organization
+                              )}
                             </TableCell>
                           )}
                         </TableRow>

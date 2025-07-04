@@ -1,7 +1,3 @@
-import { useTranslation } from "react-i18next";
-import useAxiosIns from "../../hooks/useAxiosIns";
-import { useMutation } from "@tanstack/react-query";
-import { onError } from "../../utils/error-handlers";
 import {
   addToast,
   Button,
@@ -15,36 +11,44 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  useDisclosure,
 } from "@heroui/react";
-import { IResponseData } from "../../types";
+import { useTranslation } from "react-i18next";
+import { MdDeleteOutline, MdOutlineCheck } from "react-icons/md";
+import useAxiosIns from "../../hooks/useAxiosIns";
+import { useMutation } from "@tanstack/react-query";
+import { IOrganizationRole, IResponseData, IUser } from "../../types";
+import { onError } from "../../utils/error-handlers";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { MdOutlineCheck } from "react-icons/md";
 
-type AddMemberInputs = {
+type UpdateMemberInputs = {
   email: string;
-  role: "MANAGER" | "STAFF";
+  role: IOrganizationRole;
 };
-export default function AddMemberModal(props: {
+export function DetailMemberModal(props: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onClose: () => void;
-  onSuccess: () => void;
   organizationId: string;
+  onSuccess: () => void;
+  user: IUser;
+  role: IOrganizationRole;
+  showUpdateButton: boolean;
 }) {
   const { t } = useTranslation();
   const axios = useAxiosIns();
 
-  const { handleSubmit, control, watch, reset } = useForm<AddMemberInputs>();
+  const { handleSubmit, control, watch } = useForm<UpdateMemberInputs>();
 
-  const watchRole = watch("role", "");
+  const watchRole = watch("role", props.role);
 
-  const onSubmit: SubmitHandler<AddMemberInputs> = async (data) => {
-    addMemberMutation.mutate(data);
+  const onSubmit: SubmitHandler<UpdateMemberInputs> = async (data) => {
+    updateMemberMutation.mutate(data);
   };
 
-  const addMemberMutation = useMutation({
-    mutationFn: (params: AddMemberInputs) =>
-      axios.post<IResponseData<boolean>>(
+  const updateMemberMutation = useMutation({
+    mutationFn: (params: UpdateMemberInputs) =>
+      axios.put<IResponseData<boolean>>(
         `/v1/organizations/${props.organizationId}/members`,
         params
       ),
@@ -59,7 +63,6 @@ export default function AddMemberModal(props: {
       });
       props.onClose();
       props.onSuccess();
-      reset();
     },
   });
 
@@ -78,12 +81,39 @@ export default function AddMemberModal(props: {
         label: t("export orders report"),
       },
     ],
+    OWNER: [
+      {
+        label: t("ticket scanning"),
+      },
+      {
+        label: t("view check-in reports"),
+      },
+      {
+        label: t("view orders"),
+      },
+      {
+        label: t("export orders report"),
+      },
+      {
+        label: t("manage members"),
+      },
+      {
+        label: t("manage organization settings"),
+      },
+      {
+        label: t("manage events"),
+      },
+      {
+        label: t("view event reports"),
+      },
+    ],
     STAFF: [
       {
         label: t("ticket scanning"),
       },
     ],
   };
+
   return (
     <Modal
       radius="none"
@@ -95,11 +125,12 @@ export default function AddMemberModal(props: {
         {() => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              {t("add member")}
+              {t("details")}
             </ModalHeader>
             <ModalBody>
               <div className="flex flex-col gap-2">
                 <Controller
+                  defaultValue={props.user.email}
                   name="email"
                   control={control}
                   rules={{
@@ -116,6 +147,7 @@ export default function AddMemberModal(props: {
                     <Input
                       ref={ref}
                       isRequired
+                      isReadOnly
                       errorMessage={error?.message}
                       validationBehavior="aria"
                       isInvalid={invalid}
@@ -135,6 +167,7 @@ export default function AddMemberModal(props: {
                 <Controller
                   name="role"
                   control={control}
+                  defaultValue={props.role}
                   rules={{
                     required: t("{{label}} is required", {
                       label: t("role").toString(),
@@ -147,6 +180,7 @@ export default function AddMemberModal(props: {
                     <Select
                       ref={ref}
                       isRequired
+                      defaultSelectedKeys={[props.role]}
                       errorMessage={error?.message}
                       radius="none"
                       validationBehavior="aria"
@@ -157,6 +191,7 @@ export default function AddMemberModal(props: {
                       items={[
                         { value: "MANAGER", label: t("manager").toString() },
                         { value: "STAFF", label: t("staff").toString() },
+                        { value: "OWNER", label: t("owner").toString() },
                       ]}
                       name={name}
                       value={value}
@@ -167,7 +202,14 @@ export default function AddMemberModal(props: {
                       }).toString()}
                     >
                       {(item) => (
-                        <SelectItem key={item.value}>{item.label}</SelectItem>
+                        <SelectItem
+                          isDisabled={
+                            !props.showUpdateButton || item.value === "OWNER"
+                          }
+                          key={item.value}
+                        >
+                          {item.label}
+                        </SelectItem>
                       )}
                     </Select>
                   )}
@@ -223,20 +265,172 @@ export default function AddMemberModal(props: {
               </div>
             </ModalBody>
             <ModalFooter>
+              {props.showUpdateButton && (
+                <Button
+                  isLoading={updateMemberMutation.isPending}
+                  radius="none"
+                  fullWidth
+                  color="primary"
+                  className="py-6"
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {t("update")}
+                </Button>
+              )}
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
+}
+
+export function RemoveMemberModal(props: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
+  organizationId: string;
+  onSuccess: () => void;
+  user: IUser;
+  role: IOrganizationRole;
+}) {
+  const { t } = useTranslation();
+  const axios = useAxiosIns();
+
+  const removeMemberMutation = useMutation({
+    mutationFn: () =>
+      axios.post<IResponseData<boolean>>(
+        `/v1/organizations/${props.organizationId}/members/remove`,
+        {
+          email: props.user.email,
+        }
+      ),
+    onError,
+    onSuccess(data) {
+      addToast({
+        title: t("success"),
+        description: t(data.data.message),
+        timeout: 4000,
+        radius: "none",
+        color: "success",
+      });
+      props.onClose();
+      props.onSuccess();
+    },
+  });
+
+  return (
+    <Modal
+      radius="none"
+      isOpen={props.isOpen}
+      onOpenChange={props.onOpenChange}
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              {t("confirm")}
+            </ModalHeader>
+            <ModalBody>
+              {t("you are about to remove a member from the organization")}
+              <br />
+              {t("this action cannot be undone")}
+            </ModalBody>
+            <ModalFooter>
               <Button
-                isLoading={addMemberMutation.isPending}
+                isLoading={removeMemberMutation.isPending}
+                color="default"
+                variant="light"
                 radius="none"
-                fullWidth
-                color="primary"
-                className="py-6"
-                onClick={handleSubmit(onSubmit)}
+                onPress={onClose}
               >
-                {t("confirm")}
+                {t("cancel")}
+              </Button>
+              <Button
+                isLoading={removeMemberMutation.isPending}
+                radius="none"
+                color="danger"
+                onPress={() => {
+                  removeMemberMutation.mutate();
+                }}
+              >
+                {t("delete")}
               </Button>
             </ModalFooter>
           </>
         )}
       </ModalContent>
     </Modal>
+  );
+}
+
+export default function MemberCellActions(props: {
+  organizationId: string;
+  user: IUser;
+  showDeleteButton: boolean;
+  onActionDone: () => void;
+  role: IOrganizationRole;
+}) {
+  const { t } = useTranslation();
+
+  const {
+    onClose: onDetailMemberModalClose,
+    isOpen: isDetailMemberModalOpen,
+    onOpen: onDetailMemberModalOpen,
+    onOpenChange: onDetailMemberModalOpenChange,
+  } = useDisclosure();
+
+  const {
+    onClose: onRemoveMemberModalClose,
+    isOpen: isRemoveMemberModalOpen,
+    onOpen: onRemoveMemberModalOpen,
+    onOpenChange: onRemoveMemberModalOpenChange,
+  } = useDisclosure();
+  return (
+    <>
+      <DetailMemberModal
+        isOpen={isDetailMemberModalOpen}
+        role={props.role}
+        organizationId={props.organizationId}
+        user={props.user}
+        showUpdateButton={props.showDeleteButton}
+        onSuccess={props.onActionDone}
+        onOpenChange={onDetailMemberModalOpenChange}
+        onClose={onDetailMemberModalClose}
+      />
+
+      <RemoveMemberModal
+        role={props.role}
+        organizationId={props.organizationId}
+        user={props.user}
+        isOpen={isRemoveMemberModalOpen}
+        onSuccess={props.onActionDone}
+        onOpenChange={onRemoveMemberModalOpenChange}
+        onClose={onRemoveMemberModalClose}
+      />
+
+      <div className="flex items-center">
+        <Button
+          onPress={onDetailMemberModalOpen}
+          color="secondary"
+          variant="light"
+          radius="none"
+        >
+          {t("details")}
+        </Button>
+        {props.showDeleteButton && (
+          <Button
+            color="danger"
+            variant="light"
+            onPress={onRemoveMemberModalOpen}
+            radius="none"
+            className="flex items-center"
+          >
+            <MdDeleteOutline size={16} />
+            {t("delete")}
+          </Button>
+        )}
+      </div>
+    </>
   );
 }
