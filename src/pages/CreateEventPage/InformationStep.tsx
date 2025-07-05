@@ -47,7 +47,7 @@ export type EventInformationStepInputs = {
   street: string;
   district: string;
   ward: string;
-  categoryIds: string;
+  category_ids: string;
   keywords: string;
 };
 
@@ -490,7 +490,7 @@ const InformationStep = forwardRef<
         </CardHeader>
         <CardBody className="flex flex-col gap-2">
           <Controller
-            name="categoryIds"
+            name="category_ids"
             control={control}
             rules={{
               required: t("{{label}} is required", {
@@ -620,7 +620,7 @@ const InformationStep = forwardRef<
 
                     [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-                    ["link", "clean", "image", "video"],
+                    ["link", "clean", /*"image",*/ "video"],
                   ],
                   handlers: {
                     image: imageUploadHandler,
@@ -639,7 +639,7 @@ const InformationStep = forwardRef<
                 "bullet",
                 "indent",
                 "link",
-                "image",
+                // "image",
                 "video",
               ]}
             />
@@ -709,7 +709,7 @@ function UploadLogo({
       )}
       <div
         onClick={imageUploadHandler}
-        className={`relative flex flex-col items-center justify-center h-full w-72 border-2 border-dashed hover:bg-gray-100 ${
+        className={`relative flex flex-col items-center justify-center h-full w-1/3 border-2 border-dashed hover:bg-gray-100 ${
           error ? "border-danger-300" : "border-gray-300"
         }  rounded-none cursor-pointer transition-all duration-200`}
       >

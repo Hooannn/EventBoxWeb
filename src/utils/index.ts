@@ -1,5 +1,5 @@
 import { DateValue } from "@heroui/react";
-import { IOrganization, IUser } from "../types";
+import { IEvent, IOrganization, IUser } from "../types";
 import dayjs from "../libs/dayjs";
 
 const getUserAvatar = (user?: IUser) => {
@@ -63,6 +63,38 @@ const dateFormat = (dateValue: DateValue) => {
   return dayjs(date).format("DD/MM/YYYY, HH:mm");
 };
 
+const getEventLogo = (event: IEvent) => {
+  if (event.assets && event.assets.length > 0) {
+    const logo = event.assets.find((asset) => asset.usage === "EVENT_LOGO");
+    if (logo) {
+      return logo.secure_url;
+    }
+  }
+  return undefined;
+};
+
+const getEventBackground = (event: IEvent) => {
+  if (event.assets && event.assets.length > 0) {
+    const logo = event.assets.find((asset) => asset.usage === "EVENT_BANNER");
+    if (logo) {
+      return logo.secure_url;
+    }
+  }
+  return undefined;
+};
+
+const getFirstShowStartTime = (event: IEvent) => {
+  if (event.shows && event.shows.length > 0) {
+    const latestShow = event.shows.reduce((prev, current) => {
+      return dayjs(prev.start_time).isBefore(dayjs(current.start_time))
+        ? prev
+        : current;
+    });
+    return dayjs(latestShow.start_time).format("DD/MM/YYYY, HH:mm");
+  }
+  return undefined;
+};
+
 export {
   getUserAvatar,
   dateFormat,
@@ -70,4 +102,7 @@ export {
   organizationRoleColors,
   isOwner,
   priceFormat,
+  getEventLogo,
+  getEventBackground,
+  getFirstShowStartTime,
 };

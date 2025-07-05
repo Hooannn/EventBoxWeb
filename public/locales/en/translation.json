@@ -609,5 +609,13 @@
   "sale start time must be before show end time": "Sale start time must be before show end time",
   "sale start time must be before sale end time": "Sale start time must be before sale end time",
   "sale end time must be before show end time": "Sale end time must be before show end time",
-  "sale end time must be after sale start time": "Sale end time must be after sale start time"
+  "sale end time must be after sale start time": "Sale end time must be after sale start time",
+  "current Paypal account": "Current PayPal account",
+  "Please review your event information before submitting": "Please review your event information before submitting",
+  "After submitting, your event will be under review and will not be visible to the public until approved.": "After submitting, your event will be under review and will not be visible to the public until approved.",
+  "After your event is done, you will receive your earnings via Organization's PayPal account. Please ensure that your PayPal account is correct or you can update it later in the Organization settings.": "After your event is done, you will receive your earnings via Organization's PayPal account. Please ensure that your PayPal account is correct or you can update it later in the Organization settings.",
+  "you must add at least one show before continuing": "You must add at least one show before continuing",
+  "you must fill in the information step before submitting": "You must fill in the information step before submitting",
+  "you must fill in the shows and ticket type step before submitting": "You must fill in the shows and ticket type step before submitting",
+  "start from": "Start from"
 }

@@ -1,51 +1,80 @@
-import { Button } from "@heroui/react";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import { addToast, Button } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { MdAddCircleOutline } from "react-icons/md";
-import ShowCard from "./ShowCard";
+import ShowCard, { ShowCardHandles, ShowInputs } from "./ShowCard";
 
-export interface TicketType {
-  tempId: string;
-  name: string;
-  price: number;
-  initStock: number;
-  saleStartTime: string;
-  saleEndTime: string;
-  description?: string;
-  logoBase64?: string;
-}
 export interface Show {
   tempId: string;
-  startTime: string;
-  endTime: string;
-  ticketTypes: TicketType;
 }
 
-export default function ShowsAndTicketTypeStep() {
+export interface ShowsAndTicketTypeStepHandles {
+  submit: () => Promise<ShowInputs[]>;
+}
+
+export interface ShowsAndTicketTypeStepProps {}
+
+const ShowsAndTicketTypeStep = forwardRef<
+  ShowsAndTicketTypeStepHandles,
+  ShowsAndTicketTypeStepProps
+>((props, ref) => {
   const { t } = useTranslation();
   const [shows, setShows] = useState<Show[]>([]);
+
+  const showCardRefs = useRef<{ [key: string]: ShowCardHandles }>({});
 
   useEffect(() => {
     const initialShow: Show = {
       tempId: crypto.randomUUID(),
-      startTime: "",
-      endTime: "",
-      ticketTypes: {
-        tempId: crypto.randomUUID(),
-        name: "",
-        price: 0,
-        initStock: 0,
-        saleStartTime: "",
-        saleEndTime: "",
-      },
     };
     setShows([initialShow]);
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    submit: async () => {
+      if (shows.length === 0) {
+        addToast({
+          title: t("error"),
+          description: t("you must add at least one show before continuing"),
+          timeout: 4000,
+          radius: "none",
+          color: "danger",
+        });
+        return Promise.reject();
+      }
+
+      const promises = Object.values(showCardRefs.current).map((showCard) =>
+        showCard.submit()
+      );
+
+      return Promise.all(promises)
+        .then((results) => {
+          return results;
+        })
+        .catch((error) => {
+          return Promise.reject(error);
+        });
+    },
+  }));
+
   return (
     <div className="flex flex-col gap-2">
       {shows.map((show) => (
         <ShowCard
           key={show.tempId}
+          ref={(el) => {
+            if (el) {
+              showCardRefs.current[show.tempId] = el;
+            } else {
+              delete showCardRefs.current[show.tempId];
+            }
+          }}
           show={show}
           onDelete={() => {
             setShows((prev) => prev.filter((s) => s.tempId !== show.tempId));
@@ -61,16 +90,6 @@ export default function ShowsAndTicketTypeStep() {
         onClick={() => {
           const newShow: Show = {
             tempId: crypto.randomUUID(),
-            startTime: "",
-            endTime: "",
-            ticketTypes: {
-              tempId: crypto.randomUUID(),
-              name: "",
-              price: 0,
-              initStock: 0,
-              saleStartTime: "",
-              saleEndTime: "",
-            },
           };
           setShows((prev) => [...prev, newShow]);
         }}
@@ -80,4 +99,6 @@ export default function ShowsAndTicketTypeStep() {
       </Button>
     </div>
   );
-}
+});
+
+export default ShowsAndTicketTypeStep;

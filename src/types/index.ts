@@ -4,7 +4,6 @@ export interface IRole {
   updated_at: string;
   name: string;
   description: string;
-  for_organization: boolean;
 }
 
 export interface IUser {
@@ -85,22 +84,20 @@ export type IEventStatus = "DRAFT" | "ARCHIVED" | "PUBLISHED" | "PENDING";
 
 export interface IEvent {
   id: number;
-  organization_id: number;
   organization: IOrganization;
   created_at: string;
   updated_at: string;
   title: string;
   description: string;
   address: string;
-  place: string;
-  start_time: string;
-  end_time: string;
+  place_name: string;
   categories: ICategory[];
   keywords: IKeyword[];
   assets: IAsset[];
   shows: IEventShow[];
   status: IEventStatus;
   published_at?: string | null;
+  payout_at?: string | null;
 }
 
 export interface IKeyword {
@@ -115,8 +112,10 @@ export interface IEventShow {
   id: number;
   created_at: string;
   updated_at: string;
-  event_id: string;
+  event_id: number;
   start_time: string;
+  sale_start_time: string;
+  sale_end_time: string;
   end_time: string;
   tickets: ITicket[];
 }
@@ -129,8 +128,6 @@ export interface ITicket {
   name: string;
   description?: string | null;
   price: number;
-  sale_start_time: string;
-  sale_end_time: string;
   assets: IAsset[];
   available: boolean;
   initial_stock: number;

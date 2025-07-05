@@ -1,18 +1,16 @@
-import { Button, DateValue, useDisclosure } from "@heroui/react";
-import { useState } from "react";
+import { Button, useDisclosure } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { MdAddCircleOutline } from "react-icons/md";
-import CreateTicketTypeModal, {
-  CreateTicketTypeInputs,
-} from "./CreateTicketTypeModal";
+import CreateTicketTypeModal from "./CreateTicketTypeModal";
 import TicketTypeCard from "./TicketTypeCard";
+import type { CreateTicketTypeInputs } from "./shared.type";
+import { Dispatch, SetStateAction } from "react";
 
 export default function TicketTypesList(props: {
-  showStartTime: DateValue;
-  showEndTime: DateValue;
+  ticketTypes: CreateTicketTypeInputs[];
+  setTicketTypes: Dispatch<SetStateAction<CreateTicketTypeInputs[]>>;
 }) {
   const { t } = useTranslation();
-  const [ticketTypes, setTicketTypes] = useState<CreateTicketTypeInputs[]>([]);
 
   const {
     isOpen: isAddTicketTypeModalOpen,
@@ -25,28 +23,24 @@ export default function TicketTypesList(props: {
       <CreateTicketTypeModal
         isOpen={isAddTicketTypeModalOpen}
         onClose={onAddTicketTypeModalClose}
-        showStartTime={props.showStartTime}
-        showEndTime={props.showEndTime}
         onOpenChange={onAddTicketTypeModalOpenChange}
         onSuccess={(ticketType) => {
-          setTicketTypes((prev) => [...prev, ticketType]);
+          props.setTicketTypes((prev) => [...prev, ticketType]);
           onAddTicketTypeModalClose();
         }}
       />
       <div className="flex flex-col gap-2">
-        {ticketTypes.map((ticketType) => (
+        {props.ticketTypes.map((ticketType) => (
           <TicketTypeCard
             key={ticketType.temp_id}
-            showStartTime={props.showStartTime}
-            showEndTime={props.showEndTime}
             ticketType={ticketType}
             onDelete={() => {
-              setTicketTypes((prev) =>
+              props.setTicketTypes((prev) =>
                 prev.filter((t) => t.temp_id !== ticketType.temp_id)
               );
             }}
             onUpdate={(updatedTicketType) => {
-              setTicketTypes((prev) =>
+              props.setTicketTypes((prev) =>
                 prev.map((t) =>
                   t.temp_id === ticketType.temp_id ? updatedTicketType : t
                 )

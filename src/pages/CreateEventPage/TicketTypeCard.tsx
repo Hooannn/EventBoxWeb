@@ -1,8 +1,6 @@
 import {
   Button,
   Card,
-  DatePicker,
-  Image,
   Input,
   Modal,
   ModalBody,
@@ -12,30 +10,17 @@ import {
   Textarea,
   useDisclosure,
 } from "@heroui/react";
-import { CreateTicketTypeInputs } from "./CreateTicketTypeModal";
-import {
-  MdOutlineCalendarToday,
-  MdOutlineClose,
-  MdOutlineDelete,
-  MdOutlineDriveFolderUpload,
-  MdOutlineEdit,
-} from "react-icons/md";
+import { MdOutlineDelete, MdOutlineEdit } from "react-icons/md";
 import { IoTicketOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
-import { dateFormat, priceFormat } from "../../utils";
+import { priceFormat } from "../../utils";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { now, getLocalTimeZone } from "@internationalized/date";
-import { useState, useMemo, useEffect } from "react";
-import ImagePickerEditor, {
-  SavedImageData,
-} from "../../components/ImagePickerEditor";
+import { CreateTicketTypeInputs } from "./shared.type";
 
 export default function TicketTypeCard(props: {
   ticketType: CreateTicketTypeInputs;
   onDelete: () => void;
   onUpdate: (ticketType: CreateTicketTypeInputs) => void;
-  showStartTime: DateValue;
-  showEndTime: DateValue;
 }) {
   const { t } = useTranslation();
 
@@ -48,8 +33,6 @@ export default function TicketTypeCard(props: {
   return (
     <>
       <UpdateTicketTypeModal
-        showStartTime={props.showStartTime}
-        showEndTime={props.showEndTime}
         isOpen={isUpdateTicketTypeModalOpen}
         ticketType={props.ticketType}
         onClose={onUpdateTicketTypeModalClose}
@@ -74,24 +57,13 @@ export default function TicketTypeCard(props: {
               {props.ticketType.name}
             </div>
             <div className="text-xs text-secondary-600">
-              {t("price")}: {priceFormat(props.ticketType.price)}
+              {t("price")}: {priceFormat(parseFloat(props.ticketType.price))}
             </div>
             <div className="text-xs text-secondary-600">
               {t("initial stock")}: {props.ticketType.init_stock}
             </div>
           </div>
           <div className="flex flex-row items-center gap-2">
-            <div className="text-xs text-secondary-600">
-              ({t("sale start time")}{" "}
-              <span className="font-semibold text-secondary-500">
-                {dateFormat(props.ticketType.sale_start_time)}
-              </span>{" "}
-              {t("to").toLowerCase()}{" "}
-              <span className="font-semibold text-secondary-500">
-                {dateFormat(props.ticketType.sale_end_time)}
-              </span>
-              )
-            </div>
             <Button
               isIconOnly
               color="secondary"
@@ -125,24 +97,14 @@ export function UpdateTicketTypeModal(props: {
   onClose: () => void;
   onSuccess: (params: CreateTicketTypeInputs) => void;
   ticketType: CreateTicketTypeInputs;
-  showStartTime: DateValue;
-  showEndTime: DateValue;
 }) {
   const { t } = useTranslation();
 
-  const [logoFile, setLogoFile] = useState<SavedImageData | null>(
-    props.ticketType.logo_file ?? null
-  );
-
-  const { handleSubmit, control, reset, watch } =
-    useForm<CreateTicketTypeInputs>({
-      defaultValues: {
-        ...props.ticketType,
-      },
-    });
-
-  const watchSaleStartTime = watch("sale_start_time");
-  const watchSaleEndTime = watch("sale_end_time");
+  const { handleSubmit, control, reset } = useForm<CreateTicketTypeInputs>({
+    defaultValues: {
+      ...props.ticketType,
+    },
+  });
 
   const onSubmit: SubmitHandler<CreateTicketTypeInputs> = async (data) => {
     data.temp_id = crypto.randomUUID();
@@ -282,103 +244,7 @@ export function UpdateTicketTypeModal(props: {
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Controller
-                    name="sale_start_time"
-                    control={control}
-                    defaultValue={now(getLocalTimeZone())}
-                    rules={{
-                      required: t("{{label}} is required", {
-                        label: t("sale start time").toString(),
-                      }).toString(),
-                      validate: (value) => {
-                        if (value > props.showEndTime) {
-                          return t(
-                            "sale start time must be before show end time"
-                          ).toString();
-                        }
-
-                        if (watchSaleEndTime && value > watchSaleEndTime) {
-                          return t(
-                            "sale start time must be before sale end time"
-                          ).toString();
-                        }
-                        return true;
-                      },
-                    }}
-                    render={({
-                      field: { name, value, onChange, onBlur, ref },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <DatePicker
-                        hideTimeZone
-                        value={value}
-                        isRequired
-                        name={name}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        ref={ref}
-                        isInvalid={invalid}
-                        errorMessage={error?.message}
-                        showMonthAndYearPickers
-                        selectorIcon={<MdOutlineCalendarToday />}
-                        hourCycle={24}
-                        label={t("sale start time")}
-                        radius="none"
-                        variant="bordered"
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name="sale_end_time"
-                    defaultValue={now(getLocalTimeZone())}
-                    control={control}
-                    rules={{
-                      required: t("{{label}} is required", {
-                        label: t("sale end time").toString(),
-                      }).toString(),
-                      validate: (value) => {
-                        if (value > props.showEndTime) {
-                          return t(
-                            "sale end time must be before show end time"
-                          ).toString();
-                        }
-
-                        if (watchSaleStartTime && value < watchSaleStartTime) {
-                          return t(
-                            "sale end time must be after sale start time"
-                          ).toString();
-                        }
-                        return true;
-                      },
-                    }}
-                    render={({
-                      field: { name, value, onChange, onBlur, ref },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <DatePicker
-                        hideTimeZone
-                        value={value}
-                        isRequired
-                        name={name}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        ref={ref}
-                        isInvalid={invalid}
-                        errorMessage={error?.message}
-                        showMonthAndYearPickers
-                        selectorIcon={<MdOutlineCalendarToday />}
-                        hourCycle={24}
-                        label={t("sale end time")}
-                        radius="none"
-                        variant="bordered"
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                   <Controller
                     name="description"
                     control={control}
@@ -405,18 +271,6 @@ export function UpdateTicketTypeModal(props: {
                       />
                     )}
                   />
-                  <div className="h-[102px] flex flex-col gap-1">
-                    <div className="text-xs">{t("ticket image")}</div>
-                    <div className="flex-1">
-                      <UploadLogo
-                        file={logoFile}
-                        onChange={(logoBase64) => {
-                          console.log("Logo base64:", logoBase64);
-                        }}
-                        error={undefined}
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             </ModalBody>
@@ -435,111 +289,5 @@ export function UpdateTicketTypeModal(props: {
         )}
       </ModalContent>
     </Modal>
-  );
-}
-
-function UploadLogo({
-  file,
-  onChange,
-  error,
-}: {
-  file: SavedImageData | null;
-  onChange?: (data: SavedImageData | null) => void;
-  error?: string | null;
-}) {
-  const { t } = useTranslation();
-  const [currentFile, setCurrentFile] = useState<File | null>(null);
-  const [finalFile, setFinalFile] = useState<SavedImageData | null>(null);
-
-  useEffect(() => {
-    if (file) {
-      setFinalFile(file);
-    }
-  }, [file]);
-
-  const {
-    isOpen: isImagePickerModalOpen,
-    onOpen: onImagePickerModalOpen,
-    onClose: onImagePickerModalClose,
-  } = useDisclosure();
-
-  const handleImagePickerSave = async (data: SavedImageData) => {
-    onImagePickerModalClose();
-    setCurrentFile(null);
-    setFinalFile(data);
-  };
-
-  const currentFileSource = useMemo(
-    () => (currentFile ? URL.createObjectURL(currentFile) : ""),
-    [currentFile]
-  );
-
-  const imageUploadHandler = () => {
-    setCurrentFile(null);
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
-    input.onchange = async () => {
-      if (input !== null && input.files !== null) {
-        const file = input.files[0];
-        setCurrentFile(file);
-        onImagePickerModalOpen();
-      }
-    };
-  };
-
-  useEffect(() => {
-    onChange?.(finalFile);
-  }, [finalFile]);
-  return (
-    <>
-      {currentFileSource && (
-        <ImagePickerEditor
-          isOpen={isImagePickerModalOpen}
-          onClose={onImagePickerModalClose}
-          source={currentFileSource}
-          onSave={handleImagePickerSave}
-        />
-      )}
-      <div
-        onClick={imageUploadHandler}
-        className={`relative flex flex-col items-center justify-center h-full w-48 border-2 border-dashed hover:bg-gray-100 ${
-          error ? "border-danger-300" : "border-gray-300"
-        }  rounded-none cursor-pointer transition-all duration-200`}
-      >
-        {finalFile ? (
-          <>
-            <Image
-              className="object-contain w-full h-full"
-              removeWrapper
-              radius="none"
-              src={finalFile.imageBase64}
-            />
-            <Button
-              size="sm"
-              radius="none"
-              color="danger"
-              variant="flat"
-              onPress={() => {
-                setCurrentFile(null);
-                setFinalFile(null);
-              }}
-              isIconOnly
-              className="absolute top-0 right-0 z-10"
-            >
-              <MdOutlineClose />
-            </Button>
-          </>
-        ) : (
-          <>
-            <MdOutlineDriveFolderUpload className="text-4xl text-secondary-200 mt-2" />
-            <div className="text-xs text-default-500 mt-2">
-              {t("add ticket image")}
-            </div>
-          </>
-        )}
-      </div>
-    </>
   );
 }

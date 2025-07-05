@@ -6,6 +6,7 @@ import {
   MdOutlineInventory2,
   MdOutlinePendingActions,
 } from "react-icons/md";
+import EventCard from "./EventCard";
 
 export default function EventList({
   status,
@@ -36,7 +37,11 @@ export default function EventList({
           </p>
         </div>
       ) : (
-        <div>ehehehehe</div>
+        <div className="grid grid-cols-2 gap-2">
+          {events.map((event) => (
+            <EventCard key={"EventCard" + event.id} event={event} />
+          ))}
+        </div>
       )}
     </>
   );

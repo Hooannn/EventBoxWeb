@@ -612,5 +612,13 @@
   "sale start time must be before show end time": "Thời gian bắt đầu bán vé phải trước thời gian kết thúc chương trình",
   "sale start time must be before sale end time": "Thời gian bắt đầu bán vé phải trước thời gian kết thúc bán vé",
   "sale end time must be before show end time": "Thời gian kết thúc bán vé phải trước thời gian kết thúc chương trình",
-  "sale end time must be after sale start time": "Thời gian kết thúc bán vé phải sau thời gian bắt đầu bán vé"
+  "sale end time must be after sale start time": "Thời gian kết thúc bán vé phải sau thời gian bắt đầu bán vé",
+  "current Paypal account": "Tài khoản PayPal hiện tại",
+  "Please review your event information before submitting": "Vui lòng xem lại thông tin sự kiện của bạn trước khi xác nhận",
+  "After submitting, your event will be under review and will not be visible to the public until approved.": "Sau khi tạo, sự kiện của bạn sẽ được xem xét và sẽ không hiển thị công khai cho đến khi được phê duyệt.",
+  "After your event is done, you will receive your earnings via Organization's PayPal account. Please ensure that your PayPal account is correct or you can update it later in the Organization settings.": "Sau khi sự kiện kết thúc, tiền vé sẽ được chuyển qua tài khoản PayPal của Tổ chức. Vui lòng đảm bảo rằng tài khoản PayPal của bạn là chính xác hoặc bạn có thể cập nhật sau trong cài đặt Tổ chức.",
+  "you must add at least one show before continuing": "Bạn phải thêm ít nhất một chương trình trước khi tiếp tục",
+  "you must fill in the information step before submitting": "Bạn phải điền thông tin trước khi xác nhận",
+  "you must fill in the shows and ticket type step before submitting": "Bạn phải điền thông tin chương trình và loại vé trước khi xác nhận",
+  "start from": "Bắt đầu từ"
 }

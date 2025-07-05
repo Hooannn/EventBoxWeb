@@ -36,7 +36,7 @@ import {
   useDisclosure,
   User,
 } from "@heroui/react";
-import { Key, useCallback, useEffect, useMemo, useState } from "react";
+import { Key, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { onError } from "../../utils/error-handlers";
@@ -50,7 +50,12 @@ import {
   MdOutlinePhone,
   MdOutlineSearch,
 } from "react-icons/md";
-import { getUserAvatar, isOwner, organizationRoleColors } from "../../utils";
+import {
+  getOrganizationLogo,
+  getUserAvatar,
+  isOwner,
+  organizationRoleColors,
+} from "../../utils";
 import AddMemberModal from "./AddMemberModal";
 import MemberCellActions from "./MemberCellActions";
 import useAuthStore from "../../stores/auth";
@@ -184,24 +189,24 @@ export default function OrganizationSettingsPage() {
 
   const onSubmit: SubmitHandler<UpdateOrganizationInputs> = async (data) => {
     data.remove_logo = false;
-    if (logoBase64) data.logo_base64 = logoBase64;
-    else delete data.logo_base64;
-
-    if (!data.logo_base64 && organization?.assets.length)
-      data.remove_logo = true;
+    if (logoBase64) {
+      if (logoBase64 !== getOrganizationLogo(organization)) {
+        data.logo_base64 = logoBase64;
+      } else {
+        delete data.logo_base64;
+      }
+    } else {
+      if (getOrganizationLogo(organization)) {
+        data.remove_logo = true;
+      }
+      delete data.logo_base64;
+    }
 
     updateOrgMutation.mutate(data);
   };
 
   useEffect(() => {
-    if (organization?.assets.length) {
-      const logo = organization.assets.find(
-        (asset) => asset.usage === "AVATAR"
-      );
-      if (logo) {
-        setLogoBase64(logo.secure_url);
-      }
-    }
+    setLogoBase64(getOrganizationLogo(organization) ?? null);
   }, [organization]);
 
   const {
