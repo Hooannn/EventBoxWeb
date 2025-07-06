@@ -1,24 +1,25 @@
-import { Tabs, Tab, Chip, Button, addToast } from "@heroui/react";
-import { Key, useRef, useState } from "react";
+import { Tabs, Tab, Chip, Button, addToast, DateValue } from "@heroui/react";
+import { Key, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import InformationStep, {
   EventInformationStepInputs,
   InformationStepHandles,
-} from "./InformationStep";
+} from "../CreateEventPage/InformationStep";
 import ShowsAndTicketTypeStep, {
   ShowsAndTicketTypeStepHandles,
-} from "./ShowsAndTicketTypeStep";
-import PaymentInformationStep from "./PaymentInformationStep";
-import { ShowInputs } from "./ShowCard";
-import { useMutation } from "@tanstack/react-query";
+} from "../CreateEventPage/ShowsAndTicketTypeStep";
+import { ShowInputs } from "../CreateEventPage/ShowCard";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import useAxiosIns from "../../hooks/useAxiosIns";
-import { IResponseData } from "../../types";
+import { IEvent, IResponseData } from "../../types";
 import { onError } from "../../utils/error-handlers";
 import { useLocation, useNavigate, useParams } from "react-router";
 import LoadingOverlay from "../../components/Loading";
 import dayjs from "../../libs/dayjs";
+import { getEventBackground, getEventLogo } from "../../utils";
+import { parseZonedDateTime } from "@internationalized/date";
 
-export default function CreateEventPage() {
+export default function UpdateEventPage() {
   const { t } = useTranslation();
   const params = useParams();
   const [activeStep, setActiveStep] = useState("information");
@@ -28,54 +29,86 @@ export default function CreateEventPage() {
   const informationStepRef = useRef<InformationStepHandles>(null);
   const showsAndTicketTypeStepRef = useRef<ShowsAndTicketTypeStepHandles>(null);
 
-  const [stepData, setStepData] = useState<{
-    information: null | EventInformationStepInputs;
-    showsAndTicketType: null | ShowInputs[];
-  }>({
-    information: null,
-    showsAndTicketType: null,
-  });
-
-  const onContinue = async () => {
-    if (activeStep === "information") {
-      const data = await informationStepRef.current?.submit();
-      if (data) {
-        setStepData((prev) => ({
-          ...prev,
-          information: data,
-        }));
-        setActiveStep("showsAndTicketType");
-      }
-      return;
-    } else if (activeStep === "showsAndTicketType") {
-      const data = await showsAndTicketTypeStepRef.current?.submit();
-      if (data) {
-        setStepData((prev) => ({
-          ...prev,
-          showsAndTicketType: data,
-        }));
-        setActiveStep("paymentInformation");
-      }
-      return;
-    }
-  };
-
   const axios = useAxiosIns();
 
-  const createEventMutation = useMutation({
-    mutationFn: () =>
-      axios.post<IResponseData<boolean>>(`/v1/events`, {
-        organization_id: parseInt(params.id || "0"),
-        title: stepData.information?.title,
-        description: stepData.information?.description,
-        address: stepData.information?.address,
-        place: stepData.information?.place,
-        background_base64: stepData.information?.background_base64,
-        logo_base64: stepData.information?.logo_base64,
-        keywords: stepData.information?.keywords.split(","),
-        // category_ids: stepData.information?.category_ids
-        //   .split(",")
-        //   .map((id) => parseInt(id)),
+  const getEventQuery = useQuery({
+    queryKey: ["fetch/event/id", params.eventId],
+    queryFn: () =>
+      axios.get<IResponseData<IEvent>>(`/v1/events/${params.eventId}`),
+    refetchOnWindowFocus: false,
+  });
+
+  const event = getEventQuery.data?.data?.data;
+
+  useEffect(() => {
+    if (event) {
+      const addressParts = event.address.split(",");
+
+      const city = addressParts[addressParts.length - 1]?.trim();
+      const district = addressParts[addressParts.length - 2]?.trim();
+      const ward = addressParts[addressParts.length - 3]?.trim();
+      const street = addressParts.slice(0, -3).join(",").trim();
+
+      informationStepRef.current?.setInitData({
+        title: event.title,
+        description: event.description,
+        place: event.place_name,
+        background_base64: getEventBackground(event),
+        logo_base64: getEventLogo(event),
+        keywords: event.keywords.map((keyword) => keyword.name).join(","),
+        category_ids: event.categories.map((category) => category.id).join(","),
+        city: city,
+        street: street,
+        district: district,
+        ward: ward,
+      });
+      showsAndTicketTypeStepRef.current?.setInitData(
+        event.shows.map((show) => {
+          return {
+            start_time: parseZonedDateTime(
+              show.start_time + "[Asia/Saigon]"
+            ) as unknown as DateValue,
+            end_time: parseZonedDateTime(
+              show.end_time + "[Asia/Saigon]"
+            ) as unknown as DateValue,
+            sale_start_time: parseZonedDateTime(
+              show.sale_start_time + "[Asia/Saigon]"
+            ) as unknown as DateValue,
+            sale_end_time: parseZonedDateTime(
+              show.sale_end_time + "[Asia/Saigon]"
+            ) as unknown as DateValue,
+            ticket_types: show.tickets.map((t) => {
+              return {
+                name: t.name,
+                price: t.price.toString(),
+                description: t.description ?? undefined,
+                init_stock: t.initial_stock.toString(),
+                temp_id: crypto.randomUUID(),
+              };
+            }),
+          };
+        })
+      );
+    }
+  }, [event]);
+
+  const updateEventMutation = useMutation({
+    mutationFn: ({
+      stepData,
+    }: {
+      stepData: {
+        information: EventInformationStepInputs;
+        showsAndTicketType: ShowInputs[];
+      };
+    }) => {
+      const data: Record<string, unknown> = {
+        title: stepData.information.title,
+        description: stepData.information.description,
+        address: stepData.information.address,
+        place: stepData.information.place,
+        background_base64: stepData.information.background_base64,
+        logo_base64: stepData.information.logo_base64,
+        keywords: stepData.information.keywords.split(","),
         category_ids: Array.from(
           stepData.information?.category_ids || new Set<string>()
         ).map((id) => parseInt(id)),
@@ -99,7 +132,19 @@ export default function CreateEventPage() {
             initial_stock: parseInt(ticketType.init_stock),
           })),
         })),
-      }),
+      };
+
+      if (stepData.information.background_base64 === getEventBackground(event!))
+        delete data.background_base64;
+
+      if (stepData.information.logo_base64 === getEventLogo(event!))
+        delete data.logo_base64;
+
+      return axios.put<IResponseData<boolean>>(
+        `/v1/events/${params.eventId}`,
+        data
+      );
+    },
     onError,
     onSuccess(data) {
       addToast({
@@ -115,7 +160,12 @@ export default function CreateEventPage() {
   });
 
   const onSubmit = async () => {
-    if (stepData.information === null) {
+    const informationStepData = await informationStepRef.current?.submit();
+
+    const showsAndTicketTypesStepData =
+      await showsAndTicketTypeStepRef.current?.submit();
+
+    if (!informationStepData) {
       addToast({
         title: t("error"),
         description: t(
@@ -127,7 +177,7 @@ export default function CreateEventPage() {
       });
       return;
     }
-    if (stepData.showsAndTicketType === null) {
+    if (!showsAndTicketTypesStepData) {
       addToast({
         title: t("error"),
         description: t(
@@ -140,7 +190,12 @@ export default function CreateEventPage() {
       return;
     }
 
-    createEventMutation.mutate();
+    updateEventMutation.mutate({
+      stepData: {
+        information: informationStepData,
+        showsAndTicketType: showsAndTicketTypesStepData,
+      },
+    });
   };
 
   const steps = () => [
@@ -152,44 +207,25 @@ export default function CreateEventPage() {
     {
       title: t("shows and ticket type").toString(),
       key: "showsAndTicketType",
-      disabled: stepData.information === null,
-    },
-    {
-      title: t("payment information").toString(),
-      disabled:
-        stepData.showsAndTicketType === null || stepData.information === null,
-      key: "paymentInformation",
+      disabled: false,
     },
   ];
 
-  const isLoading = createEventMutation.isPending;
+  const isLoading = updateEventMutation.isPending;
 
   const getActionButton = () => {
     switch (activeStep) {
-      case "paymentInformation":
+      default:
         return (
           <Button
             onPress={onSubmit}
             className="px-6"
-            size="sm"
-            color="secondary"
-            isLoading={isLoading}
-            radius="none"
-          >
-            {t("submit")}
-          </Button>
-        );
-      default:
-        return (
-          <Button
-            onPress={onContinue}
-            className="px-6"
             isLoading={isLoading}
             size="sm"
             color="secondary"
             radius="none"
           >
-            {t("continue")}
+            {t("update")}
           </Button>
         );
     }
@@ -240,9 +276,6 @@ export default function CreateEventPage() {
           </div>
           <div className={`${activeStep !== "showsAndTicketType" && "hidden"}`}>
             {<ShowsAndTicketTypeStep ref={showsAndTicketTypeStepRef} />}
-          </div>
-          <div className={`${activeStep !== "paymentInformation" && "hidden"}`}>
-            {<PaymentInformationStep />}
           </div>
         </div>
       </div>

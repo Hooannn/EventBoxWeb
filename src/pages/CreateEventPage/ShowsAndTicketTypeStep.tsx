@@ -16,6 +16,7 @@ export interface Show {
 
 export interface ShowsAndTicketTypeStepHandles {
   submit: () => Promise<ShowInputs[]>;
+  setInitData: (data: ShowInputs[]) => void;
 }
 
 export interface ShowsAndTicketTypeStepProps {}
@@ -60,6 +61,19 @@ const ShowsAndTicketTypeStep = forwardRef<
         .catch((error) => {
           return Promise.reject(error);
         });
+    },
+    setInitData: (data: ShowInputs[]) => {
+      const initialShows = data.map(() => ({
+        tempId: crypto.randomUUID(),
+      }));
+      setShows(initialShows);
+
+      setTimeout(() => {
+        Object.values(showCardRefs.current).forEach((showCard, index) => {
+          const showData = data[index];
+          showCard.setInitData(showData);
+        });
+      }, 0);
     },
   }));
 

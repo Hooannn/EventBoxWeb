@@ -1,19 +1,36 @@
 import { Chip, Input, Tab, Tabs } from "@heroui/react";
-import { Key, useState } from "react";
+import { Key, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineSearch } from "react-icons/md";
 import { IEvent, IEventStatus, IResponseData } from "../../types";
 import EventList from "./EventList";
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams, useSearchParams } from "react-router-dom";
 import useAxiosIns from "../../hooks/useAxiosIns";
 
 export default function OrganizationPage() {
   const { t } = useTranslation();
   const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const axios = useAxiosIns();
-  const [activeTab, setActiveTab] = useState<IEventStatus>("PUBLISHED");
 
+  const activeTab = useMemo<IEventStatus>(() => {
+    if (!searchParams.has("status")) {
+      return "PUBLISHED";
+    }
+    const status = searchParams.get("status")?.toUpperCase() as IEventStatus;
+    return status;
+  }, [searchParams]);
+
+  const handleTabChange = (tab: IEventStatus) => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("status", tab);
+      return newParams;
+    });
+  };
+
+  const queryClient = useQueryClient();
   const getEventsQuery = useQuery({
     queryKey: ["fetch/event/by/organization", params.id],
     queryFn: () =>
@@ -23,6 +40,12 @@ export default function OrganizationPage() {
     refetchOnWindowFocus: false,
   });
   const events = getEventsQuery.data?.data?.data || [];
+
+  const onRefresh = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["fetch/event/by/organization", params.id],
+    });
+  };
 
   const getEventsByStatus = (status: IEventStatus) => {
     return events.filter((event) => event.status === status);
@@ -72,7 +95,7 @@ export default function OrganizationPage() {
             variant="underlined"
             radius="none"
             selectedKey={activeTab}
-            onSelectionChange={setActiveTab as (key: Key) => void}
+            onSelectionChange={handleTabChange as (key: Key) => void}
           >
             {tabs.map((tab) => (
               <Tab
@@ -97,7 +120,11 @@ export default function OrganizationPage() {
         </div>
       </div>
       <div className="flex-1">
-        <EventList status={activeTab} events={getEventsByStatus(activeTab)} />
+        <EventList
+          status={activeTab}
+          events={getEventsByStatus(activeTab)}
+          onRefresh={onRefresh}
+        />
       </div>
     </div>
   );

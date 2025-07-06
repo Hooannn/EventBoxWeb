@@ -9,6 +9,12 @@ import CreateEventPage from "../pages/CreateEventPage";
 import CreateFirstOrganization from "../pages/DashboardPage/CreateFirstOrganization";
 import { t } from "i18next";
 import OrganizationSettingsPage from "../pages/OrganizationSettingsPage";
+import UpdateEventPage from "../pages/UpdateEventPage";
+import AdminLayout from "../layouts/AdminLayout";
+import UserAdminPage from "../pages/UserAdminPage";
+import RoleAdminPage from "../pages/RoleAdminPage";
+import EventAdminPage from "../pages/EventAdminPage";
+import PermissionAdminPage from "../pages/PermissionAdminPage";
 const rootRouter = [
   {
     path: "/",
@@ -57,8 +63,41 @@ const rootRouter = [
         element: <CreateEventPage />,
       },
       {
+        path: ":id/update-event/:eventId",
+        element: <UpdateEventPage />,
+      },
+      {
         path: ":id/settings",
         element: <OrganizationSettingsPage />,
+      },
+    ],
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/admin",
+    element: (
+      <Suspense>
+        <PrivateRoute>
+          <AdminLayout />
+        </PrivateRoute>
+      </Suspense>
+    ),
+    children: [
+      {
+        path: "",
+        element: <UserAdminPage />,
+      },
+      {
+        path: "roles",
+        element: <RoleAdminPage />,
+      },
+      {
+        path: "permissions",
+        element: <PermissionAdminPage />,
+      },
+      {
+        path: "events",
+        element: <EventAdminPage />,
       },
     ],
     errorElement: <ErrorPage />,

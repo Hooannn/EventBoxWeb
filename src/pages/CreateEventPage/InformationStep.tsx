@@ -16,9 +16,9 @@ import { Controller, useForm } from "react-hook-form";
 import { getI18n, useTranslation } from "react-i18next";
 import { MdOutlineClose, MdOutlineDriveFolderUpload } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
-import { ICategory, IProvince, IResponseData } from "../../types";
-import axios from "axios";
+import { ICategory, IResponseData } from "../../types";
 import useAxiosIns from "../../hooks/useAxiosIns";
+import LOCATION from "../../../public/locations/all-in-one.json";
 import {
   forwardRef,
   useCallback,
@@ -43,16 +43,17 @@ export type EventInformationStepInputs = {
   description: string;
   place: string;
   address: string;
-  city: string;
+  city: Set<string> | string;
   street: string;
-  district: string;
-  ward: string;
-  category_ids: string;
+  district: Set<string> | string;
+  ward: Set<string> | string;
+  category_ids: Set<string> | string;
   keywords: string;
 };
 
 export interface InformationStepHandles {
   submit: () => Promise<EventInformationStepInputs>;
+  setInitData: (data: Partial<EventInformationStepInputs>) => void;
 }
 
 export interface InformationStepProps {}
@@ -61,8 +62,12 @@ const InformationStep = forwardRef<
   InformationStepHandles,
   InformationStepProps
 >((props, ref) => {
-  const { handleSubmit, control, watch } =
+  const { handleSubmit, control, watch, setValue } =
     useForm<EventInformationStepInputs>();
+
+  const [initLogoFile, setInitLogoFile] = useState<SavedImageData | null>(null);
+  const [initBackgroundFile, setInitBackgroundFile] =
+    useState<SavedImageData | null>(null);
 
   const [logoFile, setLogoFile] = useState<SavedImageData | null>(null);
   const [backgroundFile, setBackgroundFile] = useState<SavedImageData | null>(
@@ -84,27 +89,22 @@ const InformationStep = forwardRef<
   });
   const categories = getEventCategoriesQuery.data?.data?.data || [];
 
-  const getProvincesQuery = useQuery({
-    queryKey: ["fetch/external/provinces"],
-    queryFn: () => axios.get<IProvince[]>("/public/locations/all-in-one.json"),
-    refetchOnWindowFocus: false,
-  });
+  const provinces = LOCATION;
 
-  const provinces = getProvincesQuery.data?.data || [];
   const selectProvince = watch("city");
   const selectDistrict = watch("district");
 
   const getDistricts = () => {
     if (!selectProvince) return [];
-    return provinces.find(
-      (province) => province.code.toString() === selectProvince
+    return provinces.find((province) =>
+      (selectProvince as Set<string>).has(province.code.toString())
     )?.districts;
   };
 
   const getWards = () => {
     if (!selectDistrict) return [];
-    return getDistricts()?.find(
-      (district) => district.code.toString() === selectDistrict
+    return getDistricts()?.find((district) =>
+      (selectDistrict as Set<string>).has(district.code.toString())
     )?.wards;
   };
 
@@ -123,14 +123,17 @@ const InformationStep = forwardRef<
 
             data.description = description;
             data.address = `${data.street}, ${
-              getWards()?.find((ward) => ward.code.toString() === data.ward)
-                ?.name
-            }, ${
-              getDistricts()?.find(
-                (district) => district.code.toString() === data.district
+              getWards()?.find((ward) =>
+                (data.ward as Set<string>).has(ward.code.toString())
               )?.name
             }, ${
-              provinces?.find((p) => p.code.toString() === data.city)?.name
+              getDistricts()?.find((district) =>
+                (data.district as Set<string>).has(district.code.toString())
+              )?.name
+            }, ${
+              provinces?.find((p) =>
+                (data.city as Set<string>).has(p.code.toString())
+              )?.name
             }`;
             resolve(data);
           },
@@ -139,6 +142,52 @@ const InformationStep = forwardRef<
           }
         )();
       });
+    },
+    setInitData: (data: Partial<EventInformationStepInputs>) => {
+      if (data.logo_base64) {
+        setInitLogoFile({
+          imageBase64: data.logo_base64,
+        } as never);
+      }
+      if (data.background_base64) {
+        setInitBackgroundFile({
+          imageBase64: data.background_base64,
+        } as never);
+      }
+      if (data.title) setValue("title", data.title);
+      if (data.description) setDescription(data.description);
+      if (data.place) setValue("place", data.place);
+      if (data.keywords) setValue("keywords", data.keywords);
+      if (data.category_ids)
+        setValue(
+          "category_ids",
+          new Set((data.category_ids as string).split(","))
+        );
+      if (data.street) setValue("street", data.street);
+      if (data.city) {
+        const province = provinces.find((p) => p.name.toString() === data.city);
+        if (province) {
+          setValue("city", new Set<string>([province.code.toString()]));
+
+          const districts = province.districts;
+          if (data.district) {
+            const district = districts.find(
+              (d) => d.name.toString() === data.district
+            );
+            if (district) {
+              setValue("district", new Set<string>([district.code.toString()]));
+
+              const wards = district.wards;
+              if (data.ward) {
+                const ward = wards.find((w) => w.name.toString() === data.ward);
+                if (ward) {
+                  setValue("ward", new Set<string>([ward.code.toString()]));
+                }
+              }
+            }
+          }
+        }
+      }
     },
   }));
 
@@ -221,6 +270,7 @@ const InformationStep = forwardRef<
         <CardBody className="flex flex-col gap-2">
           <div className="flex items-center w-full justify-center gap-2 h-96">
             <UploadLogo
+              initFile={initLogoFile}
               onChange={(file) => {
                 setLogoFile(file);
                 if (file) setAssetError(null);
@@ -228,6 +278,7 @@ const InformationStep = forwardRef<
               error={assetError}
             />
             <UploadBackground
+              initFile={initBackgroundFile}
               onChange={(file) => {
                 setBackgroundFile(file);
                 if (file) setAssetError(null);
@@ -320,6 +371,11 @@ const InformationStep = forwardRef<
                 required: t("{{label}} is required", {
                   label: t("city").toString(),
                 }).toString(),
+                validate: (value) =>
+                  (value as Set<string>).size > 0 ||
+                  t("{{label}} is required", {
+                    label: t("city").toString(),
+                  }).toString(),
               }}
               render={({
                 field: { name, value, onChange, onBlur, ref },
@@ -330,14 +386,12 @@ const InformationStep = forwardRef<
                   isRequired
                   errorMessage={error?.message}
                   radius="none"
-                  isLoading={getProvincesQuery.isLoading}
                   validationBehavior="aria"
                   isInvalid={invalid}
                   color="primary"
                   variant="bordered"
                   onBlur={onBlur}
                   name={name}
-                  value={value}
                   items={
                     provinces
                       ? provinces?.map((province) => ({
@@ -346,13 +400,18 @@ const InformationStep = forwardRef<
                         }))
                       : []
                   }
-                  onChange={onChange}
+                  // value={value}
+                  // onChange={onChange}
+                  selectedKeys={value}
+                  onSelectionChange={onChange}
                   label={t("city").toString()}
                   placeholder={t("enter {{label}}", {
                     label: t("city").toString().toLowerCase(),
                   }).toString()}
                 >
-                  {(province) => <SelectItem>{province.name}</SelectItem>}
+                  {(province) => (
+                    <SelectItem key={province.code}>{province.name}</SelectItem>
+                  )}
                 </Select>
               )}
             />
@@ -363,6 +422,11 @@ const InformationStep = forwardRef<
                 required: t("{{label}} is required", {
                   label: t("district").toString(),
                 }).toString(),
+                validate: (value) =>
+                  (value as Set<string>).size > 0 ||
+                  t("{{label}} is required", {
+                    label: t("district").toString(),
+                  }).toString(),
               }}
               render={({
                 field: { name, value, onChange, onBlur, ref },
@@ -375,9 +439,9 @@ const InformationStep = forwardRef<
                   radius="none"
                   validationBehavior="aria"
                   isInvalid={invalid}
-                  isLoading={getProvincesQuery.isLoading}
                   color="primary"
                   variant="bordered"
+                  name={name}
                   items={
                     getDistricts()
                       ? getDistricts()!.map((district) => ({
@@ -387,15 +451,18 @@ const InformationStep = forwardRef<
                       : []
                   }
                   onBlur={onBlur}
-                  name={name}
-                  value={value}
-                  onChange={onChange}
+                  // value={value}
+                  // onChange={onChange}
+                  selectedKeys={value}
+                  onSelectionChange={onChange}
                   label={t("district").toString()}
                   placeholder={t("enter {{label}}", {
                     label: t("district").toString().toLowerCase(),
                   }).toString()}
                 >
-                  {(district) => <SelectItem>{district.name}</SelectItem>}
+                  {(district) => (
+                    <SelectItem key={district.code}>{district.name}</SelectItem>
+                  )}
                 </Select>
               )}
             />
@@ -409,6 +476,11 @@ const InformationStep = forwardRef<
                 required: t("{{ward}} is required", {
                   ward: t("ward").toString(),
                 }).toString(),
+                validate: (value) =>
+                  (value as Set<string>).size > 0 ||
+                  t("{{ward}} is required", {
+                    ward: t("ward").toString(),
+                  }).toString(),
               }}
               render={({
                 field: { name, value, onChange, onBlur, ref },
@@ -421,7 +493,6 @@ const InformationStep = forwardRef<
                   radius="none"
                   validationBehavior="aria"
                   isInvalid={invalid}
-                  isLoading={getProvincesQuery.isLoading}
                   color="primary"
                   variant="bordered"
                   onBlur={onBlur}
@@ -434,14 +505,18 @@ const InformationStep = forwardRef<
                       : []
                   }
                   name={name}
-                  value={value}
-                  onChange={onChange}
+                  // value={value}
+                  // onChange={onChange}
+                  selectedKeys={value}
+                  onSelectionChange={onChange}
                   label={t("ward").toString()}
                   placeholder={t("enter {{label}}", {
                     label: t("ward").toString().toLowerCase(),
                   }).toString()}
                 >
-                  {(ward) => <SelectItem>{ward.name}</SelectItem>}
+                  {(ward) => (
+                    <SelectItem key={ward.code}>{ward.name}</SelectItem>
+                  )}
                 </Select>
               )}
             />
@@ -496,6 +571,11 @@ const InformationStep = forwardRef<
               required: t("{{label}} is required", {
                 label: t("category").toString(),
               }).toString(),
+              validate: (value) =>
+                (value as Set<string>).size > 0 ||
+                t("{{label}} is required", {
+                  label: t("category").toString(),
+                }).toString(),
             }}
             render={({
               field: { name, value, onChange, onBlur, ref },
@@ -506,7 +586,6 @@ const InformationStep = forwardRef<
                 isRequired
                 errorMessage={error?.message}
                 radius="none"
-                isLoading={getProvincesQuery.isLoading}
                 validationBehavior="aria"
                 isInvalid={invalid}
                 color="primary"
@@ -515,12 +594,14 @@ const InformationStep = forwardRef<
                 selectionMode="multiple"
                 onBlur={onBlur}
                 name={name}
-                value={value}
                 items={categories?.map((category) => ({
                   ...category,
                   key: category.id,
                 }))}
-                onChange={onChange}
+                // value={value}
+                // onChange={onChange}
+                selectedKeys={value}
+                onSelectionChange={onChange}
                 renderValue={(items) => {
                   return (
                     <div className="flex flex-wrap gap-2">
@@ -540,7 +621,7 @@ const InformationStep = forwardRef<
                 }).toString()}
               >
                 {(category) => (
-                  <SelectItem>
+                  <SelectItem key={category.id}>
                     {i18n.resolvedLanguage === "en"
                       ? category.name_en
                       : category.name_vi}
@@ -653,15 +734,24 @@ const InformationStep = forwardRef<
 export default InformationStep;
 
 function UploadLogo({
+  initFile,
   onChange,
   error,
 }: {
+  initFile?: SavedImageData | null;
   onChange?: (data: SavedImageData | null) => void;
   error?: string | null;
 }) {
   const { t } = useTranslation();
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [finalFile, setFinalFile] = useState<SavedImageData | null>(null);
+
+  useEffect(() => {
+    if (initFile) {
+      setFinalFile(initFile);
+    }
+  }, [initFile]);
+
   const {
     isOpen: isImagePickerModalOpen,
     onOpen: onImagePickerModalOpen,
@@ -750,15 +840,24 @@ function UploadLogo({
 }
 
 function UploadBackground({
+  initFile,
   onChange,
   error,
 }: {
+  initFile?: SavedImageData | null;
   onChange?: (data: SavedImageData | null) => void;
   error?: string | null;
 }) {
   const { t } = useTranslation();
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [finalFile, setFinalFile] = useState<SavedImageData | null>(null);
+
+  useEffect(() => {
+    if (initFile) {
+      setFinalFile(initFile);
+    }
+  }, [initFile]);
+
   const {
     isOpen: isImagePickerModalOpen,
     onOpen: onImagePickerModalOpen,

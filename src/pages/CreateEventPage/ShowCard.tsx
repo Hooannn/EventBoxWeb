@@ -17,6 +17,7 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 export interface ShowCardHandles {
   submit: () => Promise<ShowInputs>;
+  setInitData: (data: ShowInputs) => void;
 }
 
 export interface ShowCardProps {
@@ -36,7 +37,7 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
   const { t } = useTranslation();
   const [ticketTypes, setTicketTypes] = useState<CreateTicketTypeInputs[]>([]);
   const [ticketTypeError, setTicketTypeError] = useState<string | null>(null);
-  const { handleSubmit, control, watch } = useForm<ShowInputs>();
+  const { handleSubmit, control, watch, setValue } = useForm<ShowInputs>();
 
   useImperativeHandle(ref, () => ({
     submit: () => {
@@ -64,6 +65,13 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
           }
         )();
       });
+    },
+    setInitData: (data: ShowInputs) => {
+      setValue("start_time", data.start_time);
+      setValue("end_time", data.end_time);
+      setValue("sale_start_time", data.sale_start_time);
+      setValue("sale_end_time", data.sale_end_time);
+      setTicketTypes(data.ticket_types);
     },
   }));
 

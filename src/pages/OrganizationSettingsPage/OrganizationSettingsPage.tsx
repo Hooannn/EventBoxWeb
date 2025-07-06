@@ -761,7 +761,7 @@ export default function OrganizationSettingsPage() {
                         getOrganizationQuery.isLoading ? undefined : (
                           <div>
                             <div>
-                              <small>Hiện tại không có thành viên nào.</small>
+                              <small>{t("no data")}</small>
                             </div>
                           </div>
                         )

@@ -52,7 +52,8 @@ export default function Sidebar({ menuItems }: { menuItems?: MenuItem[] }) {
         <div className="h-full flex flex-col justify-between items-center align-center px-3">
           <div className="w-full py-8">
             <Image
-              className="mx-auto w-full"
+              className="mx-auto w-full cursor-pointer"
+              onClick={() => navigate("/")}
               radius="full"
               src="/event_box_logo_sm.jpeg"
               alt="logo"

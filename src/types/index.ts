@@ -1,9 +1,18 @@
+export interface IPermission {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  description: string;
+}
+
 export interface IRole {
   id: number;
   created_at: string;
   updated_at: string;
   name: string;
   description: string;
+  permissions: IPermission[];
 }
 
 export interface IUser {
@@ -104,8 +113,7 @@ export interface IKeyword {
   id: number;
   created_at: string;
   updated_at: string;
-  name_en: string;
-  name_vi: string;
+  name: string;
 }
 
 export interface IEventShow {

@@ -11,9 +11,11 @@ import EventCard from "./EventCard";
 export default function EventList({
   status,
   events,
+  onRefresh,
 }: {
   status: IEventStatus;
   events: IEvent[];
+  onRefresh: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -37,9 +39,13 @@ export default function EventList({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col gap-2 max-w-5xl mx-auto">
           {events.map((event) => (
-            <EventCard key={"EventCard" + event.id} event={event} />
+            <EventCard
+              key={"EventCard" + event.id}
+              event={event}
+              onRefresh={onRefresh}
+            />
           ))}
         </div>
       )}

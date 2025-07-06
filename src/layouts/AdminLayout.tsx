@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import {
   Dropdown,
@@ -6,30 +6,45 @@ import {
   Button,
   DropdownMenu,
   DropdownItem,
-  Badge,
-  Tooltip,
 } from "@heroui/react";
 import {
   MdOutlineLanguage,
   MdKeyboardArrowDown,
-  MdOutlineNotifications,
-  MdOutlineCorporateFare,
-  MdOutlineAdd,
+  MdOutlinePerson,
+  MdOutlineLock,
+  MdOutlineEvent,
+  MdOutlinePrivacyTip,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
 
-export default function MainLayout() {
+export default function AdminLayout() {
   const i18n = getI18n();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const location = useLocation();
-
   const menuItems = () => [
     {
-      to: "/",
-      icon: <MdOutlineCorporateFare size={20} />,
-      isActive: location.pathname.includes("/"),
-      label: t("dashboard"),
+      to: "/admin",
+      icon: <MdOutlinePerson size={20} />,
+      isActive: location.pathname === "/admin",
+      label: t("users"),
+    },
+    {
+      to: "/admin/roles",
+      icon: <MdOutlineLock size={20} />,
+      isActive: location.pathname === "/admin/roles",
+      label: t("role"),
+    },
+    {
+      to: "/admin/permissions",
+      icon: <MdOutlinePrivacyTip size={20} />,
+      isActive: location.pathname === "/admin/permissions",
+      label: t("permissions"),
+    },
+    {
+      to: "/admin/events",
+      icon: <MdOutlineEvent size={20} />,
+      isActive: location.pathname === "/admin/events",
+      label: t("event"),
     },
   ];
 
@@ -40,19 +55,6 @@ export default function MainLayout() {
         <div className="h-20 flex justify-between items-center py-2">
           <div className="w-1/3"></div>
           <div className="px-4 flex items-center gap-2">
-            <Tooltip content={t("create new organization").toString()}>
-              <Button
-                onPress={() => {
-                  navigate(`create-organization`);
-                }}
-                variant="shadow"
-                radius="none"
-                color="primary"
-              >
-                <MdOutlineAdd />
-                {t("create new organization")}
-              </Button>
-            </Tooltip>
             <Dropdown>
               <DropdownTrigger>
                 <Button variant="flat" radius="none" color="primary">

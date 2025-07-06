@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import cookies from "../libs/cookies";
 import { onError } from "../utils/error-handlers";
 import { IResponseData, IUser } from "../types";
 import { useNavigate } from "react-router-dom";
@@ -35,12 +34,16 @@ const useAuth = () => {
     accessToken: string,
     refreshToken: string
   ) => {
-    const redirectPath = cookies.get("redirect_path") || "/";
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
     setLoggedIn(true);
     setUser(user);
-    navigate(redirectPath as string);
+
+    if (user.roles.some((r) => ["admin", "root"].includes(r.name))) {
+      navigate("/admin");
+    } else {
+      navigate("/");
+    }
   };
 
   const verifyAccountMutation = useMutation({

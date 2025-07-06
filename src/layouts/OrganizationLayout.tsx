@@ -79,7 +79,7 @@ export default function OrganizationLayout() {
             <div className="w-1/3 flex items-center gap-2 px-4">
               <Button
                 onPress={() => {
-                  navigate("/");
+                  navigate(-1);
                 }}
                 isIconOnly
                 variant="light"
@@ -128,7 +128,7 @@ export default function OrganizationLayout() {
                 </DropdownMenu>
               </Dropdown>
 
-              <Badge color="danger" content="5" placement="top-right">
+              {/* <Badge color="danger" content="5" placement="top-right">
                 <Dropdown>
                   <DropdownTrigger>
                     <Button variant="flat" radius="none" color="primary">
@@ -149,7 +149,7 @@ export default function OrganizationLayout() {
                     <DropdownItem key="en">{t("english")}</DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
-              </Badge>
+              </Badge> */}
             </div>
           </div>
           <div className="h-full px-6 pb-4 overflow-auto relative">
