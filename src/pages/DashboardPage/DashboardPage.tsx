@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import CreateFirstOrganization from "./CreateFirstOrganization";
 import OrganizationCard from "./OrganizationCard";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -22,6 +23,20 @@ export default function DashboardPage() {
   const organizations = getOrganizationsQuery.data?.data?.data || [];
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (
+      user?.roles.some((r) =>
+        r.permissions.some(
+          (p) =>
+            p.name ===
+            (import.meta.env.VITE_ACCESS_ADMIN_PERMISSION ?? "access:admin")
+        )
+      )
+    ) {
+      navigate("/admin");
+    }
+  }, [user]);
   return (
     <>
       {getOrganizationsQuery.isLoading ? (

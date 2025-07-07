@@ -63,6 +63,9 @@ const dateFormat = (dateValue: DateValue) => {
   return dayjs(date).format("DD/MM/YYYY, HH:mm");
 };
 
+const stringToDateFormat = (date: string) =>
+  dayjs(date).format("DD/MM/YYYY, HH:mm");
+
 const getEventLogo = (event: IEvent) => {
   if (event.assets && event.assets.length > 0) {
     const logo = event.assets.find((asset) => asset.usage === "EVENT_LOGO");
@@ -101,6 +104,7 @@ export {
   getOrganizationLogo,
   organizationRoleColors,
   isOwner,
+  stringToDateFormat,
   priceFormat,
   getEventLogo,
   getEventBackground,

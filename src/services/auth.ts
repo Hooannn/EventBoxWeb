@@ -39,7 +39,15 @@ const useAuth = () => {
     setLoggedIn(true);
     setUser(user);
 
-    if (user.roles.some((r) => ["admin", "root"].includes(r.name))) {
+    if (
+      user.roles.some((r) =>
+        r.permissions.some(
+          (p) =>
+            p.name ===
+            (import.meta.env.VITE_ACCESS_ADMIN_PERMISSION ?? "access:admin")
+        )
+      )
+    ) {
       navigate("/admin");
     } else {
       navigate("/");

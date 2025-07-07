@@ -11,8 +11,10 @@ import ArchiveModal from "./ArchiveModal";
 import { useNavigate } from "react-router-dom";
 import DraftModal from "./DraftModal";
 import TurnOnModal from "./TurnOnModal";
+import ReviewModal from "../EventAdminPage/ReviewModal";
 
 export default function EventCard(props: {
+  isAdmin: boolean;
   event: IEvent;
   onRefresh: () => void;
 }) {
@@ -38,9 +40,34 @@ export default function EventCard(props: {
     onOpenChange: onTurnOnModalOpenChange,
   } = useDisclosure();
 
+  const {
+    onClose: onReviewModalClose,
+    isOpen: isReviewModalOpen,
+    onOpen: onReviewModalOpen,
+    onOpenChange: onReviewModalOpenChange,
+  } = useDisclosure();
+
   const navigate = useNavigate();
 
   const getActionButtons = () => {
+    if (props.isAdmin) {
+      return (
+        <>
+          <Button
+            radius="none"
+            fullWidth
+            color="secondary"
+            onPress={onReviewModalOpen}
+            size="sm"
+            className="py-5"
+          >
+            {props.event.status === "PENDING"
+              ? t("review").toString()
+              : t("details").toString()}
+          </Button>
+        </>
+      );
+    }
     switch (props.event.status) {
       case "DRAFT":
         return (
@@ -157,6 +184,14 @@ export default function EventCard(props: {
         onClose={onTurnOnModalClose}
         onSuccess={props.onRefresh}
         eventId={props.event.id}
+      />
+
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onOpenChange={onReviewModalOpenChange}
+        onClose={onReviewModalClose}
+        onSuccess={props.onRefresh}
+        event={props.event}
       />
       <Card
         radius="none"

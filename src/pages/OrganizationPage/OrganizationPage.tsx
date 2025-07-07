@@ -1,5 +1,5 @@
 import { Chip, Input, Tab, Tabs } from "@heroui/react";
-import { Key, useMemo } from "react";
+import { Key, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineSearch } from "react-icons/md";
 import { IEvent, IEventStatus, IResponseData } from "../../types";
@@ -12,6 +12,7 @@ export default function OrganizationPage() {
   const { t } = useTranslation();
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState("");
   const axios = useAxiosIns();
 
   const activeTab = useMemo<IEventStatus>(() => {
@@ -48,7 +49,14 @@ export default function OrganizationPage() {
   };
 
   const getEventsByStatus = (status: IEventStatus) => {
-    return events.filter((event) => event.status === status);
+    const eventsByStatus = events.filter((event) => event.status === status);
+    return eventsByStatus.filter((event) => {
+      return (
+        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.address?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
   };
 
   const countByStatus = (status: IEventStatus) => {
@@ -80,6 +88,8 @@ export default function OrganizationPage() {
           <Input
             radius="none"
             color="primary"
+            value={searchTerm}
+            onValueChange={setSearchTerm}
             variant="bordered"
             startContent={
               <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />

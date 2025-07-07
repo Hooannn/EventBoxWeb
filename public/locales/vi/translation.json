@@ -623,6 +623,7 @@
   "start from": "Bắt đầu từ",
   "archive": "Lưu trữ",
   "you are about to archive an event": "Bạn đang lưu trữ sự kiện này. Sự kiện của bạn sẽ được lưu trữ, bạn không thể thao tác với sự kiện sau khi lưu trữ.",
+  "you are about to archive an event v2": "Bạn đang lưu trữ sự kiện này. Sự kiện sẽ được lưu trữ và không thể thao tác với sự kiện sau khi lưu trữ.",
   "event_not_found": "Không tìm thấy sự kiện",
   "you are about to turn off an event": "Bạn đang tắt sự kiện này. Sự kiện của bạn sẽ không còn hiển thị công khai cho đến khi bạn mở sự kiện lại.",
   "turn on": "Mở sự kiện",
@@ -635,5 +636,7 @@
   "role_in_use": "Vai trò này đang được sử dụng bởi một hoặc nhiều người dùng, bạn không thể xóa vai trò này",
   "role_already_exists": "Vai trò này đã tồn tại, vui lòng chọn tên khác",
   "permission_in_use": "Quyền hạn này đang được sử dụng bởi một hoặc nhiều vai trò, bạn không thể xóa quyền hạn này",
-  "permission_already_exists": "Quyền hạn này đã tồn tại, vui lòng chọn tên khác"
+  "permission_already_exists": "Quyền hạn này đã tồn tại, vui lòng chọn tên khác",
+  "approve": "Phê duyệt",
+  "you are about to approve this event": "Bạn đang phê duyệt sự kiện này. Sau khi phê duyệt, sự kiện sẽ hiển thị công khai và người dùng có thể tìm thấy sự kiện."
 }

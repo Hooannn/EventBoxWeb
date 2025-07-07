@@ -620,6 +620,7 @@
   "start from": "Start from",
   "archive": "Archive",
   "you are about to archive an event": "You are about to archive an event. Your event will not be visible and you cannot edit it anymore.",
+  "you are about to archive an event v2": "You are about to archive an event. The event will not be visible and cannot edit it anymore.",
   "event_not_found": "Event not found",
   "you are about to turn off an event": "You are about to turn off an event. Your event will not be visible to the public until you turn it back on.",
   "turn on": "Turn on",
@@ -632,5 +633,7 @@
   "role_in_use": "This role is currently in use by one or more members. Please remove the role from those members before deleting it.",
   "role_already_exists": "This role already exists. Please choose a different name.",
   "permission_in_use": "This permission is currently in use by one or more roles. Please remove the permission from those roles before deleting it.",
-  "permission_already_exists": "This permission already exists. Please choose a different name."
+  "permission_already_exists": "This permission already exists. Please choose a different name.",
+  "approve": "Approve",
+  "you are about to approve this event": "You are about to approve this event. After approval, the event will be visible to the public."
 }
