@@ -78,7 +78,7 @@ export default function CreateFirstOrganization(props: {
         </Button>
       )}
       <h1 className="text-2xl font-bold text-center text-default-900">
-        {props.title}
+        {t(props.title)}
       </h1>
       <div className="flex items-center pt-8">
         <div className="w-1/3 flex justify-center items-center">

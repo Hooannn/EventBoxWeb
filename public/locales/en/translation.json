@@ -635,5 +635,6 @@
   "permission_in_use": "This permission is currently in use by one or more roles. Please remove the permission from those roles before deleting it.",
   "permission_already_exists": "This permission already exists. Please choose a different name.",
   "approve": "Approve",
-  "you are about to approve this event": "You are about to approve this event. After approval, the event will be visible to the public."
+  "you are about to approve this event": "You are about to approve this event. After approval, the event will be visible to the public.",
+  "organization_has_events": "This organization has events. The operation cannot be performed."
 }

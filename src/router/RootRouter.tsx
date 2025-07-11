@@ -7,7 +7,6 @@ import OrganizationPage from "../pages/OrganizationPage";
 import OrganizationLayout from "../layouts/OrganizationLayout";
 import CreateEventPage from "../pages/CreateEventPage";
 import CreateFirstOrganization from "../pages/DashboardPage/CreateFirstOrganization";
-import { t } from "i18next";
 import OrganizationSettingsPage from "../pages/OrganizationSettingsPage";
 import UpdateEventPage from "../pages/UpdateEventPage";
 import AdminLayout from "../layouts/AdminLayout";
@@ -34,7 +33,7 @@ const rootRouter = [
         path: "/create-organization",
         element: (
           <CreateFirstOrganization
-            title={t("create new organization").toString()}
+            title={"create new organization"}
             showBackButton
             onBack={() => window.history.back()}
             onSuccess={() => window.history.back()}

@@ -45,7 +45,7 @@ export default function DashboardPage() {
         <>
           {organizations.length === 0 ? (
             <CreateFirstOrganization
-              title={t("create your first organization to get started")}
+              title={"create your first organization to get started"}
               showBackButton={false}
               onSuccess={() => {}}
               onBack={() => {}}
