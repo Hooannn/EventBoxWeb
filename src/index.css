@@ -31,3 +31,7 @@ input[type=number] {
     -moz-appearance: textfield;
     /* Firefox */
 }
+
+.recharts-text.recharts-pie-label-text {
+    font-size: x-small;
+}

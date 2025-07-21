@@ -131,6 +131,7 @@ export default function OrganizationPage() {
       </div>
       <div className="flex-1">
         <EventList
+          isAdmin={false}
           status={activeTab}
           events={getEventsByStatus(activeTab)}
           onRefresh={onRefresh}

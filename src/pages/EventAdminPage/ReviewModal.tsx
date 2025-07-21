@@ -324,7 +324,11 @@ export default function ReviewModal(props: {
                         <div className="flex flex-wrap gap-2">
                           {props.event.keywords.map((item) => (
                             <Chip
-                              key={"ReviewModalKeyword" + item.id}
+                              key={
+                                "ReviewModalKeyword" +
+                                item.name +
+                                props.event.id
+                              }
                               variant="flat"
                               color="secondary"
                             >

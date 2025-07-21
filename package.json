@@ -33,9 +33,11 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.21.1",
     "react-share": "^5.0.3",
+    "recharts": "^3.1.0",
     "socket.io-client": "^4.7.2",
     "styled-components": "^6.1.11",
     "universal-cookie": "^4.0.4",
+    "xlsx": "^0.18.5",
     "zustand": "^4.4.7"
   },
   "devDependencies": {

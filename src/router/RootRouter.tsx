@@ -14,6 +14,10 @@ import UserAdminPage from "../pages/UserAdminPage";
 import RoleAdminPage from "../pages/RoleAdminPage";
 import EventAdminPage from "../pages/EventAdminPage";
 import PermissionAdminPage from "../pages/PermissionAdminPage";
+import EventLayout from "../layouts/EventLayout";
+import OverallPage from "../pages/EventReportsPage/OverallPage";
+import CheckInPage from "../pages/EventReportsPage/CheckInPage";
+import OrdersPage from "../pages/EventReportsPage/OrdersPage";
 const rootRouter = [
   {
     path: "/",
@@ -68,6 +72,31 @@ const rootRouter = [
       {
         path: ":id/settings",
         element: <OrganizationSettingsPage />,
+      },
+    ],
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/organization/:id/event/:eventId",
+    element: (
+      <Suspense>
+        <PrivateRoute>
+          <EventLayout />
+        </PrivateRoute>
+      </Suspense>
+    ),
+    children: [
+      {
+        path: "overall",
+        element: <OverallPage />,
+      },
+      {
+        path: "check-in",
+        element: <CheckInPage />,
+      },
+      {
+        path: "orders",
+        element: <OrdersPage />,
       },
     ],
     errorElement: <ErrorPage />,

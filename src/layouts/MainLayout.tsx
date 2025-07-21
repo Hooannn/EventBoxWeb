@@ -6,13 +6,11 @@ import {
   Button,
   DropdownMenu,
   DropdownItem,
-  Badge,
   Tooltip,
 } from "@heroui/react";
 import {
   MdOutlineLanguage,
   MdKeyboardArrowDown,
-  MdOutlineNotifications,
   MdOutlineCorporateFare,
   MdOutlineAdd,
 } from "react-icons/md";

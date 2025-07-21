@@ -6,9 +6,10 @@ import {
   MdDeleteOutline,
   MdOutlineCalendarToday,
   MdOutlineLocationOn,
+  MdOutlineArrowOutward,
 } from "react-icons/md";
 import ArchiveModal from "./ArchiveModal";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DraftModal from "./DraftModal";
 import TurnOnModal from "./TurnOnModal";
 import ReviewModal from "../EventAdminPage/ReviewModal";
@@ -19,6 +20,7 @@ export default function EventCard(props: {
   onRefresh: () => void;
 }) {
   const { t } = useTranslation();
+  const location = useLocation();
   const {
     onClose: onArchiveModalClose,
     isOpen: isArchiveModalOpen,
@@ -49,6 +51,16 @@ export default function EventCard(props: {
 
   const navigate = useNavigate();
 
+  const goDetails = () => {
+    const params = new URLSearchParams(location.search);
+    params.set("eventname", props.event.title);
+    navigate(
+      `/organization/${props.event.organization.id}/event/${
+        props.event.id
+      }/overall?${params.toString()}`
+    );
+  };
+
   const getActionButtons = () => {
     if (props.isAdmin) {
       return (
@@ -77,9 +89,11 @@ export default function EventCard(props: {
               fullWidth
               color="secondary"
               size="sm"
+              onPress={goDetails}
               className="py-5"
             >
-              {t("details").toString()}
+              <MdOutlineArrowOutward />
+              {t("reports").toString()}
             </Button>
             <Button
               radius="none"
@@ -102,9 +116,11 @@ export default function EventCard(props: {
               fullWidth
               color="secondary"
               size="sm"
+              onPress={goDetails}
               className="py-5"
             >
-              {t("details").toString()}
+              <MdOutlineArrowOutward />
+              {t("reports").toString()}
             </Button>
             <Button
               radius="none"
@@ -122,15 +138,6 @@ export default function EventCard(props: {
       default:
         return (
           <>
-            <Button
-              radius="none"
-              fullWidth
-              color="secondary"
-              size="sm"
-              className="py-5"
-            >
-              {t("details").toString()}
-            </Button>
             <Button
               radius="none"
               fullWidth

@@ -12,19 +12,18 @@ import {
   Button,
   DropdownMenu,
   DropdownItem,
-  Tooltip,
 } from "@heroui/react";
 import {
   MdOutlineLanguage,
   MdKeyboardArrowDown,
-  MdOutlineAdd,
   MdOutlineArrowBack,
-  MdOutlineLocalActivity,
-  MdOutlineSettings,
+  MdOutlinePayment,
+  MdOutlineLeaderboard,
+  MdOutlineTaskAlt,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
 
-export default function OrganizationLayout() {
+export default function EventLayout() {
   const i18n = getI18n();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -34,16 +33,28 @@ export default function OrganizationLayout() {
 
   const menuItems = () => [
     {
-      to: `${params.id}${location.search}`,
-      icon: <MdOutlineLocalActivity size={25} />,
-      isActive: location.pathname === `/organization/${params.id}`,
-      label: t("event"),
+      to: `overall${location.search}`,
+      icon: <MdOutlineLeaderboard size={25} />,
+      isActive:
+        location.pathname ===
+        `/organization/${params.id}/event/${params.eventId}/overall`,
+      label: t("overall"),
     },
     {
-      to: `${params.id}/settings${location.search}`,
-      icon: <MdOutlineSettings size={25} />,
-      isActive: location.pathname === `/organization/${params.id}/settings`,
-      label: t("settings"),
+      to: `check-in${location.search}`,
+      icon: <MdOutlineTaskAlt size={25} />,
+      isActive:
+        location.pathname ===
+        `/organization/${params.id}/event/${params.eventId}/check-in`,
+      label: "Check-in",
+    },
+    {
+      to: `orders${location.search}`,
+      icon: <MdOutlinePayment size={25} />,
+      isActive:
+        location.pathname ===
+        `/organization/${params.id}/event/${params.eventId}/orders`,
+      label: t("orders"),
     },
   ];
 
@@ -66,24 +77,10 @@ export default function OrganizationLayout() {
                 <MdOutlineArrowBack size={20} />
               </Button>
               <h1 className="text-2xl font-bold">
-                {searchParams.get("orgname")}
+                {searchParams.get("eventname")}
               </h1>
             </div>
             <div className="px-4 flex items-center gap-2">
-              <Tooltip content={t("create new event").toString()}>
-                <Button
-                  onPress={() => {
-                    navigate(`${params.id}/create-event${location.search}`);
-                  }}
-                  variant="shadow"
-                  radius="none"
-                  color="primary"
-                >
-                  <MdOutlineAdd />
-                  {t("create new event")}
-                </Button>
-              </Tooltip>
-
               <Dropdown>
                 <DropdownTrigger>
                   <Button variant="flat" radius="none" color="primary">

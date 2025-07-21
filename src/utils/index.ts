@@ -58,6 +58,13 @@ const priceFormat = (price: number) => {
   }).format(price);
 };
 
+export const priceFormatV2 = (price: number, currency = "VND") => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency,
+  }).format(price);
+};
+
 const dateFormat = (dateValue: DateValue) => {
   const date = dateValue.toDate("Asia/Saigon");
   return dayjs(date).format("DD/MM/YYYY, HH:mm");
@@ -65,6 +72,9 @@ const dateFormat = (dateValue: DateValue) => {
 
 const stringToDateFormat = (date: string) =>
   dayjs(date).format("DD/MM/YYYY, HH:mm");
+
+const stringToDateFormatV2 = (date: string) =>
+  dayjs(date).format("HH:mm, D MMMM, YYYY");
 
 const getEventLogo = (event: IEvent) => {
   if (event.assets && event.assets.length > 0) {
@@ -104,6 +114,7 @@ export {
   getOrganizationLogo,
   organizationRoleColors,
   isOwner,
+  stringToDateFormatV2,
   stringToDateFormat,
   priceFormat,
   getEventLogo,

@@ -16,7 +16,7 @@ export default function DashboardPage() {
   const getOrganizationsQuery = useQuery({
     queryKey: ["fetch/organizations", user?.id],
     queryFn: () =>
-      axios.get<IResponseData<IOrganization[]>>("/v1/organizations/me"),
+      axios.get<IResponseData<IOrganization[]>>("/v1/organizations/me/member"),
     refetchOnWindowFocus: false,
   });
 

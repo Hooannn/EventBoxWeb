@@ -111,7 +111,6 @@ export interface IEvent {
 }
 
 export interface IKeyword {
-  id: number;
   created_at: string;
   updated_at: string;
   name: string;
@@ -147,6 +146,7 @@ export type IOrderStatus = "PENDING" | "CANCELED" | "PROCESSING" | "FULFILLED";
 export interface IOrder {
   id: number;
   created_at: string;
+  fulfilled_at?: string | null;
   updated_at: string;
   user_id: number;
   user: IUser;
@@ -157,6 +157,7 @@ export interface IOrder {
 }
 
 export interface ITicketItem {
+  id: number;
   created_at: string;
   updated_at: string;
   order_id: number;
@@ -195,14 +196,14 @@ export interface IPayment {
   is_fulfilled: boolean;
   exchange_rate_source_currency?: string | null;
   exchange_rate_target_currency?: string | null;
-  exchange_rate_value?: number | null;
-  paypal_fee_value?: number | null;
+  exchange_rate?: number | null;
+  paypal_fee?: number | null;
   paypal_fee_currency?: string | null;
-  gross_amount_value?: number | null;
+  gross_amount?: number | null;
   gross_amount_currency?: string | null;
-  net_amount_value?: number | null;
+  net_amount?: number | null;
   net_amount_currency?: string | null;
-  receivable_amount?: number | null;
+  receivable?: number | null;
   receivable_amount_currency?: string | null;
 }
 export * from "./fetch";
