@@ -59,7 +59,12 @@ export default function DashboardPage() {
                     organization={org}
                     key={org.id}
                     onClick={() => {
-                      navigate(`/organization/${org.id}?orgname=${org.name}`);
+                      const isOwner = org.user_organizations.some(
+                        (uo) => uo.role === "OWNER" && uo.user.id === user?.id
+                      );
+                      navigate(
+                        `/organization/${org.id}?orgname=${org.name}&showCreateEventButton=${isOwner}`
+                      );
                     }}
                   />
                 ))}

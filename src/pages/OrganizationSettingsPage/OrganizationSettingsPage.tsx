@@ -627,6 +627,7 @@ export default function OrganizationSettingsPage() {
                         onPress={onDeleteOrganizationModalOpen}
                         color="danger"
                         className="w-40"
+                        isDisabled={!isOwner(currentUser!, organization!)}
                         isLoading={updateOrgMutation.isPending}
                         size="lg"
                       >
@@ -636,6 +637,7 @@ export default function OrganizationSettingsPage() {
                       <Button
                         isLoading={updateOrgMutation.isPending}
                         onClick={handleSubmit(onSubmit)}
+                        isDisabled={!isOwner(currentUser!, organization!)}
                         radius="none"
                         color="primary"
                         className="flex-1"
@@ -715,6 +717,7 @@ export default function OrganizationSettingsPage() {
                         radius="none"
                         color="secondary"
                         variant="solid"
+                        isDisabled={!isOwner(currentUser!, organization!)}
                         onPress={onAddMemberModalOpen}
                         className="w-36"
                       >

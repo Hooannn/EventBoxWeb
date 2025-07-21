@@ -1,7 +1,7 @@
 import { Button, Card, Image, useDisclosure } from "@heroui/react";
 import { IEvent } from "../../types";
 import { useTranslation } from "react-i18next";
-import { getEventLogo, getFirstShowStartTime } from "../../utils";
+import { getEventLogo, getFirstShowStartTime, isOwner } from "../../utils";
 import {
   MdDeleteOutline,
   MdOutlineCalendarToday,
@@ -13,6 +13,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DraftModal from "./DraftModal";
 import TurnOnModal from "./TurnOnModal";
 import ReviewModal from "../EventAdminPage/ReviewModal";
+import useAuthStore from "../../stores/auth";
 
 export default function EventCard(props: {
   isAdmin: boolean;
@@ -51,6 +52,8 @@ export default function EventCard(props: {
 
   const navigate = useNavigate();
 
+  const currentUser = useAuthStore((state) => state.user);
+
   const goDetails = () => {
     const params = new URLSearchParams(location.search);
     params.set("eventname", props.event.title);
@@ -58,6 +61,13 @@ export default function EventCard(props: {
       `/organization/${props.event.organization.id}/event/${
         props.event.id
       }/overall?${params.toString()}`
+    );
+  };
+
+  const shouldShowReportsButton = () => {
+    return props.event.organization.user_organizations.some(
+      (uo) =>
+        ["OWNER", "MANAGER"].includes(uo.role) && uo.user.id === currentUser?.id
     );
   };
 
@@ -90,6 +100,7 @@ export default function EventCard(props: {
               color="secondary"
               size="sm"
               onPress={goDetails}
+              isDisabled={!shouldShowReportsButton()}
               className="py-5"
             >
               <MdOutlineArrowOutward />
@@ -101,6 +112,7 @@ export default function EventCard(props: {
               size="sm"
               variant="flat"
               onPress={onTurnOnModalOpen}
+              isDisabled={!isOwner(currentUser!, props.event.organization)}
               className="py-5"
               color="success"
             >
@@ -116,6 +128,7 @@ export default function EventCard(props: {
               fullWidth
               color="secondary"
               size="sm"
+              isDisabled={!shouldShowReportsButton()}
               onPress={goDetails}
               className="py-5"
             >
@@ -126,6 +139,7 @@ export default function EventCard(props: {
               radius="none"
               fullWidth
               size="sm"
+              isDisabled={!isOwner(currentUser!, props.event.organization)}
               onPress={onDraftModalOpen}
               className="py-5"
               color="danger"
@@ -144,6 +158,7 @@ export default function EventCard(props: {
               size="sm"
               className="py-5"
               color="secondary"
+              isDisabled={!isOwner(currentUser!, props.event.organization)}
               variant="flat"
               onPress={() => {
                 navigate(`update-event/${props.event.id}${location.search}`);
@@ -156,6 +171,7 @@ export default function EventCard(props: {
               fullWidth
               size="sm"
               className="py-5"
+              isDisabled={!isOwner(currentUser!, props.event.organization)}
               color="danger"
               onPress={onArchiveModalOpen}
               variant="flat"

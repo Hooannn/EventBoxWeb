@@ -30,6 +30,10 @@ export default function OrganizationLayout() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const params = useParams();
+
+  const shouldDisableCreateEventButton = () =>
+    searchParams.get("showCreateEventButton") === "false";
+
   const navigate = useNavigate();
 
   const menuItems = () => [
@@ -76,6 +80,7 @@ export default function OrganizationLayout() {
                     navigate(`${params.id}/create-event${location.search}`);
                   }}
                   variant="shadow"
+                  isDisabled={shouldDisableCreateEventButton()}
                   radius="none"
                   color="primary"
                 >
