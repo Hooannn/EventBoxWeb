@@ -26,6 +26,7 @@ export default function EventList({
   const statusMap: Record<IEventStatus, JSX.Element> = {
     PUBLISHED: <MdOutlineConfirmationNumber size={140} />,
     PENDING: <MdOutlinePendingActions size={140} />,
+    ENDED: <MdOutlineArchive size={140} />,
     DRAFT: <MdOutlineInventory2 size={140} />,
     ARCHIVED: <MdOutlineArchive size={140} />,
   };
@@ -42,7 +43,7 @@ export default function EventList({
           <h1 className="text-xl font-bold">{t("no events found")}</h1>
           {!isAdmin && (
             <p>
-              {t("you have no {{status}} events. Create one to get started", {
+              {t("you have no {{status}} events.", {
                 status: t(status.toLowerCase()).toLowerCase(),
               }).toString()}
             </p>

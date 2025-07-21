@@ -90,7 +90,12 @@ export interface ICategory {
   name_vi: string;
 }
 
-export type IEventStatus = "DRAFT" | "ARCHIVED" | "PUBLISHED" | "PENDING";
+export type IEventStatus =
+  | "DRAFT"
+  | "ARCHIVED"
+  | "PUBLISHED"
+  | "PENDING"
+  | "ENDED";
 
 export interface IEvent {
   id: number;

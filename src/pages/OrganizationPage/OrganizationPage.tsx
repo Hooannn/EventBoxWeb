@@ -7,6 +7,7 @@ import EventList from "./EventList";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router-dom";
 import useAxiosIns from "../../hooks/useAxiosIns";
+import dayjs from "../../libs/dayjs";
 
 export default function OrganizationPage() {
   const { t } = useTranslation();
@@ -49,7 +50,27 @@ export default function OrganizationPage() {
   };
 
   const getEventsByStatus = (status: IEventStatus) => {
-    const eventsByStatus = events.filter((event) => event.status === status);
+    const now = dayjs();
+    let eventsByStatus = [];
+    if (status === "ENDED") {
+      eventsByStatus = events.filter(
+        (event) =>
+          event.status === "PUBLISHED" &&
+          event.shows.every((show) => dayjs(show.end_time).isBefore(now))
+      );
+    } else if (status === "PUBLISHED") {
+      eventsByStatus = events.filter(
+        (event) =>
+          event.status === "PUBLISHED" &&
+          event.shows.some(
+            (show) =>
+              dayjs(show.end_time).isAfter(now) ||
+              dayjs(show.end_time).isSame(now)
+          )
+      );
+    } else {
+      eventsByStatus = events.filter((event) => event.status === status);
+    }
     return eventsByStatus.filter((event) => {
       return (
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,6 +91,10 @@ export default function OrganizationPage() {
     {
       key: "PUBLISHED",
       label: t("published").toString(),
+    },
+    {
+      key: "ENDED",
+      label: t("ended").toString(),
     },
     {
       key: "PENDING",

@@ -549,6 +549,7 @@
   "pending": "Đang chờ duyệt",
   "no events found": "Không tìm thấy sự kiện nào",
   "you have no {{status}} events. Create one to get started": "Bạn không có sự kiện nào {{status}}. Tạo một sự kiện để bắt đầu",
+  "you have no {{status}} events.": "Bạn không có sự kiện nào {{status}}.",
   "information": "Thông tin",
   "shows and ticket type": "Chương trình và loại vé",
   "payment information": "Thông tin thanh toán",
@@ -661,5 +662,6 @@
   "checked-in": "Đã check-in",
   "checked in": "Trong sự kiện",
   "went out": "Ra ngoài",
-  "check-in rate": "Tỉ lệ check-in"
+  "check-in rate": "Tỉ lệ check-in",
+  "ended": "Đã kết thúc"
 }

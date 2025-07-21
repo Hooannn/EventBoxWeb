@@ -546,6 +546,7 @@
   "pending": "Pending",
   "no events found": "No events found",
   "you have no {{status}} events. Create one to get started": "You have no {{status}} events. Create one to get started",
+  "you have no {{status}} events.": "You have no {{status}} events.",
   "information": "Information",
   "shows and ticket type": "Shows and ticket type",
   "payment information": "Payment information",
@@ -658,5 +659,6 @@
   "checked-in": "Checked-in",
   "checked in": "Checked in",
   "went out": "Went out",
-  "check-in rate": "Check-in rate"
+  "check-in rate": "Check-in rate",
+  "ended": "Ended"
 }
