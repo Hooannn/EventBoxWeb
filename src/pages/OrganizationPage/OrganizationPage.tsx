@@ -1,4 +1,4 @@
-import { Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Chip, Input, Spinner, Tab, Tabs } from "@heroui/react";
 import { Key, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineSearch } from "react-icons/md";
@@ -155,12 +155,18 @@ export default function OrganizationPage() {
         </div>
       </div>
       <div className="flex-1">
-        <EventList
-          isAdmin={false}
-          status={activeTab}
-          events={getEventsByStatus(activeTab)}
-          onRefresh={onRefresh}
-        />
+        {getEventsQuery.isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <Spinner />
+          </div>
+        ) : (
+          <EventList
+            isAdmin={false}
+            status={activeTab}
+            events={getEventsByStatus(activeTab)}
+            onRefresh={onRefresh}
+          />
+        )}
       </div>
     </div>
   );
