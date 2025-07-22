@@ -14,6 +14,7 @@ import {
   MdOutlineLock,
   MdOutlineEvent,
   MdOutlinePrivacyTip,
+  MdOutlineList,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
 
@@ -45,6 +46,12 @@ export default function AdminLayout() {
       icon: <MdOutlineEvent size={20} />,
       isActive: location.pathname === "/admin/events",
       label: t("event"),
+    },
+    {
+      to: "/admin/categories",
+      icon: <MdOutlineList size={20} />,
+      isActive: location.pathname === "/admin/categories",
+      label: t("category"),
     },
   ];
 

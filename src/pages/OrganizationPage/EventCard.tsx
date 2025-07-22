@@ -1,4 +1,4 @@
-import { Button, Card, Image, useDisclosure } from "@heroui/react";
+import { Button, Card, Chip, Image, useDisclosure } from "@heroui/react";
 import { IEvent } from "../../types";
 import { useTranslation } from "react-i18next";
 import { getEventLogo, getFirstShowStartTime, isOwner } from "../../utils";
@@ -7,6 +7,7 @@ import {
   MdOutlineCalendarToday,
   MdOutlineLocationOn,
   MdOutlineArrowOutward,
+  MdOutlineTag,
 } from "react-icons/md";
 import ArchiveModal from "./ArchiveModal";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +15,8 @@ import DraftModal from "./DraftModal";
 import TurnOnModal from "./TurnOnModal";
 import ReviewModal from "../EventAdminPage/ReviewModal";
 import useAuthStore from "../../stores/auth";
+import { CheckIcon } from "../CategoryAdminPage/CategoryAdminPage";
+import UpdateTagsModal from "./UpdateTagsModal";
 
 export default function EventCard(props: {
   isAdmin: boolean;
@@ -27,6 +30,13 @@ export default function EventCard(props: {
     isOpen: isArchiveModalOpen,
     onOpen: onArchiveModalOpen,
     onOpenChange: onArchiveModalOpenChange,
+  } = useDisclosure();
+
+  const {
+    onClose: onUpdateTagsModalClose,
+    isOpen: isUpdateTagsModalOpen,
+    onOpen: onUpdateTagsModalOpen,
+    onOpenChange: onUpdateTagsModalOpenChange,
   } = useDisclosure();
 
   const {
@@ -75,18 +85,40 @@ export default function EventCard(props: {
     if (props.isAdmin) {
       return (
         <>
-          <Button
-            radius="none"
-            fullWidth
-            color="secondary"
-            onPress={onReviewModalOpen}
-            size="sm"
-            className="py-5"
-          >
-            {props.event.status === "PENDING"
-              ? t("review").toString()
-              : t("details").toString()}
-          </Button>
+          {props.event.status === "PENDING" ? (
+            <Button
+              radius="none"
+              fullWidth
+              color="secondary"
+              onPress={onReviewModalOpen}
+              size="sm"
+              className="py-5"
+            >
+              {t("review").toString()}
+            </Button>
+          ) : (
+            <>
+              <Button
+                radius="none"
+                color="secondary"
+                onPress={onReviewModalOpen}
+                size="sm"
+                className="py-5 flex-1"
+              >
+                {t("details").toString()}
+              </Button>
+              <Button
+                radius="none"
+                variant="flat"
+                startContent={<MdOutlineTag />}
+                onPress={onUpdateTagsModalOpen}
+                size="sm"
+                className="py-5"
+              >
+                {t("update tags").toString()}
+              </Button>
+            </>
+          )}
         </>
       );
     }
@@ -193,6 +225,14 @@ export default function EventCard(props: {
         eventId={props.event.id}
       />
 
+      <UpdateTagsModal
+        isOpen={isUpdateTagsModalOpen}
+        onOpenChange={onUpdateTagsModalOpenChange}
+        onClose={onUpdateTagsModalClose}
+        onSuccess={props.onRefresh}
+        event={props.event}
+      />
+
       <DraftModal
         isOpen={isDraftModalOpen}
         onOpenChange={onDraftModalOpenChange}
@@ -258,7 +298,40 @@ export default function EventCard(props: {
                   {props.event.address}
                 </div>
               </div>
+              {props.isAdmin && (
+                <div className="flex gap-1 items-center">
+                  {props.event.featured && (
+                    <Chip
+                      size="sm"
+                      classNames={{
+                        base: "text-center",
+                      }}
+                      startContent={<CheckIcon size={18} />}
+                      variant="flat"
+                      color={"warning"}
+                      radius="none"
+                    >
+                      {t("featured")}
+                    </Chip>
+                  )}
+                  {props.event.trending && (
+                    <Chip
+                      size="sm"
+                      classNames={{
+                        base: "text-center",
+                      }}
+                      startContent={<CheckIcon size={18} />}
+                      variant="flat"
+                      color={"success"}
+                      radius="none"
+                    >
+                      {t("trending")}
+                    </Chip>
+                  )}
+                </div>
+              )}
             </div>
+
             <div className="flex gap-2 px-5">{getActionButtons()}</div>
           </div>
         </div>

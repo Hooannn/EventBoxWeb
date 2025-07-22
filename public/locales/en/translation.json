@@ -660,5 +660,9 @@
   "checked in": "Checked in",
   "went out": "Went out",
   "check-in rate": "Check-in rate",
-  "ended": "Ended"
+  "ended": "Ended",
+  "featured": "Featured",
+  "update tags": "Update tags",
+  "trending": "Trending",
+  "category_in_use": "This category is currently in use by one or more events. Please remove the category from those events before deleting it."
 }

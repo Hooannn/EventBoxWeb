@@ -88,6 +88,7 @@ export interface ICategory {
   slug: string;
   name_en: string;
   name_vi: string;
+  featured: boolean;
 }
 
 export type IEventStatus =
@@ -106,6 +107,8 @@ export interface IEvent {
   description: string;
   address: string;
   place_name: string;
+  featured: boolean;
+  trending: boolean;
   categories: ICategory[];
   keywords: IKeyword[];
   assets: IAsset[];

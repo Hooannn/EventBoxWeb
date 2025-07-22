@@ -663,5 +663,9 @@
   "checked in": "Trong sự kiện",
   "went out": "Ra ngoài",
   "check-in rate": "Tỉ lệ check-in",
-  "ended": "Đã kết thúc"
+  "featured": "Nổi bật",
+  "update tags": "Cập nhật tags",
+  "trending": "Xu hướng",
+  "ended": "Đã kết thúc",
+  "category_in_use": "Danh mục này đang được sử dụng bởi một hoặc nhiều sự kiện, bạn không thể xóa danh mục này"
 }

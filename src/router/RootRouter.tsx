@@ -18,6 +18,7 @@ import EventLayout from "../layouts/EventLayout";
 import OverallPage from "../pages/EventReportsPage/OverallPage";
 import CheckInPage from "../pages/EventReportsPage/CheckInPage";
 import OrdersPage from "../pages/EventReportsPage/OrdersPage";
+import CategoryAdminPage from "../pages/CategoryAdminPage";
 const rootRouter = [
   {
     path: "/",
@@ -126,6 +127,10 @@ const rootRouter = [
       {
         path: "events",
         element: <EventAdminPage />,
+      },
+      {
+        path: "categories",
+        element: <CategoryAdminPage />,
       },
     ],
     errorElement: <ErrorPage />,
