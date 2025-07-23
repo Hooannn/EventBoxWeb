@@ -19,6 +19,7 @@ import OverallPage from "../pages/EventReportsPage/OverallPage";
 import CheckInPage from "../pages/EventReportsPage/CheckInPage";
 import OrdersPage from "../pages/EventReportsPage/OrdersPage";
 import CategoryAdminPage from "../pages/CategoryAdminPage";
+import SettingsPage from "../pages/SettingsPage";
 const rootRouter = [
   {
     path: "/",
@@ -33,6 +34,10 @@ const rootRouter = [
       {
         path: "/",
         element: <DashboardPage />,
+      },
+      {
+        path: "/settings",
+        element: <SettingsPage />,
       },
       {
         path: "/create-organization",

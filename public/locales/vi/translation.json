@@ -667,5 +667,9 @@
   "update tags": "Cập nhật tags",
   "trending": "Xu hướng",
   "ended": "Đã kết thúc",
+  "new password": "Mật khẩu mới",
+  "enter your new password": "Nhập mật khẩu mới của bạn",
+  "current password": "Mật khẩu hiện tại",
+  "enter your current password": "Nhập mật khẩu hiện tại của bạn",
   "category_in_use": "Danh mục này đang được sử dụng bởi một hoặc nhiều sự kiện, bạn không thể xóa danh mục này"
 }

@@ -664,5 +664,9 @@
   "featured": "Featured",
   "update tags": "Update tags",
   "trending": "Trending",
+  "new password": "New password",
+  "enter your new password": "Enter your new password",
+  "current password": "Current password",
+  "enter your current password": "Enter your current password",
   "category_in_use": "This category is currently in use by one or more events. Please remove the category from those events before deleting it."
 }

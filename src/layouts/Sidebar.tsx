@@ -102,6 +102,7 @@ export default function Sidebar({ menuItems }: { menuItems?: MenuItem[] }) {
                   <p>{user?.email}</p>
                 </DropdownItem>
                 <DropdownItem
+                  onClick={() => navigate("/settings")}
                   startContent={<MdOutlinePersonPin />}
                   key="profile"
                 >

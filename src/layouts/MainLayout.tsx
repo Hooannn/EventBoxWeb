@@ -26,7 +26,7 @@ export default function MainLayout() {
     {
       to: "/",
       icon: <MdOutlineCorporateFare size={20} />,
-      isActive: location.pathname.includes("/"),
+      isActive: location.pathname === "/",
       label: t("dashboard"),
     },
   ];
