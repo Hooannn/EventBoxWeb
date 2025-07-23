@@ -229,8 +229,8 @@ export function DetailMemberModal(props: {
                         label: "w-full",
                       }}
                       color="success"
-                      isDisabled={watchRole === ""}
-                      isSelected={watchRole !== ""}
+                      isDisabled={(watchRole as unknown) === ""}
+                      isSelected={(watchRole as unknown) !== ""}
                     >
                       <div className="w-full flex justify-between gap-2">
                         <div className="flex flex-col gap-1">

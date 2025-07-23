@@ -193,6 +193,7 @@ const InformationStep = forwardRef<
 
   const quillRef = useRef<ReactQuill>(null);
   const [description, setDescription] = useState<string>(DESC_PLACEHOLDER);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentRange, setCurrentRange] = useState<Range | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const {

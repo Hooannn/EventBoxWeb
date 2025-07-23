@@ -36,7 +36,7 @@ export default function AddMemberModal(props: {
 
   const { handleSubmit, control, watch, reset } = useForm<AddMemberInputs>();
 
-  const watchRole = watch("role", "");
+  const watchRole = watch("role", "" as unknown as "MANAGER" | "STAFF");
 
   const onSubmit: SubmitHandler<AddMemberInputs> = async (data) => {
     addMemberMutation.mutate(data);
@@ -187,8 +187,8 @@ export default function AddMemberModal(props: {
                         label: "w-full",
                       }}
                       color="success"
-                      isDisabled={watchRole === ""}
-                      isSelected={watchRole !== ""}
+                      isDisabled={(watchRole as unknown) === ""}
+                      isSelected={(watchRole as unknown) !== ""}
                     >
                       <div className="w-full flex justify-between gap-2">
                         <div className="flex flex-col gap-1">
@@ -204,20 +204,20 @@ export default function AddMemberModal(props: {
                 <div className="flex flex-col gap-3 mt-2">
                   <div className="text-sm">{t("access permissions")}</div>
                   <div className="grid grid-cols-2 gap-2">
-                    {rolePermissions[watchRole]?.map(
-                      (permission: { label: string }, index: number) => (
-                        <div
-                          key={"addmembermodalrole" + index}
-                          className="text-sm flex items-center"
-                        >
-                          <MdOutlineCheck
-                            size={16}
-                            className="inline-block mr-2 text-success"
-                          />
-                          {permission.label}
-                        </div>
-                      )
-                    )}
+                    {rolePermissions[
+                      watchRole as unknown as "MANAGER" | "STAFF"
+                    ]?.map((permission: { label: string }, index: number) => (
+                      <div
+                        key={"addmembermodalrole" + index}
+                        className="text-sm flex items-center"
+                      >
+                        <MdOutlineCheck
+                          size={16}
+                          className="inline-block mr-2 text-success"
+                        />
+                        {permission.label}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

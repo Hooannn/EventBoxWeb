@@ -106,7 +106,7 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
         <div className="flex items-center gap-2">
           <Controller
             name="start_time"
-            defaultValue={now(getLocalTimeZone())}
+            defaultValue={now(getLocalTimeZone()) as unknown as DateValue}
             control={control}
             rules={{
               required: t("{{label}} is required", {
@@ -145,7 +145,7 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
 
           <Controller
             name="end_time"
-            defaultValue={now(getLocalTimeZone())}
+            defaultValue={now(getLocalTimeZone()) as unknown as DateValue}
             control={control}
             rules={{
               required: t("{{label}} is required", {
@@ -186,7 +186,7 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
           <Controller
             name="sale_start_time"
             control={control}
-            defaultValue={now(getLocalTimeZone())}
+            defaultValue={now(getLocalTimeZone()) as unknown as DateValue}
             rules={{
               required: t("{{label}} is required", {
                 label: t("sale start time").toString(),
@@ -232,7 +232,7 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
 
           <Controller
             name="sale_end_time"
-            defaultValue={now(getLocalTimeZone())}
+            defaultValue={now(getLocalTimeZone()) as unknown as DateValue}
             control={control}
             rules={{
               required: t("{{label}} is required", {
