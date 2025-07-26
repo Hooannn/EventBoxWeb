@@ -634,12 +634,18 @@ const InformationStep = forwardRef<
           <Controller
             name="keywords"
             control={control}
+            rules={{
+              required: t("{{label}} is required", {
+                label: t("keywords").toString(),
+              }).toString(),
+            }}
             render={({
               field: { name, value, onChange, onBlur, ref },
               fieldState: { invalid, error },
             }) => (
               <Input
                 ref={ref}
+                isRequired
                 errorMessage={error?.message}
                 radius="none"
                 validationBehavior="aria"
