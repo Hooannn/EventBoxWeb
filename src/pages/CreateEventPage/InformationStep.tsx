@@ -636,7 +636,7 @@ const InformationStep = forwardRef<
             control={control}
             rules={{
               required: t("{{label}} is required", {
-                label: t("keywords").toString(),
+                label: t("keyword").toString(),
               }).toString(),
             }}
             render={({
