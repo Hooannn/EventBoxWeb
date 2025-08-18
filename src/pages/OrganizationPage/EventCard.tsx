@@ -1,4 +1,11 @@
-import { Button, Card, Chip, Image, useDisclosure } from "@heroui/react";
+import {
+  Button,
+  Card,
+  Chip,
+  Image,
+  Tooltip,
+  useDisclosure,
+} from "@heroui/react";
 import { IEvent } from "../../types";
 import { useTranslation } from "react-i18next";
 import { getEventLogo, getFirstShowStartTime, isOwner } from "../../utils";
@@ -8,6 +15,7 @@ import {
   MdOutlineLocationOn,
   MdOutlineArrowOutward,
   MdOutlineTag,
+  MdOutlineMoney,
 } from "react-icons/md";
 import ArchiveModal from "./ArchiveModal";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,6 +25,8 @@ import ReviewModal from "../EventAdminPage/ReviewModal";
 import useAuthStore from "../../stores/auth";
 import { CheckIcon } from "../CategoryAdminPage/CategoryAdminPage";
 import UpdateTagsModal from "./UpdateTagsModal";
+import dayjs from "../../libs/dayjs";
+import PayoutModal from "./PayoutModal";
 
 export default function EventCard(props: {
   isAdmin: boolean;
@@ -60,6 +70,13 @@ export default function EventCard(props: {
     onOpenChange: onReviewModalOpenChange,
   } = useDisclosure();
 
+  const {
+    onClose: onPayoutModalClose,
+    isOpen: isPayoutModalOpen,
+    onOpen: onPayoutModalOpen,
+    onOpenChange: onPayoutModalOpenChange,
+  } = useDisclosure();
+
   const navigate = useNavigate();
 
   const currentUser = useAuthStore((state) => state.user);
@@ -80,6 +97,9 @@ export default function EventCard(props: {
         ["OWNER", "MANAGER"].includes(uo.role) && uo.user.id === currentUser?.id
     );
   };
+
+  const isEnded = () =>
+    props.event.shows.every((show) => dayjs(show.end_time).isBefore(dayjs()));
 
   const getActionButtons = () => {
     if (props.isAdmin) {
@@ -167,18 +187,51 @@ export default function EventCard(props: {
               <MdOutlineArrowOutward />
               {t("reports").toString()}
             </Button>
-            <Button
-              radius="none"
-              fullWidth
-              size="sm"
-              isDisabled={!isOwner(currentUser!, props.event.organization)}
-              onPress={onDraftModalOpen}
-              className="py-5"
-              color="danger"
-              variant="flat"
-            >
-              {t("draft").toString()}
-            </Button>
+            {isEnded() ? (
+              <Tooltip
+                content={
+                  props.event.payout_at !== null
+                    ? t("event_already_paid at {{date}}", {
+                        date: dayjs(props.event.payout_at).format(
+                          "DD-MM-YYYY HH:mm"
+                        ),
+                      }).toString()
+                    : t("request payout").toString()
+                }
+              >
+                <div className="flex w-full">
+                  <Button
+                    radius="none"
+                    fullWidth
+                    size="sm"
+                    variant="flat"
+                    onPress={onPayoutModalOpen}
+                    isDisabled={
+                      !isOwner(currentUser!, props.event.organization) ||
+                      props.event.payout_at !== null
+                    }
+                    className="py-5"
+                    color="success"
+                  >
+                    <MdOutlineMoney />
+                    {t("request payout").toString()}
+                  </Button>
+                </div>
+              </Tooltip>
+            ) : (
+              <Button
+                radius="none"
+                fullWidth
+                size="sm"
+                isDisabled={!isOwner(currentUser!, props.event.organization)}
+                onPress={onDraftModalOpen}
+                className="py-5"
+                color="danger"
+                variant="flat"
+              >
+                {t("draft").toString()}
+              </Button>
+            )}
           </>
         );
       default:
@@ -256,6 +309,15 @@ export default function EventCard(props: {
         onSuccess={props.onRefresh}
         event={props.event}
       />
+
+      <PayoutModal
+        isOpen={isPayoutModalOpen}
+        onOpenChange={onPayoutModalOpenChange}
+        onClose={onPayoutModalClose}
+        onSuccess={props.onRefresh}
+        event={props.event}
+      />
+
       <Card
         radius="none"
         shadow="sm"

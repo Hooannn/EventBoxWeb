@@ -102,12 +102,27 @@ export function OrderDetailsModal(props: {
                     {props.item.items.map((item, index) => (
                       <div
                         key={"ticket" + index + item.id}
-                        className="flex justify-between items-center px-2 py-1 border-b"
+                        className="flex flex-col px-2 py-1 border-b"
                       >
-                        <span>
-                          {t("ticket")} {item.ticket.name}
-                        </span>
-                        <span>{priceFormat(item.ticket.price)}</span>
+                        <div className="flex justify-between items-center">
+                          <span>
+                            {t("ticket")} {item.ticket.name}
+                          </span>
+                          <span>{priceFormat(item.ticket.price)}</span>
+                        </div>
+                        {item.feedback ? (
+                          <div className="flex text-sm gap-2">
+                            <span className="text-gray-600">
+                              {t("feedback")}:{" "}
+                            </span>
+                            <p
+                              className="text-gray-500"
+                              style={{ whiteSpace: "pre-line" }}
+                            >
+                              {item.feedback}
+                            </p>
+                          </div>
+                        ) : null}
                       </div>
                     ))}
                   </div>

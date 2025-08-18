@@ -668,5 +668,14 @@
   "enter your new password": "Enter your new password",
   "current password": "Current password",
   "enter your current password": "Enter your current password",
-  "category_in_use": "This category is currently in use by one or more events. Please remove the category from those events before deleting it."
+  "category_in_use": "This category is currently in use by one or more events. Please remove the category from those events before deleting it.",
+  "event_already_paid": "This event has already been paid. You cannot request a payout.",
+  "event_not_ended": "This event has not ended yet. You cannot request a payout.",
+  "payout_failed": "Failed to request payout. Please try again later.",
+  "ticket_not_sold": "This ticket type has not been sold. You cannot request a payout.",
+  "request payout": "Request payout",
+  "feedback": "Feedback",
+  "event_already_paid at {{date}}": "This event has already been paid at {{date}}. You cannot request a payout.",
+  "you are about to request for a payout {{account}}": "Your event money will be sent to the PayPal account {{account}}. Please ensure that this is the correct account before proceeding.",
+  "REQUEST_FOR_PAYOUT_SUCCESSFULLY": "Request for payout successfully, the payout is already sent to organization's PayPal account."
 }

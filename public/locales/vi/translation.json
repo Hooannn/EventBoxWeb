@@ -671,5 +671,14 @@
   "enter your new password": "Nhập mật khẩu mới của bạn",
   "current password": "Mật khẩu hiện tại",
   "enter your current password": "Nhập mật khẩu hiện tại của bạn",
-  "category_in_use": "Danh mục này đang được sử dụng bởi một hoặc nhiều sự kiện, bạn không thể xóa danh mục này"
+  "category_in_use": "Danh mục này đang được sử dụng bởi một hoặc nhiều sự kiện, bạn không thể xóa danh mục này",
+  "event_already_paid": "Sự kiện này đã được rút tiền về, bạn không thể rút tiền lần nữa",
+  "event_not_ended": "Sự kiện này chưa kết thúc, bạn chưa thể rút tiền về",
+  "payout_failed": "Rút tiền không thành công, vui lòng thử lại sau",
+  "ticket_not_sold": "Sự kiện này chưa bán được bất cứ vé nào, bạn không thể rút tiền về",
+  "feedback": "Phản hồi",
+  "request payout": "Rút tiền sự kiện",
+  "event_already_paid at {{date}}": "Sự kiện này đã được rút tiền về lúc {{date}}, bạn không thể rút tiền lần nữa",
+  "you are about to request for a payout {{account}}": "Toàn bộ tiền thu được từ sự kiện này sẽ được chuyển vào tài khoản PayPal {{account}}. Bạn có chắc chắn muốn rút tiền không ?",
+  "REQUEST_FOR_PAYOUT_SUCCESSFULLY": "Yêu cầu rút tiền thành công, tiền đã được chuyển vào tài khoản PayPal của ban tổ chức"
 }

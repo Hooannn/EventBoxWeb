@@ -173,6 +173,7 @@ export interface ITicketItem {
   ticket: ITicket;
   quantity: number;
   place_total: number;
+  feedback?: string;
   traces: ITicketItemTrace[];
 }
 
