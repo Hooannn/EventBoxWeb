@@ -79,9 +79,10 @@ const ShowsAndTicketTypeStep = forwardRef<
 
   return (
     <div className="flex flex-col gap-2">
-      {shows.map((show) => (
+      {shows.map((show, index) => (
         <ShowCard
           key={show.tempId}
+          index={index}
           ref={(el) => {
             if (el) {
               showCardRefs.current[show.tempId] = el;
@@ -93,6 +94,27 @@ const ShowsAndTicketTypeStep = forwardRef<
           onDelete={() => {
             setShows((prev) => prev.filter((s) => s.tempId !== show.tempId));
           }}
+          onDublicate={() => {
+            const currentShowCard = showCardRefs.current[show.tempId];
+            if (currentShowCard) {
+              currentShowCard
+                .submit()
+                .then((data) => {
+                  const newShow: Show = {
+                    tempId: crypto.randomUUID(),
+                  };
+                  setShows((prev) => [...prev, newShow]);
+
+                  setTimeout(() => {
+                    const newShowCard = showCardRefs.current[newShow.tempId];
+                    if (newShowCard) {
+                      newShowCard.setInitData(data);
+                    }
+                  }, 0);
+                })
+                .catch(() => {});
+            }
+          }}
         />
       ))}
       <Button
@@ -101,7 +123,7 @@ const ShowsAndTicketTypeStep = forwardRef<
         radius="none"
         size="lg"
         className="py-6 px-10 mx-auto flex items-center justify-center gap-2"
-        onClick={() => {
+        onPress={() => {
           const newShow: Show = {
             tempId: crypto.randomUUID(),
           };

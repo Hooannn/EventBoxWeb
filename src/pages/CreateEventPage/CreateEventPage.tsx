@@ -73,9 +73,6 @@ export default function CreateEventPage() {
         background_base64: stepData.information?.background_base64,
         logo_base64: stepData.information?.logo_base64,
         keywords: stepData.information?.keywords.split(","),
-        // category_ids: stepData.information?.category_ids
-        //   .split(",")
-        //   .map((id) => parseInt(id)),
         category_ids: Array.from(
           stepData.information?.category_ids || new Set<string>()
         ).map((id) => parseInt(id)),
@@ -92,7 +89,12 @@ export default function CreateEventPage() {
           sale_end_time: dayjs(show.sale_end_time.toDate("Asia/Saigon")).format(
             "YYYY-MM-DDTHH:mm:00"
           ),
+          title: show.title,
+          enabled_seatmap: show.enabled_seatmap,
+          seatmap: show.seatmap,
+          seatmap_svg: show.seatmap_svg,
           ticket_type_inputs: show.ticket_types.map((ticketType) => ({
+            seatmap_block_id: ticketType.temp_id,
             name: ticketType.name,
             price: parseFloat(ticketType.price),
             description: ticketType.description,
@@ -234,14 +236,22 @@ export default function CreateEventPage() {
             {getActionButton()}
           </div>
         </div>
-        <div className="flex-1 overflow-auto p-2">
-          <div className={`${activeStep !== "information" && "hidden"}`}>
+        <div className="flex flex-1 overflow-auto p-2">
+          <div className={`${activeStep !== "information" && "hidden"} w-full`}>
             {<InformationStep ref={informationStepRef} />}
           </div>
-          <div className={`${activeStep !== "showsAndTicketType" && "hidden"}`}>
+          <div
+            className={`${
+              activeStep !== "showsAndTicketType" && "hidden"
+            } w-full`}
+          >
             {<ShowsAndTicketTypeStep ref={showsAndTicketTypeStepRef} />}
           </div>
-          <div className={`${activeStep !== "paymentInformation" && "hidden"}`}>
+          <div
+            className={`${
+              activeStep !== "paymentInformation" && "hidden"
+            } w-full`}
+          >
             {<PaymentInformationStep />}
           </div>
         </div>

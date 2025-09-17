@@ -297,7 +297,7 @@ const InformationStep = forwardRef<
             control={control}
             rules={{
               required: t("{{label}} is required", {
-                label: t("name").toString(),
+                label: t("event name").toString(),
               }).toString(),
             }}
             render={({
@@ -317,9 +317,9 @@ const InformationStep = forwardRef<
                 name={name}
                 value={value}
                 onChange={onChange}
-                label={t("name").toString()}
+                label={t("event name").toString()}
                 placeholder={t("enter {{label}}", {
-                  label: t("name").toString().toLowerCase(),
+                  label: t("event name").toString().toLowerCase(),
                 }).toString()}
               />
             )}

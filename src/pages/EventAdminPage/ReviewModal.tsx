@@ -3,11 +3,11 @@ import { useMutation } from "@tanstack/react-query";
 import { IEvent, IResponseData } from "../../types";
 import { onError } from "../../utils/error-handlers";
 import {
+  Accordion,
+  AccordionItem,
   addToast,
   Button,
   Card,
-  CardBody,
-  CardHeader,
   Chip,
   Image,
   Input,
@@ -28,6 +28,8 @@ import {
 } from "../../utils";
 import { MdDeleteOutline, MdOutlineCalendarToday } from "react-icons/md";
 import { IoTicketOutline } from "react-icons/io5";
+import { StaticCanvas } from "fabric";
+import { useEffect, useRef } from "react";
 
 export function ArchiveModal(props: {
   isOpen: boolean;
@@ -225,15 +227,29 @@ export default function ReviewModal(props: {
           {() => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                {t("confirm")}
+                {t("review")}
               </ModalHeader>
-              <ModalBody>
-                <div className="flex flex-col gap-2">
-                  <Card radius="none" shadow="sm" className="p-4">
-                    <CardHeader className="py-0">
+              <ModalBody className="px-4">
+                <Accordion
+                  variant="splitted"
+                  selectionMode="multiple"
+                  defaultExpandedKeys={Array.from(
+                    { length: 4 + props.event.shows.length },
+                    (_, i) => (i + 1).toString()
+                  )}
+                  itemClasses={{
+                    base: "rounded-none",
+                    title: "px-3",
+                    content: "px-3 pb-7 pt-0",
+                  }}
+                >
+                  <AccordionItem
+                    key="1"
+                    title={
                       <div className="text-lg font-semibold">{t("assets")}</div>
-                    </CardHeader>
-                    <CardBody className="flex flex-col gap-2">
+                    }
+                  >
+                    <div className="flex flex-col gap-2">
                       <div className="flex items-center w-full justify-center gap-2 h-96">
                         <div
                           className={`relative flex flex-col items-center justify-center h-full w-1/3 border-2 border-dashed hover:bg-gray-100 rounded-none cursor-pointer transition-all duration-200`}
@@ -265,14 +281,15 @@ export default function ReviewModal(props: {
                         label={t("name").toString()}
                         value={props.event.title}
                       />
-                    </CardBody>
-                  </Card>
-
-                  <Card radius="none" shadow="sm" className="p-4">
-                    <CardHeader className="py-0">
+                    </div>
+                  </AccordionItem>
+                  <AccordionItem
+                    key="2"
+                    title={
                       <div className="text-lg font-semibold">{t("place")}</div>
-                    </CardHeader>
-                    <CardBody className="flex flex-col gap-2">
+                    }
+                  >
+                    <div className="flex flex-col gap-2">
                       <Input
                         radius="none"
                         validationBehavior="aria"
@@ -290,19 +307,22 @@ export default function ReviewModal(props: {
                         value={props.event.address}
                         label={t("address").toString()}
                       />
-                    </CardBody>
-                  </Card>
-
-                  <Card radius="none" shadow="sm" className="p-4">
-                    <CardHeader className="py-0 flex flex-col items-start">
-                      <div className="text-lg font-semibold">
-                        {t("discovery")}
+                    </div>
+                  </AccordionItem>
+                  <AccordionItem
+                    key="3"
+                    title={
+                      <div className="py-0 flex flex-col items-start">
+                        <div className="text-lg font-semibold">
+                          {t("discovery")}
+                        </div>
+                        <div className="text-xs text-default-500">
+                          {t("help users find your event")}
+                        </div>
                       </div>
-                      <div className="text-xs text-default-500">
-                        {t("help users find your event")}
-                      </div>
-                    </CardHeader>
-                    <CardBody className="flex flex-col gap-2">
+                    }
+                  >
+                    <div className="flex flex-col gap-2">
                       <div>
                         <div className="text-sm">{t("category")}</div>
                         <div className="flex flex-wrap gap-2">
@@ -337,16 +357,17 @@ export default function ReviewModal(props: {
                           ))}
                         </div>
                       </div>
-                    </CardBody>
-                  </Card>
-
-                  <Card radius="none" shadow="sm" className="p-4">
-                    <CardHeader className="py-0">
+                    </div>
+                  </AccordionItem>
+                  <AccordionItem
+                    key="4"
+                    title={
                       <div className="text-lg font-semibold">
                         {t("description")}
                       </div>
-                    </CardHeader>
-                    <CardBody className="flex flex-col gap-2">
+                    }
+                  >
+                    <div className="flex flex-col gap-2">
                       <div className="w-full">
                         <ReactQuill
                           theme="snow"
@@ -369,118 +390,148 @@ export default function ReviewModal(props: {
                           ]}
                         />
                       </div>
-                    </CardBody>
-                  </Card>
+                    </div>
+                  </AccordionItem>
 
-                  {props.event.shows.map((show) => (
-                    <Card
-                      radius="none"
-                      shadow="sm"
-                      className="p-4 relative"
-                      key={"ReviewModalShow" + show.id}
+                  {props.event.shows.map((show, index) => (
+                    <AccordionItem
+                      key={4 + index + 1}
+                      title={
+                        <div className="text-lg font-semibold">
+                          {t("show")} #{index + 1}
+                        </div>
+                      }
                     >
-                      <CardHeader className="py-0">
-                        <div className="flex items-center justify-between w-full">
-                          <div className="text-lg font-semibold">
-                            {t("date")}
+                      <div className="flex flex-col gap-2">
+                        <Input
+                          radius="none"
+                          validationBehavior="aria"
+                          color="primary"
+                          variant="bordered"
+                          value={show.title}
+                          label={t("show title").toString()}
+                          placeholder={t("enter {{label}}", {
+                            label: t("show title").toString().toLowerCase(),
+                          }).toString()}
+                        />
+                        <div className="flex flex-col">
+                          <div className="flex items-center justify-between w-full pb-2">
+                            <div className="text-lg font-semibold">
+                              {t("date")}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                isRequired
+                                value={stringToDateFormat(show.start_time)}
+                                isReadOnly
+                                startContent={
+                                  <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+                                }
+                                label={t("start time")}
+                                radius="none"
+                                variant="bordered"
+                              />
+
+                              <Input
+                                isRequired
+                                value={stringToDateFormat(show.end_time)}
+                                isReadOnly
+                                startContent={
+                                  <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+                                }
+                                label={t("end time")}
+                                radius="none"
+                                variant="bordered"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                isRequired
+                                isReadOnly
+                                value={stringToDateFormat(show.sale_start_time)}
+                                startContent={
+                                  <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+                                }
+                                label={t("sale start time")}
+                                radius="none"
+                                variant="bordered"
+                              />
+
+                              <Input
+                                isRequired
+                                isReadOnly
+                                value={stringToDateFormat(show.sale_end_time)}
+                                startContent={
+                                  <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+                                }
+                                label={t("sale end time")}
+                                radius="none"
+                                variant="bordered"
+                              />
+                            </div>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardBody className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            isRequired
-                            value={stringToDateFormat(show.start_time)}
-                            isReadOnly
-                            startContent={
-                              <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-                            }
-                            label={t("start time")}
-                            radius="none"
-                            variant="bordered"
-                          />
 
-                          <Input
-                            isRequired
-                            value={stringToDateFormat(show.end_time)}
-                            isReadOnly
-                            startContent={
-                              <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-                            }
-                            label={t("end time")}
-                            radius="none"
-                            variant="bordered"
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            isRequired
-                            isReadOnly
-                            value={stringToDateFormat(show.sale_start_time)}
-                            startContent={
-                              <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-                            }
-                            label={t("sale start time")}
-                            radius="none"
-                            variant="bordered"
-                          />
-
-                          <Input
-                            isRequired
-                            isReadOnly
-                            value={stringToDateFormat(show.sale_end_time)}
-                            startContent={
-                              <MdOutlineCalendarToday className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-                            }
-                            label={t("sale end time")}
-                            radius="none"
-                            variant="bordered"
-                          />
-                        </div>
-                      </CardBody>
-                      <CardHeader className="py-0 flex flex-col items-start">
-                        <div className="text-lg font-semibold">
-                          {t("ticket types")}
-                        </div>
-                      </CardHeader>
-                      <CardBody>
-                        <div className="flex flex-col gap-2">
-                          {show.tickets.map((ticket) => (
-                            <Card
-                              key={
-                                "ReviewModalShowTicket" + show.id + ticket.id
-                              }
-                              radius="none"
-                              shadow="sm"
-                              className="p-3"
-                              classNames={{
-                                base: "bg-secondary-50",
-                              }}
-                            >
-                              <div className="flex flex-row gap-2 items-center gap-2">
-                                <IoTicketOutline size={28} />
-                                <div className="flex flex-col flex-1">
-                                  <div className="text-base font-semibold">
-                                    {ticket.name}
-                                  </div>
-                                  <div className="text-xs text-secondary-600">
-                                    {t("price")}:{" "}
-                                    {priceFormat(
-                                      parseFloat(ticket.price.toString())
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-secondary-600">
-                                    {t("initial stock")}: {ticket.initial_stock}
+                        <div className="flex flex-col">
+                          <div className="flex items-center justify-between w-full pb-2">
+                            <div className="text-lg font-semibold">
+                              {t("ticket types")}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            {show.tickets.map((ticket) => (
+                              <Card
+                                key={
+                                  "ReviewModalShowTicket" + show.id + ticket.id
+                                }
+                                radius="none"
+                                shadow="sm"
+                                className="p-3"
+                                classNames={{
+                                  base: "bg-secondary-50",
+                                }}
+                              >
+                                <div className="flex flex-row gap-2 items-center gap-2">
+                                  <IoTicketOutline size={28} />
+                                  <div className="flex flex-col flex-1">
+                                    <div className="text-base font-semibold">
+                                      {ticket.name}
+                                    </div>
+                                    <div className="text-xs text-secondary-600">
+                                      {t("price")}:{" "}
+                                      {priceFormat(
+                                        parseFloat(ticket.price.toString())
+                                      )}
+                                    </div>
+                                    <div className="text-xs text-secondary-600">
+                                      {t("initial stock")}:{" "}
+                                      {ticket.initial_stock}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </Card>
-                          ))}
+                              </Card>
+                            ))}
+                          </div>
                         </div>
-                      </CardBody>
-                    </Card>
+
+                        {show.enabled_seatmap && (
+                          <div className="flex flex-col">
+                            <div className="flex items-center justify-between w-full pb-2">
+                              <div className="text-lg font-semibold">
+                                {t("seatmap")}
+                              </div>
+                            </div>
+                            <div>
+                              <SeatmapReview seatmap={show.seatmap!} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </AccordionItem>
                   ))}
-                </div>
+                </Accordion>
               </ModalBody>
               {props.event.status === "PENDING" && (
                 <ModalFooter>
@@ -511,5 +562,51 @@ export default function ReviewModal(props: {
         </ModalContent>
       </Modal>
     </>
+  );
+}
+
+function SeatmapReview(props: { seatmap: string }) {
+  const canvasEl = useRef<HTMLCanvasElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<StaticCanvas | null>(null);
+
+  const resizeCanvas = () => {
+    if (!wrapperRef.current || !canvasRef.current) return;
+    const { width, height } = wrapperRef.current.getBoundingClientRect();
+    canvasRef.current.setWidth(width - 2);
+    canvasRef.current.setHeight(height - 2);
+    canvasRef.current.renderAll();
+  };
+
+  useEffect(() => {
+    if (!canvasEl.current) return;
+
+    const canvas = new StaticCanvas(canvasEl.current, {
+      selection: true,
+    });
+
+    canvasRef.current = canvas;
+
+    resizeCanvas();
+
+    window.addEventListener("resize", resizeCanvas);
+
+    canvas.loadFromJSON(JSON.parse(props.seatmap)).then(() => {
+      canvas.renderAll();
+    });
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      canvas.dispose();
+      canvasRef.current = null;
+    };
+  }, []);
+  return (
+    <div
+      ref={wrapperRef}
+      className="w-[800px] h-[500px] flex items-center justify-center border mx-auto"
+    >
+      <canvas ref={canvasEl} />
+    </div>
   );
 }
