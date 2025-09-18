@@ -24,8 +24,8 @@ import {
 import useAxiosIns from "../../hooks/useAxiosIns";
 import { useQuery } from "@tanstack/react-query";
 import { IEventShow, IOrder, IResponseData } from "../../types";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
+import { useState } from "react";
 import { getUserAvatar, priceFormat, stringToDateFormatV2 } from "../../utils";
 import { utils, writeFile } from "xlsx";
 import OrderCellActions from "./OrderCellActions";
@@ -33,32 +33,21 @@ import OrderCellActions from "./OrderCellActions";
 export default function OrdersPage() {
   const { t } = useTranslation();
   const axios = useAxiosIns();
-  const params = useParams();
-
-  const eventId = params.eventId;
-
   const [searchTerm, setSearchTerm] = useState("");
 
-  const getEventShowsQuery = useQuery({
-    queryKey: ["fetch/event/eventShows/id", eventId],
-    queryFn: () =>
-      axios.get<IResponseData<IEventShow[]>>(`/v1/events/${eventId}/shows`),
-    refetchOnWindowFocus: false,
-  });
-
-  const eventShows = getEventShowsQuery.data?.data?.data || [];
-
-  const [selectedShow, setSelectedShow] = useState(new Set<string>([]));
-
-  const getSelectedShow = () => {
-    return eventShows.find((show) => selectedShow.has(show.id.toString()));
-  };
-
-  useEffect(() => {
-    if (eventShows.length > 0 && selectedShow.size === 0) {
-      setSelectedShow(new Set([eventShows[0].id.toString()]));
-    }
-  }, [eventShows]);
+  const {
+    eventShows,
+    isLoading,
+    selectedShow,
+    setSelectedShow,
+    getSelectedShow,
+  }: {
+    eventShows: IEventShow[];
+    isLoading: boolean;
+    selectedShow: Set<string>;
+    setSelectedShow: React.Dispatch<React.SetStateAction<Set<string>>>;
+    getSelectedShow: () => IEventShow;
+  } = useOutletContext();
 
   const getOrdersQuery = useQuery({
     queryKey: ["fetch/event/eventShows/id/orders/all", getSelectedShow()?.id],
@@ -150,7 +139,7 @@ export default function OrdersPage() {
 
   return (
     <>
-      {getEventShowsQuery.isLoading ? (
+      {isLoading ? (
         <div className="flex h-full w-full items-center justify-center">
           <Spinner />
         </div>

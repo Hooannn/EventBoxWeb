@@ -22,14 +22,45 @@ import {
   MdOutlineTaskAlt,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { IEventShow, IResponseData } from "../types";
+import useAxiosIns from "../hooks/useAxiosIns";
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import useAuthStore from "../stores/auth";
 
 export default function EventLayout() {
   const i18n = getI18n();
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const params = useParams();
   const navigate = useNavigate();
+  const axios = useAxiosIns();
+  const queryClient = useQueryClient();
+  const eventId = params.eventId;
+
+  const getEventShowsQuery = useQuery({
+    queryKey: ["fetch/event/eventShows/id", eventId],
+    queryFn: () =>
+      axios.get<IResponseData<IEventShow[]>>(`/v1/events/${eventId}/shows`),
+    refetchOnWindowFocus: false,
+  });
+
+  const eventShows = getEventShowsQuery.data?.data?.data || [];
+
+  const [selectedShow, setSelectedShow] = useState(new Set<string>([]));
+
+  const getSelectedShow = () => {
+    return eventShows.find((show) => selectedShow.has(show.id.toString()));
+  };
+
+  useEffect(() => {
+    if (eventShows.length > 0 && selectedShow.size === 0) {
+      setSelectedShow(new Set([eventShows[0].id.toString()]));
+    }
+  }, [eventShows]);
 
   const menuItems = () => [
     {
@@ -57,6 +88,58 @@ export default function EventLayout() {
       label: t("orders"),
     },
   ];
+
+  useEffect(() => {
+    const socket = io(
+      `${import.meta.env.VITE_SOCKET_ENDPOINT}event?user_id=${
+        user?.id
+      }&event_id=${eventId}`,
+      {
+        transports: ["websocket"],
+        forceNew: true,
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+      }
+    );
+
+    socket.on("connect", () => {
+      console.log("✅ Connected:", socket.id);
+    });
+
+    socket.on("stock_updated", () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetch/event/eventShows/id/orders/all"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["fetch/event/eventShows/id/orders"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["fetch/event/eventShows/id/ticketItems"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["fetch/event/eventShows/id", eventId],
+      });
+    });
+
+    socket.on("traces_updated", () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetch/event/eventShows/id/ticketItems"],
+      });
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Disconnected:", reason);
+    });
+
+    socket.on("reconnect_attempt", (attempt) => {
+      console.log(`🔁 Reconnecting... (${attempt})`);
+    });
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, []);
 
   return (
     <>
@@ -127,7 +210,15 @@ export default function EventLayout() {
             </div>
           </div>
           <div className="h-full px-6 pb-4 overflow-auto relative">
-            <Outlet />
+            <Outlet
+              context={{
+                eventShows,
+                isLoading: getEventShowsQuery.isLoading,
+                selectedShow,
+                setSelectedShow,
+                getSelectedShow,
+              }}
+            />
           </div>
         </div>
       </div>

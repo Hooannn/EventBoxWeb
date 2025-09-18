@@ -205,37 +205,6 @@ const InformationStep = forwardRef<
   const handleImagePickerSave = async (data: SavedImageData) => {
     console.log(data);
     onImagePickerModalClose();
-    // const quill = quillRef.current;
-    // quill?.focus();
-    // if (currentRange) quill?.getEditor()?.setSelection(currentRange);
-    // if (quill) {
-    //   let attachment: Attachment | undefined;
-    //   if (data.imageBase64) {
-    //     const formData = new FormData();
-    //     const file = await base64ToFile(
-    //       data.imageBase64,
-    //       data.name,
-    //       data.mimeType
-    //     );
-    //     formData.append("file", file);
-    //     const uploadRes = await uploadMutation.mutateAsync({ formData });
-    //     attachment = uploadRes.data?.data;
-    //   }
-
-    //   if (attachment) {
-    //     const newAttachments = [...attachments, attachment];
-    //     onAttachmentsChange(newAttachments);
-    //   }
-
-    //   const range = quill.getEditor()?.getSelection();
-    //   if (range) {
-    //     quill.getEditor().insertEmbed(range.index, "image", attachment?.url);
-    //     quill.getEditor().setSelection({
-    //       index: range.index + 1,
-    //       length: currentRange?.length || 0,
-    //     });
-    //   }
-    // }
   };
 
   const imageUploadHandler = useCallback(() => {

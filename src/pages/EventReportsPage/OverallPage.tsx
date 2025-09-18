@@ -17,8 +17,7 @@ import { MdEvent } from "react-icons/md";
 import useAxiosIns from "../../hooks/useAxiosIns";
 import { useQuery } from "@tanstack/react-query";
 import { IEventShow, IOrder, IResponseData } from "../../types";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { priceFormat, stringToDateFormatV2 } from "../../utils";
 import {
   Bar,
@@ -40,24 +39,19 @@ const COLORS = ["#00C49F", "#FF8042"];
 export default function OverallPage() {
   const { t } = useTranslation();
   const axios = useAxiosIns();
-  const params = useParams();
-
-  const eventId = params.eventId;
-
-  const getEventShowsQuery = useQuery({
-    queryKey: ["fetch/event/eventShows/id", eventId],
-    queryFn: () =>
-      axios.get<IResponseData<IEventShow[]>>(`/v1/events/${eventId}/shows`),
-    refetchOnWindowFocus: false,
-  });
-
-  const eventShows = getEventShowsQuery.data?.data?.data || [];
-
-  const [selectedShow, setSelectedShow] = useState(new Set<string>([]));
-
-  const getSelectedShow = () => {
-    return eventShows.find((show) => selectedShow.has(show.id.toString()));
-  };
+  const {
+    eventShows,
+    isLoading,
+    selectedShow,
+    setSelectedShow,
+    getSelectedShow,
+  }: {
+    eventShows: IEventShow[];
+    isLoading: boolean;
+    selectedShow: Set<string>;
+    setSelectedShow: React.Dispatch<React.SetStateAction<Set<string>>>;
+    getSelectedShow: () => IEventShow;
+  } = useOutletContext();
 
   const revenueData = () => {
     const totalRevenue = getTotalRevenue();
@@ -114,12 +108,6 @@ export default function OverallPage() {
     );
   };
 
-  useEffect(() => {
-    if (eventShows.length > 0 && selectedShow.size === 0) {
-      setSelectedShow(new Set([eventShows[0].id.toString()]));
-    }
-  }, [eventShows]);
-
   const getOrdersQuery = useQuery({
     queryKey: ["fetch/event/eventShows/id/orders", getSelectedShow()?.id],
     queryFn: () => {
@@ -172,7 +160,7 @@ export default function OverallPage() {
 
   return (
     <>
-      {getEventShowsQuery.isLoading ? (
+      {isLoading ? (
         <div className="flex h-full w-full items-center justify-center">
           <Spinner />
         </div>
@@ -184,18 +172,21 @@ export default function OverallPage() {
               <div>
                 {getSelectedShow() && (
                   <>
-                    <h1 className="text-base">
+                    <div>
+                      {t("show").toString()}: {getSelectedShow()!.title}
+                    </div>
+                    <div>
                       {t("show time").toString()}: {t("from").toString()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.start_time)}{" "}
                       {t("to").toString().toLowerCase()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.end_time)}
-                    </h1>
-                    <p className="text-sm text-gray-500">
+                    </div>
+                    <div className="text-sm text-gray-500">
                       {t("sale time").toString()}: {t("from").toString()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.sale_start_time)}{" "}
                       {t("to").toString().toLowerCase()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.sale_end_time)}
-                    </p>
+                    </div>
                   </>
                 )}
               </div>
@@ -214,12 +205,15 @@ export default function OverallPage() {
                 {eventShows.map((show) => (
                   <SelectItem
                     key={show.id}
-                    textValue={`${stringToDateFormatV2(show.start_time)} ${t(
+                    textValue={`${show.title}: ${t(
+                      "from"
+                    ).toString()} ${stringToDateFormatV2(show.start_time)} ${t(
                       "to"
                     )
                       .toString()
                       .toLowerCase()} ${stringToDateFormatV2(show.end_time)}`}
                   >
+                    {show.title}: {t("from").toString()}{" "}
                     {stringToDateFormatV2(show.start_time)}{" "}
                     {t("to").toString().toLowerCase()}{" "}
                     {stringToDateFormatV2(show.end_time)}
