@@ -230,6 +230,7 @@ export default function ReviewModal(props: {
                 {t("review")}
               </ModalHeader>
               <ModalBody className="px-4">
+                {/* @ts-expect-error type error */}
                 <Accordion
                   variant="splitted"
                   selectionMode="multiple"
