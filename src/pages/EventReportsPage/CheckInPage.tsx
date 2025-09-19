@@ -128,18 +128,21 @@ export default function CheckInPage() {
               <div>
                 {getSelectedShow() && (
                   <>
-                    <h1 className="text-base">
+                    <div>
+                      {t("show").toString()}: {getSelectedShow()!.title}
+                    </div>
+                    <div>
                       {t("show time").toString()}: {t("from").toString()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.start_time)}{" "}
                       {t("to").toString().toLowerCase()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.end_time)}
-                    </h1>
-                    <p className="text-sm text-gray-500">
+                    </div>
+                    <div className="text-sm text-gray-500">
                       {t("sale time").toString()}: {t("from").toString()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.sale_start_time)}{" "}
                       {t("to").toString().toLowerCase()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.sale_end_time)}
-                    </p>
+                    </div>
                   </>
                 )}
               </div>
@@ -158,12 +161,15 @@ export default function CheckInPage() {
                 {eventShows.map((show) => (
                   <SelectItem
                     key={show.id}
-                    textValue={`${stringToDateFormatV2(show.start_time)} ${t(
+                    textValue={`${show.title}: ${t(
+                      "from"
+                    ).toString()} ${stringToDateFormatV2(show.start_time)} ${t(
                       "to"
                     )
                       .toString()
                       .toLowerCase()} ${stringToDateFormatV2(show.end_time)}`}
                   >
+                    {show.title}: {t("from").toString()}{" "}
                     {stringToDateFormatV2(show.start_time)}{" "}
                     {t("to").toString().toLowerCase()}{" "}
                     {stringToDateFormatV2(show.end_time)}

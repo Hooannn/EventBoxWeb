@@ -151,18 +151,21 @@ export default function OrdersPage() {
               <div>
                 {getSelectedShow() && (
                   <>
-                    <h1 className="text-base">
+                    <div>
+                      {t("show").toString()}: {getSelectedShow()!.title}
+                    </div>
+                    <div>
                       {t("show time").toString()}: {t("from").toString()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.start_time)}{" "}
                       {t("to").toString().toLowerCase()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.end_time)}
-                    </h1>
-                    <p className="text-sm text-gray-500">
+                    </div>
+                    <div className="text-sm text-gray-500">
                       {t("sale time").toString()}: {t("from").toString()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.sale_start_time)}{" "}
                       {t("to").toString().toLowerCase()}{" "}
                       {stringToDateFormatV2(getSelectedShow()!.sale_end_time)}
-                    </p>
+                    </div>
                   </>
                 )}
               </div>
