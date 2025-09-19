@@ -184,12 +184,15 @@ export default function OrdersPage() {
                 {eventShows.map((show) => (
                   <SelectItem
                     key={show.id}
-                    textValue={`${stringToDateFormatV2(show.start_time)} ${t(
+                    textValue={`${show.title}: ${t(
+                      "from"
+                    ).toString()} ${stringToDateFormatV2(show.start_time)} ${t(
                       "to"
                     )
                       .toString()
                       .toLowerCase()} ${stringToDateFormatV2(show.end_time)}`}
                   >
+                    {show.title}: {t("from").toString()}{" "}
                     {stringToDateFormatV2(show.start_time)}{" "}
                     {t("to").toString().toLowerCase()}{" "}
                     {stringToDateFormatV2(show.end_time)}
