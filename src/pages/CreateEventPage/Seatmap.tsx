@@ -8,6 +8,7 @@ import {
   MdOutlineContentCopy,
   MdOutlineDelete,
   MdOutlineFlip,
+  MdOutlineVerticalAlignCenter,
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -124,6 +125,20 @@ export default function Seatmap({
   }, []);
 
   const tooltipActions = [
+    {
+      icon: <MdOutlineVerticalAlignCenter />,
+      label: t("center").toString(),
+      action: () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const activeObject = canvas.getActiveObject() as Group;
+        if (activeObject) {
+          canvas.centerObject(activeObject);
+          activeObject.setCoords();
+          canvas.requestRenderAll();
+        }
+      },
+    },
     {
       icon: <MdOutlineFlip />,
       label: t("flip horizontal").toString(),
