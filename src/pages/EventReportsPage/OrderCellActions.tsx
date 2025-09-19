@@ -138,17 +138,21 @@ export function OrderDetailsModal(props: {
                       >
                         <span>
                           {t("captured at")}{" "}
-                          {stringToDateFormatV2(item.captured_at!)}
+                          {item.captured_at
+                            ? stringToDateFormatV2(item.captured_at!)
+                            : t("not updated yet")}
                         </span>
                         <span>-</span>
                         <span>{t("method")} PayPal</span>
                         <span>-</span>
                         <span>
                           {t("total")}{" "}
-                          {priceFormatV2(
-                            item.gross_amount ?? 0,
-                            item.gross_amount_currency ?? "USD"
-                          )}
+                          {item.gross_amount
+                            ? priceFormatV2(
+                                item.gross_amount ?? 0,
+                                item.gross_amount_currency ?? "USD"
+                              )
+                            : t("not updated yet")}
                         </span>
                       </div>
                     ))}

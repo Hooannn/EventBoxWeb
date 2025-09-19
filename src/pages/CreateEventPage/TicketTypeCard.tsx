@@ -8,9 +8,14 @@ import {
   ModalFooter,
   ModalHeader,
   Textarea,
+  Tooltip,
   useDisclosure,
 } from "@heroui/react";
-import { MdOutlineDelete, MdOutlineEdit } from "react-icons/md";
+import {
+  MdOutlineContentCopy,
+  MdOutlineDelete,
+  MdOutlineEdit,
+} from "react-icons/md";
 import { IoTicketOutline } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
 import { priceFormat } from "../../utils";
@@ -20,6 +25,7 @@ import { CreateTicketTypeInputs } from "./shared.type";
 export default function TicketTypeCard(props: {
   ticketType: CreateTicketTypeInputs;
   onDelete: () => void;
+  onDublicate: () => void;
   onUpdate: (ticketType: CreateTicketTypeInputs) => void;
 }) {
   const { t } = useTranslation();
@@ -64,26 +70,44 @@ export default function TicketTypeCard(props: {
             </div>
           </div>
           <div className="flex flex-row items-center gap-2">
-            <Button
-              isIconOnly
-              color="secondary"
-              size="sm"
-              radius="none"
-              onPress={onUpdateTicketTypeModalOpen}
-              variant="flat"
-            >
-              <MdOutlineEdit />
-            </Button>
-            <Button
-              color="danger"
-              isIconOnly
-              size="sm"
-              onPress={props.onDelete}
-              radius="none"
-              variant="flat"
-            >
-              <MdOutlineDelete />
-            </Button>
+            <Tooltip content={t("dublicate").toString()} radius="none">
+              <Button
+                isIconOnly
+                color="secondary"
+                size="sm"
+                radius="none"
+                onPress={props.onDublicate}
+                variant="flat"
+              >
+                <MdOutlineContentCopy />
+              </Button>
+            </Tooltip>
+
+            <Tooltip content={t("edit").toString()} radius="none">
+              <Button
+                isIconOnly
+                color="secondary"
+                size="sm"
+                radius="none"
+                onPress={onUpdateTicketTypeModalOpen}
+                variant="flat"
+              >
+                <MdOutlineEdit />
+              </Button>
+            </Tooltip>
+
+            <Tooltip content={t("delete").toString()} radius="none">
+              <Button
+                color="danger"
+                isIconOnly
+                size="sm"
+                onPress={props.onDelete}
+                radius="none"
+                variant="flat"
+              >
+                <MdOutlineDelete />
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </Card>

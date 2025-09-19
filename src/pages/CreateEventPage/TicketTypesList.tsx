@@ -34,6 +34,15 @@ export default function TicketTypesList(props: {
           <TicketTypeCard
             key={ticketType.temp_id}
             ticketType={ticketType}
+            onDublicate={() => {
+              props.setTicketTypes((prev) => [
+                ...prev,
+                {
+                  ...ticketType,
+                  temp_id: crypto.randomUUID(),
+                },
+              ]);
+            }}
             onDelete={() => {
               props.setTicketTypes((prev) =>
                 prev.filter((t) => t.temp_id !== ticketType.temp_id)

@@ -17,8 +17,7 @@ import { MdEvent, MdOutlineGroupRemove, MdOutlineGroups } from "react-icons/md";
 import useAxiosIns from "../../hooks/useAxiosIns";
 import { useQuery } from "@tanstack/react-query";
 import { IEventShow, IResponseData, ITicketItem } from "../../types";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { priceFormat, stringToDateFormatV2 } from "../../utils";
 import {
   Cell,
@@ -34,24 +33,19 @@ const COLORS = ["#00C49F", "#FF8042"];
 export default function CheckInPage() {
   const { t } = useTranslation();
   const axios = useAxiosIns();
-  const params = useParams();
-
-  const eventId = params.eventId;
-
-  const getEventShowsQuery = useQuery({
-    queryKey: ["fetch/event/eventShows/id", eventId],
-    queryFn: () =>
-      axios.get<IResponseData<IEventShow[]>>(`/v1/events/${eventId}/shows`),
-    refetchOnWindowFocus: false,
-  });
-
-  const eventShows = getEventShowsQuery.data?.data?.data || [];
-
-  const [selectedShow, setSelectedShow] = useState(new Set<string>([]));
-
-  const getSelectedShow = () => {
-    return eventShows.find((show) => selectedShow.has(show.id.toString()));
-  };
+  const {
+    eventShows,
+    isLoading,
+    selectedShow,
+    setSelectedShow,
+    getSelectedShow,
+  }: {
+    eventShows: IEventShow[];
+    isLoading: boolean;
+    selectedShow: Set<string>;
+    setSelectedShow: React.Dispatch<React.SetStateAction<Set<string>>>;
+    getSelectedShow: () => IEventShow;
+  } = useOutletContext();
 
   const checkInData = () => {
     const soldTickets = getTotalTickets() - getRemainingTickets();
@@ -77,12 +71,6 @@ export default function CheckInPage() {
     if (!selectedShow) return 0;
     return selectedShow.tickets.reduce((acc, ticket) => acc + ticket.stock, 0);
   };
-
-  useEffect(() => {
-    if (eventShows.length > 0 && selectedShow.size === 0) {
-      setSelectedShow(new Set([eventShows[0].id.toString()]));
-    }
-  }, [eventShows]);
 
   const getTicketItemsQuery = useQuery({
     queryKey: ["fetch/event/eventShows/id/ticketItems", getSelectedShow()?.id],
@@ -128,7 +116,7 @@ export default function CheckInPage() {
 
   return (
     <>
-      {getEventShowsQuery.isLoading ? (
+      {isLoading ? (
         <div className="flex h-full w-full items-center justify-center">
           <Spinner />
         </div>
