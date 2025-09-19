@@ -60,6 +60,11 @@ export default function Shape({
         setSelectedTicket(new Set([]));
         changeGroupLabel(group, type.label);
         setBackgroundConfig({ color: "#c7c2c2" });
+        setBorderConfig({
+          enabled: true,
+          color: "#333",
+          thickness: 2,
+        });
         setTextConfig({
           color: "#333",
           size: 14,
@@ -74,6 +79,11 @@ export default function Shape({
           color: "#f8f8f8",
           size: 14,
         });
+        setBorderConfig({
+          enabled: true,
+          color: "#333",
+          thickness: 2,
+        });
         break;
       case "custom":
       case "ticket":
@@ -84,6 +94,11 @@ export default function Shape({
         setTextConfig({
           color: "#333",
           size: 14,
+        });
+        setBorderConfig({
+          enabled: true,
+          color: "#333",
+          thickness: 2,
         });
         break;
       default:
