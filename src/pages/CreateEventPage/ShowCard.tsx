@@ -57,6 +57,7 @@ export type ShowInputs = {
 const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
   const { t } = useTranslation();
   const [enabledSeatmap, setEnabledSeatmap] = useState(false);
+  const [showSeatmapPlaceholder, setShowSeatmapPlaceholder] = useState(true);
   const [ticketTypes, setTicketTypes] = useState<CreateTicketTypeInputs[]>([]);
   const [ticketTypeError, setTicketTypeError] = useState<string | null>(null);
   const [seatmapError, setSeatmapError] = useState<string | null>(null);
@@ -140,6 +141,7 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
             ?.loadFromJSON(JSON.parse(data.seatmap))
             .then(() => {
               seatmapCanvasRef.current?.renderAll();
+              setShowSeatmapPlaceholder(false);
             });
         }, 0);
       }
@@ -499,7 +501,12 @@ const ShowCard = forwardRef<ShowCardHandles, ShowCardProps>((props, ref) => {
       </CardHeader>
       <CardBody>
         {enabledSeatmap ? (
-          <Seatmap ticketTypes={ticketTypes} canvasRef={seatmapCanvasRef} />
+          <Seatmap
+            showPlaceholder={showSeatmapPlaceholder}
+            setShowPlaceholder={setShowSeatmapPlaceholder}
+            ticketTypes={ticketTypes}
+            canvasRef={seatmapCanvasRef}
+          />
         ) : (
           <div className="text-sm text-muted-foreground">
             {t("seatmap is disabled")}

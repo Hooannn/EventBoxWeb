@@ -16,18 +16,19 @@ import {
   SelectItem,
   useDisclosure,
 } from "@heroui/react";
-import { changeGroupLabel, type Shape } from "../../utils/shapes";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { FabricObject, Group, StaticCanvas } from "fabric";
 import { CreateTicketTypeInputs } from "./shared.type";
+import useShapes from "../../hooks/useShapes";
+import type { Shape as IShape } from "../../hooks/useShapes";
 
 export default function Shape({
   shape,
   ticketTypes,
   onSubmit,
 }: {
-  shape: Shape;
+  shape: IShape;
   onSubmit: (shape: FabricObject) => void;
   ticketTypes: CreateTicketTypeInputs[];
 }) {
@@ -50,6 +51,8 @@ export default function Shape({
     { label: t("ticket type"), value: "ticket" },
   ];
 
+  const { changeGroupLabel } = useShapes();
+
   const onAreaTypeChange = () => {
     if (!canvasRef.current) return;
     const type = areaTypes.find((type) => type.value === areaType);
@@ -63,7 +66,7 @@ export default function Shape({
         setBorderConfig({
           enabled: true,
           color: "#333",
-          thickness: 2,
+          thickness: 1,
         });
         setTextConfig({
           color: "#333",
@@ -82,7 +85,7 @@ export default function Shape({
         setBorderConfig({
           enabled: true,
           color: "#333",
-          thickness: 2,
+          thickness: 1,
         });
         break;
       case "custom":
@@ -98,7 +101,7 @@ export default function Shape({
         setBorderConfig({
           enabled: true,
           color: "#333",
-          thickness: 2,
+          thickness: 1,
         });
         break;
       default:
@@ -112,7 +115,7 @@ export default function Shape({
   const [borderConfig, setBorderConfig] = useState({
     enabled: true,
     color: "#333",
-    thickness: 2,
+    thickness: 1,
   });
 
   const [textConfig, setTextConfig] = useState({
@@ -236,14 +239,18 @@ export default function Shape({
     <>
       <div
         onClick={onModalOpen}
-        className="w-1/3 aspect-square cursor-pointer hover:bg-gray-100 transition p-2 flex items-center justify-center max-h-[80px]"
+        className="w-[48%] gap-1 flex flex-col aspect-square cursor-pointer hover:border-gray-400 transition px-1 py-4 flex items-center justify-center h-[70px] border border-gray-200"
       >
         <Image
           src={shape.image}
           removeWrapper
           radius="none"
-          className="h-full w-full object-contain"
+          height={20}
+          className="object-contain"
         />
+        <div className="text-xs px-1 w-full text-center text-neutral-600">
+          {shape.label}
+        </div>
       </div>
 
       <Modal

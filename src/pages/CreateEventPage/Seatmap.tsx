@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas, Object, ActiveSelection, Group, FabricObject } from "fabric";
-import shapes from "../../utils/shapes";
 import Shape from "./Shape";
 import { CreateTicketTypeInputs } from "./shared.type";
 import { addToast, Button, Tooltip } from "@heroui/react";
@@ -8,20 +7,29 @@ import {
   MdOutlineContentCopy,
   MdOutlineDelete,
   MdOutlineFlip,
+  MdOutlineGridOn,
   MdOutlineVerticalAlignCenter,
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { FiMousePointer } from "react-icons/fi";
+import useShapes from "../../hooks/useShapes";
+
 export default function Seatmap({
   ticketTypes,
   canvasRef,
+  showPlaceholder,
+  setShowPlaceholder,
 }: {
   ticketTypes: CreateTicketTypeInputs[];
   canvasRef: React.MutableRefObject<Canvas>;
+  showPlaceholder: boolean;
+  setShowPlaceholder: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { t } = useTranslation();
   const canvasEl = useRef<HTMLCanvasElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [usingGrid, setUsingGrid] = useState(true);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -126,8 +134,17 @@ export default function Seatmap({
 
   const tooltipActions = [
     {
-      icon: <MdOutlineVerticalAlignCenter />,
+      icon: <MdOutlineGridOn size={20} />,
+      label: t("toggle grid").toString(),
+      active: usingGrid,
+      action: () => {
+        setUsingGrid(!usingGrid);
+      },
+    },
+    {
+      icon: <MdOutlineVerticalAlignCenter size={20} />,
       label: t("center").toString(),
+      active: false,
       action: () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -140,8 +157,9 @@ export default function Seatmap({
       },
     },
     {
-      icon: <MdOutlineFlip />,
+      icon: <MdOutlineFlip size={20} />,
       label: t("flip horizontal").toString(),
+      active: false,
       action: () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -159,8 +177,9 @@ export default function Seatmap({
       },
     },
     {
-      icon: <MdOutlineFlip className="rotate-90" />,
+      icon: <MdOutlineFlip className="rotate-90" size={20} />,
       label: t("flip vertical").toString(),
+      active: false,
       action: () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -178,8 +197,9 @@ export default function Seatmap({
       },
     },
     {
-      icon: <MdOutlineContentCopy />,
+      icon: <MdOutlineContentCopy size={20} />,
       label: t("dublicate").toString(),
+      active: false,
       action: async () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -219,8 +239,9 @@ export default function Seatmap({
       },
     },
     {
-      icon: <MdOutlineDelete />,
+      icon: <MdOutlineDelete size={20} />,
       label: t("delete").toString(),
+      active: false,
       action: () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -264,8 +285,12 @@ export default function Seatmap({
       canvasRef.current.centerObject(obj);
       canvasRef.current.setActiveObject(obj);
       canvasRef.current.requestRenderAll();
+
+      setShowPlaceholder(false);
     }
   };
+
+  const { basicShapes, customShapes } = useShapes();
 
   return (
     <div className="flex flex-col">
@@ -285,7 +310,7 @@ export default function Seatmap({
                   : "secondary"
               }
               radius="none"
-              variant="flat"
+              variant={action.active ? "flat" : "light"}
               onPress={action.action}
             >
               {action.icon}
@@ -293,10 +318,30 @@ export default function Seatmap({
           </Tooltip>
         ))}
       </div>
-      <div className="flex flex-row">
-        <div className="flex-1 h-[500px] border border-r-0 overflow-y-auto">
-          <div className="w-full flex flex-wrap p-2 gap-y-2">
-            {shapes.map((shape) => (
+      <div className="flex flex-row h-[520px]">
+        <div className="w-[270px] px-2 h-full border border-r-0 overflow-y-auto pb-4">
+          <div className="mt-1">
+            <div className="p-2 text-neutral-500 text-sm">
+              {t("basic shapes")}
+            </div>
+          </div>
+          <div className="w-full flex flex-wrap px-2 gap-2">
+            {basicShapes.map((shape) => (
+              <Shape
+                key={"PreviewShape" + shape.id}
+                shape={shape}
+                ticketTypes={ticketTypes}
+                onSubmit={onShapeSubmit}
+              />
+            ))}
+          </div>
+          <div className="mt-4">
+            <div className="p-2 text-neutral-500 text-sm">
+              {t("custom shapes")}
+            </div>
+          </div>
+          <div className="w-full flex flex-wrap px-2 gap-2">
+            {customShapes.map((shape) => (
               <Shape
                 key={"PreviewShape" + shape.id}
                 shape={shape}
@@ -306,11 +351,37 @@ export default function Seatmap({
             ))}
           </div>
         </div>
-        <div
-          ref={wrapperRef}
-          className="h-[500px] w-[800px] flex items-center justify-center border"
-        >
-          <canvas ref={canvasEl} />
+        <div className="flex-1 flex items-center justify-center border bg-gray-50">
+          <div
+            className="h-[500px] w-[700px] flex items-center justify-center shadow-sm bg-white relative"
+            style={
+              usingGrid
+                ? {
+                    backgroundSize: "24px 24px",
+                    backgroundImage:
+                      "radial-gradient(circle, rgba(0, 0, 0, 0.2) 1px, rgba(0, 0, 0, 0) 1px)",
+                  }
+                : {}
+            }
+            ref={wrapperRef}
+          >
+            {showPlaceholder && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mb-4 mx-auto">
+                    <FiMousePointer className="w-8 h-8 text-neutral-500" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">
+                    {t("start design seatmap")}
+                  </h3>
+                  <p className="text-neutral-500 text-sm max-w-sm">
+                    {t("seatmap placeholder instruction")}
+                  </p>
+                </div>
+              </div>
+            )}
+            <canvas ref={canvasEl} />
+          </div>
         </div>
       </div>
     </div>

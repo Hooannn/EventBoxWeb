@@ -84,7 +84,7 @@ export default function DemoPage() {
     const rect = new Rect({
       left: 100,
       top: 100,
-      fill: "#c7c2c2",
+      fill: "transparent",
       stroke: "#333",
       strokeWidth: 2,
       width: 100,
@@ -98,7 +98,7 @@ export default function DemoPage() {
     const rect = new Rect({
       left: 100,
       top: 100,
-      fill: "#c7c2c2",
+      fill: "transparent",
       stroke: "#333",
       strokeWidth: 2,
       width: 100,
@@ -113,7 +113,7 @@ export default function DemoPage() {
       left: 150,
       top: 150,
       radius: 50,
-      fill: "#c7c2c2",
+      fill: "transparent",
       stroke: "#333",
       strokeWidth: 2,
     });
@@ -128,7 +128,7 @@ export default function DemoPage() {
       height: 100,
       stroke: "#333",
       strokeWidth: 2,
-      fill: "#c7c2c2",
+      fill: "transparent",
     });
     canvasRef.current?.add(tri);
   };
@@ -147,7 +147,7 @@ export default function DemoPage() {
         },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
@@ -213,7 +213,7 @@ export default function DemoPage() {
         { x: -20, y: 80 },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
@@ -244,7 +244,7 @@ export default function DemoPage() {
         { x: -20, y: 80 },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
@@ -275,13 +275,13 @@ export default function DemoPage() {
         { x: -20, y: 60 },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
     );
 
-    const label = new Textbox("A1", {
+    const label = new Textbox("", {
       fontSize: 20,
       fill: "white",
       textAlign: "center",
@@ -308,7 +308,7 @@ export default function DemoPage() {
         { x: 0, y: 100 },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
@@ -343,7 +343,7 @@ export default function DemoPage() {
         { x: 0, y: 50 },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
@@ -374,7 +374,7 @@ export default function DemoPage() {
         { x: 0, y: 50 },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
       }
@@ -409,7 +409,7 @@ export default function DemoPage() {
         },
       ],
       {
-        fill: "#c7c2c2",
+        fill: "transparent",
         stroke: "#333",
         strokeWidth: 2,
         originX: "center",

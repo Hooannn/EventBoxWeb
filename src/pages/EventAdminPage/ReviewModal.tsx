@@ -605,7 +605,12 @@ function SeatmapReview(props: { seatmap: string }) {
   return (
     <div
       ref={wrapperRef}
-      className="w-[800px] h-[500px] flex items-center justify-center border mx-auto"
+      style={{
+        backgroundSize: "24px 24px",
+        backgroundImage:
+          "radial-gradient(circle, rgba(0, 0, 0, 0.2) 1px, rgba(0, 0, 0, 0) 1px)",
+      }}
+      className="w-[700px] h-[500px] flex items-center justify-center border shadow-sm mx-auto"
     >
       <canvas ref={canvasEl} />
     </div>

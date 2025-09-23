@@ -142,7 +142,7 @@ export interface IEventShow {
 
 export interface ITicket {
   id: number;
-  seatmap_block_id: string;
+  seatmap_block_id?: string;
   created_at: string;
   updated_at: string;
   event_show_id: number;
