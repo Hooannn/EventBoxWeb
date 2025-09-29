@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   Modal,
   ModalBody,
   ModalContent,
@@ -49,6 +50,19 @@ export function OrderDetailsModal(props: {
   item: IOrder;
 }) {
   const { t } = useTranslation();
+
+  const getTotalDiscount = () => {
+    if (props.item.voucher) {
+      if (props.item.voucher.discount_type === "PERCENTAGE") {
+        return (
+          props.item.place_total * (props.item.voucher.discount_value / 100)
+        );
+      } else {
+        return props.item.voucher.discount_value;
+      }
+    }
+    return 0;
+  };
   return (
     <Modal
       radius="none"
@@ -160,10 +174,42 @@ export function OrderDetailsModal(props: {
                 </div>
 
                 <div className="flex flex-row items-center justify-between">
+                  <h2 className="text-gray-500">{t("original total")}</h2>
+                  <div>
+                    <span>{priceFormat(props.item.place_total)}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-row items-center justify-between">
+                  <div className="flex flex-col">
+                    <h2 className="text-gray-500">{t("discount")}</h2>
+                    {props.item.voucher ? (
+                      <span className="text-sm text-gray-600">
+                        {t("code")}: {props.item.voucher.code.toUpperCase()}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {props.item.voucher ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-success-800 font-bold">
+                        {priceFormat(getTotalDiscount())}
+                      </span>
+                    </div>
+                  ) : (
+                    <div>
+                      <span>{priceFormat(0)}</span>
+                    </div>
+                  )}
+                </div>
+
+                <Divider />
+
+                <div className="flex flex-row items-center justify-between">
                   <h2 className="text-gray-500">{t("total")}</h2>
                   <div>
                     <span className="text-lg font-semibold">
-                      {priceFormat(props.item.place_total)}
+                      {priceFormat(props.item.place_total - getTotalDiscount())}
                     </span>
                   </div>
                 </div>

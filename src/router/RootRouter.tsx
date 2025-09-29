@@ -15,12 +15,13 @@ import RoleAdminPage from "../pages/RoleAdminPage";
 import EventAdminPage from "../pages/EventAdminPage";
 import PermissionAdminPage from "../pages/PermissionAdminPage";
 import EventLayout from "../layouts/EventLayout";
-import OverallPage from "../pages/EventReportsPage/OverallPage";
-import CheckInPage from "../pages/EventReportsPage/CheckInPage";
-import OrdersPage from "../pages/EventReportsPage/OrdersPage";
+import OverallPage from "../pages/EventDetailsPage/OverallPage";
+import CheckInPage from "../pages/EventDetailsPage/CheckInPage";
+import OrdersPage from "../pages/EventDetailsPage/OrdersPage";
 import CategoryAdminPage from "../pages/CategoryAdminPage";
 import SettingsPage from "../pages/SettingsPage";
 import DemoPage from "../pages/DemoPage";
+import VouchersPage from "../pages/EventDetailsPage/VouchersPage";
 const rootRouter = [
   {
     path: "/",
@@ -108,6 +109,10 @@ const rootRouter = [
       {
         path: "orders",
         element: <OrdersPage />,
+      },
+      {
+        path: "vouchers",
+        element: <VouchersPage />,
       },
     ],
     errorElement: <ErrorPage />,

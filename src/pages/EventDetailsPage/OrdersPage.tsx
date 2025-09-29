@@ -240,7 +240,7 @@ export default function OrdersPage() {
                   </div>
                 ) : (
                   <>
-                    {orders.length > 0 ? (
+                    {filterOrders().length > 0 ? (
                       <Table radius="none" shadow="sm">
                         <TableHeader>
                           <TableColumn>{t("id")}</TableColumn>

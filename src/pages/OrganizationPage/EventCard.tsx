@@ -185,7 +185,7 @@ export default function EventCard(props: {
               className="py-5"
             >
               <MdOutlineArrowOutward />
-              {t("reports").toString()}
+              {t("details").toString()}
             </Button>
             {isEnded() ? (
               <Tooltip
