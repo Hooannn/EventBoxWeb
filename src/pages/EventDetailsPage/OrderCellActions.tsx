@@ -53,13 +53,17 @@ export function OrderDetailsModal(props: {
 
   const getTotalDiscount = () => {
     if (props.item.voucher) {
+      let discount = 0;
       if (props.item.voucher.discount_type === "PERCENTAGE") {
-        return (
-          props.item.place_total * (props.item.voucher.discount_value / 100)
-        );
+        discount =
+          props.item.place_total * (props.item.voucher.discount_value / 100);
       } else {
-        return props.item.voucher.discount_value;
+        discount = props.item.voucher.discount_value;
       }
+      if (discount > props.item.place_total) {
+        return props.item.place_total;
+      }
+      return discount;
     }
     return 0;
   };
@@ -193,7 +197,7 @@ export function OrderDetailsModal(props: {
                   {props.item.voucher ? (
                     <div className="flex flex-col items-end">
                       <span className="text-success-800 font-bold">
-                        {priceFormat(getTotalDiscount())}
+                        -{priceFormat(getTotalDiscount())}
                       </span>
                     </div>
                   ) : (

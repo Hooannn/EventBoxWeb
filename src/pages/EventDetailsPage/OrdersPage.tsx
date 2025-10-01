@@ -137,6 +137,23 @@ export default function OrdersPage() {
     writeFile(wb, fileName);
   };
 
+  const getOrderPrice = (order: IOrder) => {
+    if (order.voucher) {
+      let discount = 0;
+      if (order.voucher.discount_type === "PERCENTAGE") {
+        discount = order.place_total * (order.voucher.discount_value / 100);
+      } else {
+        discount = order.voucher.discount_value;
+      }
+      if (discount > order.place_total) {
+        return 0;
+      }
+      return order.place_total - discount;
+    } else {
+      return order.place_total;
+    }
+  };
+
   return (
     <>
       {isLoading ? (
@@ -280,7 +297,7 @@ export default function OrdersPage() {
                                 </User>
                               </TableCell>
                               <TableCell>
-                                {priceFormat(item.place_total)}
+                                {priceFormat(getOrderPrice(item))}
                               </TableCell>
                               <TableCell>{item.items.length}</TableCell>
                               <TableCell>PayPal</TableCell>
