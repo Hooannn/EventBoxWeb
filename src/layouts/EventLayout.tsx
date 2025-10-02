@@ -20,6 +20,7 @@ import {
   MdOutlinePayment,
   MdOutlineLeaderboard,
   MdOutlineTaskAlt,
+  MdOutlineDiscount,
 } from "react-icons/md";
 import { getI18n, useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -86,6 +87,14 @@ export default function EventLayout() {
         location.pathname ===
         `/organization/${params.id}/event/${params.eventId}/orders`,
       label: t("orders"),
+    },
+    {
+      to: `vouchers${location.search}`,
+      icon: <MdOutlineDiscount size={25} />,
+      isActive:
+        location.pathname ===
+        `/organization/${params.id}/event/${params.eventId}/vouchers`,
+      label: t("vouchers"),
     },
   ];
 
