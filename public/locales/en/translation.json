@@ -743,6 +743,18 @@
   "voucher condition": "Voucher condition",
   "min order value": "Min order value",
   "min ticket quantity": "Min ticket quantity",
+  "customer feedback": "Customer feedback",
+  "monitor and analyze customer feedback to improve service quality and customer satisfaction": "Monitor and analyze customer feedback to improve service quality and customer satisfaction",
   "this voucher will be shown automatically to customers at checkout, customers can easily apply it": "This voucher will be shown automatically to customers at checkout, customers can easily apply it",
-  "this voucher will not be shown to customers, you need to provide the code to customers so that they can apply it": "This voucher will not be shown to customers, you need to provide the code to customers so that they can apply it"
+  "this voucher will not be shown to customers, you need to provide the code to customers so that they can apply it": "This voucher will not be shown to customers, you need to provide the code to customers so that they can apply it",
+  "all time": "All time",
+  "last 7 days": "Last 7 days",
+  "last 30 days": "Last 30 days",
+  "last 24 hours": "Last 24 hours",
+  "positive feedback": "Positive feedback",
+  "negative feedback": "Negative feedback",
+  "total feedback": "Total feedback",
+  "{{percent}}% of total": "{{percent}}% of total",
+  "positive": "Positive",
+  "negative": "Negative"
 }

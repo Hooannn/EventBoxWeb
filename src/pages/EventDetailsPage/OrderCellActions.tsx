@@ -128,19 +128,6 @@ export function OrderDetailsModal(props: {
                           </span>
                           <span>{priceFormat(item.ticket.price)}</span>
                         </div>
-                        {item.feedback ? (
-                          <div className="flex text-sm gap-2">
-                            <span className="text-gray-600">
-                              {t("feedback")}:{" "}
-                            </span>
-                            <p
-                              className="text-gray-500"
-                              style={{ whiteSpace: "pre-line" }}
-                            >
-                              {item.feedback}
-                            </p>
-                          </div>
-                        ) : null}
                       </div>
                     ))}
                   </div>
