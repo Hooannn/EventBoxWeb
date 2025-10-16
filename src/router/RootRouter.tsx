@@ -22,6 +22,7 @@ import CategoryAdminPage from "../pages/CategoryAdminPage";
 import SettingsPage from "../pages/SettingsPage";
 import DemoPage from "../pages/DemoPage";
 import VouchersPage from "../pages/EventDetailsPage/VouchersPage";
+import FeedbackPage from "../pages/EventDetailsPage/FeedbackPage";
 const rootRouter = [
   {
     path: "/",
@@ -113,6 +114,10 @@ const rootRouter = [
       {
         path: "vouchers",
         element: <VouchersPage />,
+      },
+      {
+        path: "feedback",
+        element: <FeedbackPage />,
       },
     ],
     errorElement: <ErrorPage />,

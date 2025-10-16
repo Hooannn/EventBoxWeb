@@ -146,6 +146,7 @@ export interface ITicket {
   created_at: string;
   updated_at: string;
   event_show_id: number;
+  event_show?: IEventShow;
   name: string;
   description?: string | null;
   price: number;
@@ -169,16 +170,21 @@ export interface IOrder {
   place_total: number;
   voucher?: IVoucher;
 }
+
+export type FeedbackType = "POSITIVE" | "NEGATIVE";
 export interface ITicketItem {
   id: number;
   created_at: string;
   updated_at: string;
   order_id: number;
+  order?: IOrder;
   ticket_id: number;
   ticket: ITicket;
   quantity: number;
   place_total: number;
   feedback?: string;
+  feedback_at?: string;
+  feedback_type?: FeedbackType;
   traces: ITicketItemTrace[];
 }
 
