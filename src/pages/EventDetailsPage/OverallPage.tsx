@@ -53,12 +53,28 @@ export default function OverallPage() {
     getSelectedShow: () => IEventShow;
   } = useOutletContext();
 
+  const getOrderPrice = (order: IOrder) => {
+    if (order.voucher) {
+      let discount = 0;
+      if (order.voucher.discount_type === "PERCENTAGE") {
+        discount = order.place_total * (order.voucher.discount_value / 100);
+      } else {
+        discount = order.voucher.discount_value;
+      }
+      if (discount > order.place_total) {
+        return 0;
+      }
+      return order.place_total - discount;
+    } else {
+      return order.place_total;
+    }
+  };
+
   const revenueData = () => {
-    const totalRevenue = getTotalRevenue();
     const remainingRevenue = getRemainingRevenue();
 
     return [
-      { name: "Đã bán", value: totalRevenue - remainingRevenue },
+      { name: "Đã bán", value: getOrdersRevenue() },
       { name: "Còn lại", value: remainingRevenue },
     ];
   };
@@ -108,6 +124,27 @@ export default function OverallPage() {
     );
   };
 
+  const getAllOrdersQuery = useQuery({
+    queryKey: ["fetch/event/eventShows/id/orders/all", getSelectedShow()?.id],
+    queryFn: () => {
+      return getSelectedShow()?.id
+        ? axios.get<IResponseData<IOrder[]>>(
+            `/v1/orders/shows/${getSelectedShow()?.id}/all`
+          )
+        : undefined;
+    },
+    refetchOnWindowFocus: false,
+    enabled: !!getSelectedShow()?.id,
+  });
+
+  const allOrders = getAllOrdersQuery.data?.data?.data || [];
+
+  const getOrdersRevenue = () => {
+    return allOrders.reduce((acc, order) => {
+      return acc + getOrderPrice(order);
+    }, 0);
+  };
+
   const getOrdersQuery = useQuery({
     queryKey: ["fetch/event/eventShows/id/orders", getSelectedShow()?.id],
     queryFn: () => {
@@ -140,10 +177,9 @@ export default function OverallPage() {
         dayjs(order.fulfilled_at).isSame(date, "day")
       );
 
-      const totalRevenue = ordersForDate.reduce(
-        (acc, order) => acc + order.place_total,
-        0
-      );
+      const totalRevenue = ordersForDate.reduce((acc, order) => {
+        return acc + getOrderPrice(order);
+      }, 0);
 
       const totalTicketsSold = ordersForDate.reduce(
         (acc, order) => acc + order.items.length,
@@ -238,8 +274,10 @@ export default function OverallPage() {
                       <div className="flex flex-col">
                         <div className="text-lg">{t("revenue").toString()}</div>
                         <div className="font-semibold text-xl">
-                          {priceFormat(
-                            getTotalRevenue() - getRemainingRevenue()
+                          {getAllOrdersQuery.isLoading ? (
+                            <Spinner size="sm" />
+                          ) : (
+                            priceFormat(getOrdersRevenue())
                           )}
                         </div>
                         <div className="text-base">
