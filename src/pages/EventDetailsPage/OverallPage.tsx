@@ -54,19 +54,24 @@ export default function OverallPage() {
   } = useOutletContext();
 
   const getOrderPrice = (order: IOrder) => {
+    const orderPlaceTotal = order.items.reduce(
+      (total, item) => total + item.place_total,
+      0
+    );
+
     if (order.voucher) {
       let discount = 0;
       if (order.voucher.discount_type === "PERCENTAGE") {
-        discount = order.place_total * (order.voucher.discount_value / 100);
+        discount = orderPlaceTotal * (order.voucher.discount_value / 100);
       } else {
         discount = order.voucher.discount_value;
       }
-      if (discount > order.place_total) {
+      if (discount > orderPlaceTotal) {
         return 0;
       }
-      return order.place_total - discount;
+      return orderPlaceTotal - discount;
     } else {
-      return order.place_total;
+      return orderPlaceTotal;
     }
   };
 

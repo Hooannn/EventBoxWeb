@@ -51,17 +51,24 @@ export function OrderDetailsModal(props: {
 }) {
   const { t } = useTranslation();
 
+  const getOrderPlaceTotal = () => {
+    return props.item.items.reduce(
+      (total, item) => total + item.place_total,
+      0
+    );
+  };
+
   const getTotalDiscount = () => {
+    const orderPlaceTotal = getOrderPlaceTotal();
     if (props.item.voucher) {
       let discount = 0;
       if (props.item.voucher.discount_type === "PERCENTAGE") {
-        discount =
-          props.item.place_total * (props.item.voucher.discount_value / 100);
+        discount = orderPlaceTotal * (props.item.voucher.discount_value / 100);
       } else {
         discount = props.item.voucher.discount_value;
       }
-      if (discount > props.item.place_total) {
-        return props.item.place_total;
+      if (discount > orderPlaceTotal) {
+        return orderPlaceTotal;
       }
       return discount;
     }
@@ -167,7 +174,7 @@ export function OrderDetailsModal(props: {
                 <div className="flex flex-row items-center justify-between">
                   <h2 className="text-gray-500">{t("original total")}</h2>
                   <div>
-                    <span>{priceFormat(props.item.place_total)}</span>
+                    <span>{priceFormat(getOrderPlaceTotal())}</span>
                   </div>
                 </div>
 
@@ -200,7 +207,7 @@ export function OrderDetailsModal(props: {
                   <h2 className="text-gray-500">{t("total")}</h2>
                   <div>
                     <span className="text-lg font-semibold">
-                      {priceFormat(props.item.place_total - getTotalDiscount())}
+                      {priceFormat(getOrderPlaceTotal() - getTotalDiscount())}
                     </span>
                   </div>
                 </div>

@@ -97,10 +97,9 @@ export default function OrdersPage() {
       });
       return;
     }
-    const totalPaid = orders.reduce(
-      (sum, invoice) => sum + invoice.place_total,
-      0
-    );
+    const totalPaid = orders.reduce((sum, order) => {
+      return sum + getOrderPrice(order);
+    }, 0);
 
     utils.sheet_add_aoa(
       ws,
@@ -124,7 +123,7 @@ export default function OrdersPage() {
       order.id,
       stringToDateFormatV2(order.fulfilled_at!),
       order.user.email,
-      priceFormat(order.place_total),
+      priceFormat(getOrderPrice(order)),
       order.items.length,
       "PayPal",
     ]);
@@ -138,19 +137,24 @@ export default function OrdersPage() {
   };
 
   const getOrderPrice = (order: IOrder) => {
+    const orderPlaceTotal = order.items.reduce(
+      (total, item) => total + item.place_total,
+      0
+    );
+
     if (order.voucher) {
       let discount = 0;
       if (order.voucher.discount_type === "PERCENTAGE") {
-        discount = order.place_total * (order.voucher.discount_value / 100);
+        discount = orderPlaceTotal * (order.voucher.discount_value / 100);
       } else {
         discount = order.voucher.discount_value;
       }
-      if (discount > order.place_total) {
+      if (discount > orderPlaceTotal) {
         return 0;
       }
-      return order.place_total - discount;
+      return orderPlaceTotal - discount;
     } else {
-      return order.place_total;
+      return orderPlaceTotal;
     }
   };
 
