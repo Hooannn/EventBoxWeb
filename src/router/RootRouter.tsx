@@ -23,6 +23,7 @@ import SettingsPage from "../pages/SettingsPage";
 import DemoPage from "../pages/DemoPage";
 import VouchersPage from "../pages/EventDetailsPage/VouchersPage";
 import FeedbackPage from "../pages/EventDetailsPage/FeedbackPage";
+import ContactPage from "../pages/ContactPage/ContactPage";
 const rootRouter = [
   {
     path: "/",
@@ -154,6 +155,10 @@ const rootRouter = [
       },
     ],
     errorElement: <ErrorPage />,
+  },
+  {
+    path: "/contact",
+    element: <ContactPage />,
   },
 ];
 

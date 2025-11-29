@@ -25,15 +25,26 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (
-      user?.roles.some((r) =>
-        r.permissions.some(
-          (p) =>
-            p.name ===
-            (import.meta.env.VITE_ACCESS_ADMIN_PERMISSION ?? "access:admin")
-        )
+    const isAdmin = user?.roles.some((r) =>
+      r.permissions.some(
+        (p) =>
+          p.name ===
+          (import.meta.env.VITE_ACCESS_ADMIN_PERMISSION ?? "access:admin")
       )
-    ) {
+    );
+
+    const isOrganizer = user?.roles.some((r) =>
+      r.permissions.some(
+        (p) =>
+          p.name ===
+          (import.meta.env.VITE_ACCESS_ORGANIZER_PERMISSION ??
+            "create:organizations")
+      )
+    );
+
+    if (!isAdmin && !isOrganizer) {
+      navigate("/contact");
+    } else if (isAdmin) {
       navigate("/admin");
     }
   }, [user]);

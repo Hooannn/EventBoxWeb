@@ -49,8 +49,16 @@ const useAuth = () => {
       )
     ) {
       navigate("/admin");
-    } else {
+    } else if (
+      user.roles.some((r) =>
+        r.permissions.some(
+          (p) => p.name === import.meta.env.VITE_ACCESS_ORGANIZER_PERMISSION
+        )
+      )
+    ) {
       navigate("/");
+    } else {
+      navigate("/contact");
     }
   };
 
