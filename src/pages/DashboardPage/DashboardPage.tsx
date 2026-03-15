@@ -8,11 +8,13 @@ import CreateFirstOrganization from "./CreateFirstOrganization";
 import OrganizationCard from "./OrganizationCard";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useAppConfig } from "../../contexts/AppConfigContext";
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const { t } = useTranslation();
   const axios = useAxiosIns();
+  const { accessAdminPermission, accessOrganizerPermission } = useAppConfig();
   const getOrganizationsQuery = useQuery({
     queryKey: ["fetch/organizations", user?.id],
     queryFn: () =>
@@ -25,21 +27,19 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!accessAdminPermission || !accessOrganizerPermission) {
+      navigate(
+        "/error?message=app not configured properly, missing permissions for admin or organizer access",
+      );
+      return;
+    }
+
     const isAdmin = user?.roles.some((r) =>
-      r.permissions.some(
-        (p) =>
-          p.name ===
-          (import.meta.env.VITE_ACCESS_ADMIN_PERMISSION ?? "access:admin")
-      )
+      r.permissions.some((p) => p.name === accessAdminPermission),
     );
 
     const isOrganizer = user?.roles.some((r) =>
-      r.permissions.some(
-        (p) =>
-          p.name ===
-          (import.meta.env.VITE_ACCESS_ORGANIZER_PERMISSION ??
-            "create:organizations")
-      )
+      r.permissions.some((p) => p.name === accessOrganizerPermission),
     );
 
     if (!isAdmin && !isOrganizer) {
@@ -47,7 +47,7 @@ export default function DashboardPage() {
     } else if (isAdmin) {
       navigate("/admin");
     }
-  }, [user]);
+  }, [user, accessAdminPermission, accessOrganizerPermission]);
   return (
     <>
       {getOrganizationsQuery.isLoading ? (
@@ -71,10 +71,10 @@ export default function DashboardPage() {
                     key={org.id}
                     onClick={() => {
                       const isOwner = org.user_organizations.some(
-                        (uo) => uo.role === "OWNER" && uo.user.id === user?.id
+                        (uo) => uo.role === "OWNER" && uo.user.id === user?.id,
                       );
                       navigate(
-                        `/organization/${org.id}?orgname=${org.name}&showCreateEventButton=${isOwner}`
+                        `/organization/${org.id}?orgname=${org.name}&showCreateEventButton=${isOwner}`,
                       );
                     }}
                   />

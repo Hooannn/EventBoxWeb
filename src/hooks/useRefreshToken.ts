@@ -4,12 +4,7 @@ import { addToast } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 
 const useRefreshToken = () => {
-  const {
-    reset,
-    refreshToken: storedRefreshToken,
-    setRefreshToken,
-    setAccessToken,
-  } = useAuthStore();
+  const { reset } = useAuthStore();
   const { t } = useTranslation();
   const handleError = () => {
     addToast({
@@ -28,17 +23,10 @@ const useRefreshToken = () => {
         url: "/v1/auth/refresh",
         method: "POST",
         validateStatus: null,
-        data: {
-          refresh_token: storedRefreshToken,
-        },
       })
         .then((res) => {
           const token = res.data?.data?.access_token;
-          const refreshToken = res.data?.data?.refresh_token;
-
-          if (refreshToken) setRefreshToken(refreshToken);
           if (token) {
-            setAccessToken(token);
             resolve(token);
           } else {
             handleError();

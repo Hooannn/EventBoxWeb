@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import getRouter from "./router";
 import useAppStore from "./stores/app";
 import { useEffect } from "react";
+import { AppConfigProvider } from "./contexts/AppConfigContext";
 const GG_CLIENT_ID = import.meta.env.VITE_GG_CLIENT_ID;
 const queryClient = new QueryClient();
 export default function App() {
@@ -22,7 +23,9 @@ export default function App() {
     <GoogleOAuthProvider clientId={GG_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         {/* <SocketProvider socketUrl={import.meta.env.VITE_SOCKET_ENDPOINT}> */}
-        <RouterProvider router={getRouter()}></RouterProvider>
+        <AppConfigProvider>
+          <RouterProvider router={getRouter()}></RouterProvider>
+        </AppConfigProvider>
         {/* </SocketProvider> */}
       </QueryClientProvider>
     </GoogleOAuthProvider>

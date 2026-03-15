@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import axios from "axios";
 import useRefreshToken from "./useRefreshToken";
-import useAuthStore from "../stores/auth";
 
 export const provincesOpenAPI = axios.create({
   baseURL: import.meta.env.VITE_VN_PROVINCES_BASE_URL,
@@ -15,35 +14,42 @@ export const rawAxios = axios.create({
   baseURL: import.meta.env.VITE_API_ENDPOINT,
   headers: {
     "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+export const rawPublicAxios = axios.create({
+  baseURL: import.meta.env.VITE_PUBLIC_API_ENDPOINT,
+  headers: {
+    "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
   },
+  withCredentials: true,
 });
 
 export const axiosIns = axios.create({
   baseURL: import.meta.env.VITE_API_ENDPOINT,
   headers: {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
   },
+  withCredentials: true,
 });
 
 const useAxiosIns = () => {
-  const { accessToken } = useAuthStore();
-  const getAccessToken = () => accessToken;
   const refreshToken = useRefreshToken();
 
   useEffect(() => {
     const requestIntercept = axiosIns.interceptors.request.use(
       async (config) => {
-        if (!config.headers["Authorization"]) {
-          const token = getAccessToken();
-          config.headers["Authorization"] = `Bearer ${token}`;
-        }
+        // if (!config.headers["Authorization"]) {
+        //   const token = getAccessToken();
+        //   config.headers["Authorization"] = `Bearer ${token}`;
+        // }
         return config;
       },
       (error) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     const responseIntercept = axiosIns.interceptors.response.use(
@@ -61,7 +67,7 @@ const useAxiosIns = () => {
           });
         }
         return Promise.reject(error);
-      }
+      },
     );
 
     return () => {

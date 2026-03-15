@@ -7,16 +7,12 @@ import useAuthStore from "../stores/auth";
 import useAppStore from "../stores/app";
 import { useTranslation } from "react-i18next";
 import { addToast } from "@heroui/react";
+import { useAppConfig } from "../contexts/AppConfigContext";
 const useAuth = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const {
-    setAccessToken,
-    setRefreshToken,
-    setLoggedIn,
-    setUser,
-    reset: resetAuthStore,
-  } = useAuthStore();
+  const { accessAdminPermission, accessOrganizerPermission } = useAppConfig();
+  const { setLoggedIn, setUser, reset: resetAuthStore } = useAuthStore();
   const axios = useAxiosIns();
   const { reset: resetAppStore, deviceId, setDeviceId } = useAppStore();
 
@@ -31,29 +27,30 @@ const useAuth = () => {
 
   const saveCredentialsAndRedirect = (
     user: IUser,
-    accessToken: string,
-    refreshToken: string
+    // accessToken: string,
+    // refreshToken: string,
   ) => {
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
+    // setAccessToken(accessToken);
+    // setRefreshToken(refreshToken);
     setLoggedIn(true);
     setUser(user);
 
+    if (!accessAdminPermission || !accessOrganizerPermission) {
+      navigate(
+        "/error?message=app not configured properly, missing permissions for admin or organizer access",
+      );
+      return;
+    }
+
     if (
       user.roles.some((r) =>
-        r.permissions.some(
-          (p) =>
-            p.name ===
-            (import.meta.env.VITE_ACCESS_ADMIN_PERMISSION ?? "access:admin")
-        )
+        r.permissions.some((p) => p.name === accessAdminPermission),
       )
     ) {
       navigate("/admin");
     } else if (
       user.roles.some((r) =>
-        r.permissions.some(
-          (p) => p.name === import.meta.env.VITE_ACCESS_ORGANIZER_PERMISSION
-        )
+        r.permissions.some((p) => p.name === accessOrganizerPermission),
       )
     ) {
       navigate("/");
@@ -80,7 +77,7 @@ const useAuth = () => {
           headers: {
             "X-Device-ID": getDeviceId(),
           },
-        }
+        },
       );
     },
     onError: onError,
@@ -94,9 +91,9 @@ const useAuth = () => {
       });
       const data = res.data?.data;
       const user = data?.user;
-      const accessToken = data?.access_token;
-      const refreshToken = data?.refresh_token;
-      saveCredentialsAndRedirect(user, accessToken, refreshToken);
+      // const accessToken = data?.access_token;
+      // const refreshToken = data?.refresh_token;
+      saveCredentialsAndRedirect(user);
     },
   });
 
@@ -111,7 +108,7 @@ const useAuth = () => {
           headers: {
             "X-Device-ID": getDeviceId(),
           },
-        }
+        },
       );
     },
     onError: onError,
@@ -146,7 +143,7 @@ const useAuth = () => {
           headers: {
             "X-Device-ID": getDeviceId(),
           },
-        }
+        },
       );
     },
 
@@ -161,9 +158,9 @@ const useAuth = () => {
       });
       const data = res.data?.data;
       const user = data?.user;
-      const accessToken = data?.access_token;
-      const refreshToken = data?.refresh_token;
-      saveCredentialsAndRedirect(user, accessToken, refreshToken);
+      // const accessToken = data?.access_token;
+      // const refreshToken = data?.refresh_token;
+      saveCredentialsAndRedirect(user);
     },
   });
 
@@ -186,7 +183,7 @@ const useAuth = () => {
           headers: {
             "X-Device-ID": getDeviceId(),
           },
-        }
+        },
       ),
     onError: onError,
     onSuccess: (res) => {
@@ -279,9 +276,9 @@ const useAuth = () => {
       });
       const data = res.data?.data;
       const user = data?.user;
-      const accessToken = data?.access_token;
-      const refreshToken = data?.refresh_token;
-      saveCredentialsAndRedirect(user, accessToken, refreshToken);
+      // const accessToken = data?.access_token;
+      // const refreshToken = data?.refresh_token;
+      saveCredentialsAndRedirect(user);
     },
   });
 
