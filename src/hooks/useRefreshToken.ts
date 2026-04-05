@@ -14,7 +14,7 @@ const useRefreshToken = () => {
       color: "danger",
     });
     reset();
-    window.location.href = "/auth";
+    // window.location.href = "/auth";
   };
 
   const refreshToken = async () =>

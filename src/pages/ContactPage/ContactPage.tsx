@@ -77,7 +77,7 @@ export default function ContactPage() {
                   <li className="flex items-center gap-2 text-sm text-foreground/80">
                     <MdCheck className="w-4 h-4 text-success flex-shrink-0" />
                     {t(
-                      "details reports and insights with an auto sentiment analysis"
+                      "details reports and insights with an auto sentiment analysis",
                     )}
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground/80">
@@ -87,7 +87,7 @@ export default function ContactPage() {
                   <li className="flex items-center gap-2 text-sm text-foreground/80">
                     <MdCheck className="w-4 h-4 text-success flex-shrink-0" />
                     {t(
-                      "custom seatmap and ticketing options, including custom discounts"
+                      "custom seatmap and ticketing options, including custom discounts",
                     )}
                   </li>
                   <li className="flex items-center gap-2 text-sm text-foreground/80">
@@ -139,7 +139,7 @@ export default function ContactPage() {
               <div className="space-y-4 max-w-md mx-auto">
                 <p className="text-foreground/80 leading-relaxed">
                   {t(
-                    "as an organizer, you'll gain access to powerful tools and features designed to help you create unforgettable events."
+                    "as an organizer, you'll gain access to powerful tools and features designed to help you create unforgettable events.",
                   )}
                 </p>
                 <ul className="space-y-3 text-left">
@@ -170,7 +170,7 @@ export default function ContactPage() {
                   </span>
                   <br />
                   {t(
-                    "our team will review your request and contact you within 24 hours to discuss upgrading your account to organizer status."
+                    "our team will review your request and contact you within 24 hours to discuss upgrading your account to organizer status.",
                   )}
                 </p>
               </div>
@@ -182,7 +182,7 @@ export default function ContactPage() {
                   >
                     ← {t("sign out").toLowerCase()}{" "}
                     {t(
-                      "if you already have an account with organizer access."
+                      "if you already have an account with organizer access.",
                     ).toLowerCase()}
                   </Link>
                 </p>
