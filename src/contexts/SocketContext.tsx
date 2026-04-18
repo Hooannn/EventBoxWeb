@@ -27,12 +27,10 @@ export function SocketProvider({
   socketUrl,
 }: PropsWithChildren<{ socketUrl: string }>) {
   const [socket, setSocket] = useState<Socket | null>(null);
-  const { isLoggedIn: isLogged, accessToken } = useAuthStore();
+  const { isLoggedIn: isLogged } = useAuthStore();
   useEffect(() => {
     if (isLogged && socketUrl && !socket) {
-      const newSocket = io(
-        `${socketUrl}notification?access_token=${accessToken}`
-      );
+      const newSocket = io(`${socketUrl}notification`);
 
       setSocket(newSocket);
     }
