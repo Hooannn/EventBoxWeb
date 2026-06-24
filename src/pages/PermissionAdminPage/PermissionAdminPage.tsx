@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { t } from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MdOutlineSearch } from "react-icons/md";
 import { IPermission, IResponseData } from "../../types";
 import useAxiosIns from "../../hooks/useAxiosIns";
@@ -25,31 +25,37 @@ export default function PermissionAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const pageSize = 10;
 
   const queryClient = useQueryClient();
 
   const getPermissionsQuery = useQuery({
-    queryKey: ["fetch/users/roles/permissions"],
+    queryKey: ["fetch/users/roles/permissions", page, pageSize],
     queryFn: () =>
-      axios.get<IResponseData<IPermission[]>>(`/v1/users/roles/permissions`),
+      axios.get<IResponseData<IPermission[]>>(
+        `/v2/users/roles/permissions?page=${page - 1}&size=${pageSize}`,
+      ),
     refetchOnWindowFocus: false,
   });
 
   const permissions = getPermissionsQuery.data?.data?.data ?? [];
+  const totalPages = getPermissionsQuery.data?.data?.totalPages ?? 0;
 
-  const filterPermissions = () => {
-    const filteredBySearchTerm = permissions.filter((p) => {
-      return (
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.id.toString().includes(searchTerm)
-      );
-    });
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-    return filteredBySearchTerm;
-  };
+  const tableItems = permissions.filter((permission) => {
+    const normalizedSearchTerm = searchTerm.toLowerCase();
 
-  const tableItems = filterPermissions().slice((page - 1) * 10, page * 10);
+    return (
+      permission.name.toLowerCase().includes(normalizedSearchTerm) ||
+      permission.description?.toLowerCase().includes(normalizedSearchTerm) ||
+      permission.id.toString().includes(searchTerm)
+    );
+  });
 
   const renderCell = useCallback(
     (permission: IPermission, columnKey: unknown) => {
@@ -104,7 +110,10 @@ export default function PermissionAdminPage() {
                 color="primary"
                 variant="bordered"
                 value={searchTerm}
-                onValueChange={setSearchTerm}
+                onValueChange={(value) => {
+                  setSearchTerm(value);
+                  setPage(1);
+                }}
                 startContent={
                   <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                 }
@@ -128,18 +137,14 @@ export default function PermissionAdminPage() {
             cellPadding={20}
             radius="none"
             bottomContent={
-              filterPermissions().length > 10 ? (
+              totalPages > 1 ? (
                 <div className="flex w-full justify-center">
                   <Pagination
                     isCompact
                     showShadow
                     color="primary"
                     page={page}
-                    total={
-                      filterPermissions().length % 10 === 0
-                        ? filterPermissions().length / 10
-                        : filterPermissions().length / 10 + 1
-                    }
+                    total={totalPages}
                     onChange={(page) => setPage(page)}
                   />
                 </div>

@@ -13,7 +13,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { t } from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MdOutlineSearch } from "react-icons/md";
 import { ICategory, IResponseData } from "../../types";
 import useAxiosIns from "../../hooks/useAxiosIns";
@@ -43,30 +43,37 @@ export default function CategoryAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const pageSize = 10;
 
   const queryClient = useQueryClient();
 
   const getCategoriesQuery = useQuery({
-    queryKey: ["fetch/categories"],
-    queryFn: () => axios.get<IResponseData<ICategory[]>>(`/v1/categories`),
+    queryKey: ["fetch/categories", page, pageSize],
+    queryFn: () =>
+      axios.get<IResponseData<ICategory[]>>(
+        `/v2/categories?page=${page - 1}&size=${pageSize}`,
+      ),
     refetchOnWindowFocus: false,
   });
 
   const categories = getCategoriesQuery.data?.data?.data ?? [];
+  const totalPages = getCategoriesQuery.data?.data?.totalPages ?? 0;
 
-  const filterCategories = () => {
-    const filteredBySearchTerm = categories.filter((p) => {
-      return (
-        p.name_vi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.name_en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.id.toString().includes(searchTerm)
-      );
-    });
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-    return filteredBySearchTerm;
-  };
+  const tableItems = categories.filter((category) => {
+    const normalizedSearchTerm = searchTerm.toLowerCase();
 
-  const tableItems = filterCategories().slice((page - 1) * 10, page * 10);
+    return (
+      category.name_vi.toLowerCase().includes(normalizedSearchTerm) ||
+      category.name_en?.toLowerCase().includes(normalizedSearchTerm) ||
+      category.id.toString().includes(searchTerm)
+    );
+  });
 
   const renderCell = useCallback((category: ICategory, columnKey: unknown) => {
     const cellValue = (category as never)[columnKey as never];
@@ -134,7 +141,10 @@ export default function CategoryAdminPage() {
                 color="primary"
                 variant="bordered"
                 value={searchTerm}
-                onValueChange={setSearchTerm}
+                onValueChange={(value) => {
+                  setSearchTerm(value);
+                  setPage(1);
+                }}
                 startContent={
                   <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                 }
@@ -158,18 +168,14 @@ export default function CategoryAdminPage() {
             cellPadding={20}
             radius="none"
             bottomContent={
-              filterCategories().length > 10 ? (
+              totalPages > 1 ? (
                 <div className="flex w-full justify-center">
                   <Pagination
                     isCompact
                     showShadow
                     color="primary"
                     page={page}
-                    total={
-                      filterCategories().length % 10 === 0
-                        ? filterCategories().length / 10
-                        : filterCategories().length / 10 + 1
-                    }
+                    total={totalPages}
                     onChange={(page) => setPage(page)}
                   />
                 </div>

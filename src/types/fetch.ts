@@ -4,8 +4,11 @@ export interface IResponseData<T> {
   data: T;
   code: number;
   message: string;
-  took?: number;
-  total?: number;
+  totalPages?: number;
+  totalElements?: number;
+  size?: number;
+  number?: number;
+  numberOfElements?: number;
 }
 
 export interface Response<T> extends AxiosResponse {

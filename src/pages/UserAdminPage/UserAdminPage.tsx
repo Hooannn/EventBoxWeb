@@ -12,7 +12,7 @@ import {
   User,
 } from "@heroui/react";
 import { t } from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MdOutlineSearch } from "react-icons/md";
 import { IResponseData, IUser } from "../../types";
 import useAxiosIns from "../../hooks/useAxiosIns";
@@ -25,33 +25,40 @@ export default function UserAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const pageSize = 10;
 
   const queryClient = useQueryClient();
 
   const getUsersQuery = useQuery({
-    queryKey: ["fetch/users"],
-    queryFn: () => axios.get<IResponseData<IUser[]>>(`/v1/users`),
+    queryKey: ["fetch/users", page, pageSize],
+    queryFn: () =>
+      axios.get<IResponseData<IUser[]>>(
+        `/v2/users?page=${page - 1}&size=${pageSize}`,
+      ),
     refetchOnWindowFocus: false,
   });
 
   const users = getUsersQuery.data?.data?.data ?? [];
+  const totalPages = getUsersQuery.data?.data?.totalPages ?? 0;
 
-  const filterUsers = () => {
-    const filteredBySearchTerm = users.filter((user) => {
-      return (
-        user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${user.first_name} ${user.last_name}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-    return filteredBySearchTerm;
-  };
+  const tableItems = users.filter((user) => {
+    const normalizedSearchTerm = searchTerm.toLowerCase();
 
-  const tableItems = filterUsers().slice((page - 1) * 10, page * 10);
+    return (
+      user.first_name.toLowerCase().includes(normalizedSearchTerm) ||
+      user.last_name.toLowerCase().includes(normalizedSearchTerm) ||
+      `${user.first_name} ${user.last_name}`
+        .toLowerCase()
+        .includes(normalizedSearchTerm) ||
+      user.email.toLowerCase().includes(normalizedSearchTerm)
+    );
+  });
 
   const renderCell = useCallback((user: IUser, columnKey: unknown) => {
     const cellValue = (user as never)[columnKey as never];
@@ -111,7 +118,10 @@ export default function UserAdminPage() {
               color="primary"
               variant="bordered"
               value={searchTerm}
-              onValueChange={setSearchTerm}
+              onValueChange={(value) => {
+                setSearchTerm(value);
+                setPage(1);
+              }}
               startContent={
                 <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
               }
@@ -134,18 +144,14 @@ export default function UserAdminPage() {
           cellPadding={20}
           radius="none"
           bottomContent={
-            filterUsers().length > 10 ? (
+            totalPages > 1 ? (
               <div className="flex w-full justify-center">
                 <Pagination
                   isCompact
                   showShadow
                   color="primary"
                   page={page}
-                  total={
-                    filterUsers().length % 10 === 0
-                      ? filterUsers().length / 10
-                      : filterUsers().length / 10 + 1
-                  }
+                  total={totalPages}
                   onChange={(page) => setPage(page)}
                 />
               </div>

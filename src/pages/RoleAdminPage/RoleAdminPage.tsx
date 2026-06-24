@@ -13,7 +13,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { t } from "i18next";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MdOutlineSearch } from "react-icons/md";
 import { IResponseData, IRole } from "../../types";
 import useAxiosIns from "../../hooks/useAxiosIns";
@@ -26,30 +26,37 @@ export default function RoleAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const pageSize = 10;
 
   const queryClient = useQueryClient();
 
   const getRolesQuery = useQuery({
-    queryKey: ["fetch/users/roles"],
-    queryFn: () => axios.get<IResponseData<IRole[]>>(`/v1/users/roles`),
+    queryKey: ["fetch/users/roles", page, pageSize],
+    queryFn: () =>
+      axios.get<IResponseData<IRole[]>>(
+        `/v2/users/roles?page=${page - 1}&size=${pageSize}`,
+      ),
     refetchOnWindowFocus: false,
   });
 
   const roles = getRolesQuery.data?.data?.data ?? [];
+  const totalPages = getRolesQuery.data?.data?.totalPages ?? 0;
 
-  const filterRoles = () => {
-    const filteredBySearchTerm = roles.filter((role) => {
-      return (
-        role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        role.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        role.id.toString().includes(searchTerm)
-      );
-    });
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-    return filteredBySearchTerm;
-  };
+  const tableItems = roles.filter((role) => {
+    const normalizedSearchTerm = searchTerm.toLowerCase();
 
-  const tableItems = filterRoles().slice((page - 1) * 10, page * 10);
+    return (
+      role.name.toLowerCase().includes(normalizedSearchTerm) ||
+      role.description?.toLowerCase().includes(normalizedSearchTerm) ||
+      role.id.toString().includes(searchTerm)
+    );
+  });
 
   const renderCell = useCallback((role: IRole, columnKey: unknown) => {
     const cellValue = (role as never)[columnKey as never];
@@ -117,7 +124,10 @@ export default function RoleAdminPage() {
                 color="primary"
                 variant="bordered"
                 value={searchTerm}
-                onValueChange={setSearchTerm}
+                onValueChange={(value) => {
+                  setSearchTerm(value);
+                  setPage(1);
+                }}
                 startContent={
                   <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                 }
@@ -141,18 +151,14 @@ export default function RoleAdminPage() {
             cellPadding={20}
             radius="none"
             bottomContent={
-              filterRoles().length > 10 ? (
+              totalPages > 1 ? (
                 <div className="flex w-full justify-center">
                   <Pagination
                     isCompact
                     showShadow
                     color="primary"
                     page={page}
-                    total={
-                      filterRoles().length % 10 === 0
-                        ? filterRoles().length / 10
-                        : filterRoles().length / 10 + 1
-                    }
+                    total={totalPages}
                     onChange={(page) => setPage(page)}
                   />
                 </div>
