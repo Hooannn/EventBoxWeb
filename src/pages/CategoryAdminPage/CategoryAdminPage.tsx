@@ -21,6 +21,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "../../libs/dayjs";
 import CategoryCellActions from "./CategoryCellActions";
 import AddCategoryModal from "./AddCategoryModal";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export const CheckIcon = ({ size }: { size: number }) => {
   return (
@@ -44,14 +45,18 @@ export default function CategoryAdminPage() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
   const queryClient = useQueryClient();
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
 
   const getCategoriesQuery = useQuery({
-    queryKey: ["fetch/categories", page, pageSize],
+    queryKey: ["fetch/categories", page, pageSize, debouncedSearchTerm],
     queryFn: () =>
       axios.get<IResponseData<ICategory[]>>(
-        `/v2/categories?page=${page - 1}&size=${pageSize}`,
+        `/v2/categories?page=${page - 1}&size=${pageSize}${searchQuery}`,
       ),
     refetchOnWindowFocus: false,
   });
@@ -65,15 +70,7 @@ export default function CategoryAdminPage() {
     }
   }, [page, totalPages]);
 
-  const tableItems = categories.filter((category) => {
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-
-    return (
-      category.name_vi.toLowerCase().includes(normalizedSearchTerm) ||
-      category.name_en?.toLowerCase().includes(normalizedSearchTerm) ||
-      category.id.toString().includes(searchTerm)
-    );
-  });
+  const tableItems = categories;
 
   const renderCell = useCallback((category: ICategory, columnKey: unknown) => {
     const cellValue = (category as never)[columnKey as never];

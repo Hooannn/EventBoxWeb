@@ -20,20 +20,25 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserAvatar } from "../../utils";
 import dayjs from "../../libs/dayjs";
 import UserCellActions from "./UserCellActions";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export default function UserAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
   const queryClient = useQueryClient();
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
 
   const getUsersQuery = useQuery({
-    queryKey: ["fetch/users", page, pageSize],
+    queryKey: ["fetch/users", page, pageSize, debouncedSearchTerm],
     queryFn: () =>
       axios.get<IResponseData<IUser[]>>(
-        `/v2/users?page=${page - 1}&size=${pageSize}`,
+        `/v2/users?page=${page - 1}&size=${pageSize}${searchQuery}`,
       ),
     refetchOnWindowFocus: false,
   });
@@ -47,18 +52,7 @@ export default function UserAdminPage() {
     }
   }, [page, totalPages]);
 
-  const tableItems = users.filter((user) => {
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-
-    return (
-      user.first_name.toLowerCase().includes(normalizedSearchTerm) ||
-      user.last_name.toLowerCase().includes(normalizedSearchTerm) ||
-      `${user.first_name} ${user.last_name}`
-        .toLowerCase()
-        .includes(normalizedSearchTerm) ||
-      user.email.toLowerCase().includes(normalizedSearchTerm)
-    );
-  });
+  const tableItems = users;
 
   const renderCell = useCallback((user: IUser, columnKey: unknown) => {
     const cellValue = (user as never)[columnKey as never];

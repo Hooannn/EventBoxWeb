@@ -21,20 +21,25 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "../../libs/dayjs";
 import RoleCellActions from "./RoleCellActions";
 import AddRoleModal from "./AddRoleModal";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export default function RoleAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
   const queryClient = useQueryClient();
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
 
   const getRolesQuery = useQuery({
-    queryKey: ["fetch/users/roles", page, pageSize],
+    queryKey: ["fetch/users/roles", page, pageSize, debouncedSearchTerm],
     queryFn: () =>
       axios.get<IResponseData<IRole[]>>(
-        `/v2/users/roles?page=${page - 1}&size=${pageSize}`,
+        `/v2/users/roles?page=${page - 1}&size=${pageSize}${searchQuery}`,
       ),
     refetchOnWindowFocus: false,
   });
@@ -48,15 +53,7 @@ export default function RoleAdminPage() {
     }
   }, [page, totalPages]);
 
-  const tableItems = roles.filter((role) => {
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-
-    return (
-      role.name.toLowerCase().includes(normalizedSearchTerm) ||
-      role.description?.toLowerCase().includes(normalizedSearchTerm) ||
-      role.id.toString().includes(searchTerm)
-    );
-  });
+  const tableItems = roles;
 
   const renderCell = useCallback((role: IRole, columnKey: unknown) => {
     const cellValue = (role as never)[columnKey as never];

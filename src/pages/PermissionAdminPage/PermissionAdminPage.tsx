@@ -20,20 +20,30 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "../../libs/dayjs";
 import PermissionCellActions from "./PermissionCellActions";
 import AddPermissionModal from "./AddPermissionModal";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export default function PermissionAdminPage() {
   const axios = useAxiosIns();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const pageSize = 10;
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
   const queryClient = useQueryClient();
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
 
   const getPermissionsQuery = useQuery({
-    queryKey: ["fetch/users/roles/permissions", page, pageSize],
+    queryKey: [
+      "fetch/users/roles/permissions",
+      page,
+      pageSize,
+      debouncedSearchTerm,
+    ],
     queryFn: () =>
       axios.get<IResponseData<IPermission[]>>(
-        `/v2/users/roles/permissions?page=${page - 1}&size=${pageSize}`,
+        `/v2/users/roles/permissions?page=${page - 1}&size=${pageSize}${searchQuery}`,
       ),
     refetchOnWindowFocus: false,
   });
@@ -47,15 +57,7 @@ export default function PermissionAdminPage() {
     }
   }, [page, totalPages]);
 
-  const tableItems = permissions.filter((permission) => {
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-
-    return (
-      permission.name.toLowerCase().includes(normalizedSearchTerm) ||
-      permission.description?.toLowerCase().includes(normalizedSearchTerm) ||
-      permission.id.toString().includes(searchTerm)
-    );
-  });
+  const tableItems = permissions;
 
   const renderCell = useCallback(
     (permission: IPermission, columnKey: unknown) => {
