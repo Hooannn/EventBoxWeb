@@ -1,5 +1,5 @@
 import { Chip, Input, Spinner, Tab, Tabs } from "@heroui/react";
-import { Key, useMemo, useState } from "react";
+import { Key, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MdOutlineSearch } from "react-icons/md";
 import { IEvent, IEventStatus, IResponseData } from "../../types";
@@ -7,14 +7,16 @@ import EventList from "./EventList";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "react-router-dom";
 import useAxiosIns from "../../hooks/useAxiosIns";
-import dayjs from "../../libs/dayjs";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export default function OrganizationPage() {
   const { t } = useTranslation();
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
   const axios = useAxiosIns();
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
   const activeTab = useMemo<IEventStatus>(() => {
     if (!searchParams.has("status")) {
@@ -25,6 +27,7 @@ export default function OrganizationPage() {
   }, [searchParams]);
 
   const handleTabChange = (tab: IEventStatus) => {
+    setPage(1);
     setSearchParams((prev) => {
       const newParams = new URLSearchParams(prev);
       newParams.set("status", tab);
@@ -33,78 +36,92 @@ export default function OrganizationPage() {
   };
 
   const queryClient = useQueryClient();
+  const pageSize = 10;
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
+
   const getEventsQuery = useQuery({
-    queryKey: ["fetch/event/by/organization", params.id],
+    queryKey: [
+      "fetch/event/by/organization",
+      params.id,
+      activeTab,
+      page,
+      pageSize,
+      debouncedSearchTerm,
+    ],
     queryFn: () =>
       axios.get<IResponseData<IEvent[]>>(
-        `/v1/events/organization/${params.id}`
+        `/v2/events/organization/${params.id}/${activeTab.toLowerCase()}?page=${page - 1}&size=${pageSize}${searchQuery}`,
       ),
+    enabled: Boolean(params.id),
     refetchOnWindowFocus: false,
   });
+
+  const getOverviewQuery = useQuery({
+    queryKey: ["fetch/event/by/organization/overview", params.id, debouncedSearchTerm],
+    queryFn: () =>
+      axios.get<
+        IResponseData<{
+          pending_count: number;
+          published_count: number;
+          ended_count: number;
+          draft_count?: number;
+        }>
+      >(
+        `/v2/events/organization/${params.id}/overview${debouncedSearchTerm
+          ? `?search=${encodeURIComponent(debouncedSearchTerm)}`
+          : ""
+        }`,
+      ),
+    enabled: Boolean(params.id),
+    refetchOnWindowFocus: false,
+  });
+
   const events = getEventsQuery.data?.data?.data || [];
+  const totalPages = getEventsQuery.data?.data?.totalPages ?? 0;
+  const overviewCounts = getOverviewQuery.data?.data?.data;
 
   const onRefresh = () => {
     queryClient.invalidateQueries({
       queryKey: ["fetch/event/by/organization", params.id],
     });
-  };
-
-  const getEventsByStatus = (status: IEventStatus) => {
-    const now = dayjs();
-    let eventsByStatus = [];
-    if (status === "ENDED") {
-      eventsByStatus = events.filter(
-        (event) =>
-          event.status === "PUBLISHED" &&
-          event.shows.every((show) => dayjs(show.end_time).isBefore(now))
-      );
-    } else if (status === "PUBLISHED") {
-      eventsByStatus = events.filter(
-        (event) =>
-          event.status === "PUBLISHED" &&
-          event.shows.some(
-            (show) =>
-              dayjs(show.end_time).isAfter(now) ||
-              dayjs(show.end_time).isSame(now)
-          )
-      );
-    } else {
-      eventsByStatus = events.filter((event) => event.status === status);
-    }
-    return eventsByStatus.filter((event) => {
-      return (
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.address?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    queryClient.invalidateQueries({
+      queryKey: ["fetch/event/by/organization/overview", params.id],
     });
   };
 
-  const countByStatus = (status: IEventStatus) => {
-    return getEventsByStatus(status).length;
-  };
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchTerm]);
 
   const tabs: {
     key: IEventStatus;
     label: string;
   }[] = [
-    {
-      key: "PUBLISHED",
-      label: t("published").toString(),
-    },
-    {
-      key: "ENDED",
-      label: t("ended").toString(),
-    },
-    {
-      key: "PENDING",
-      label: t("pending").toString(),
-    },
-    {
-      key: "DRAFT",
-      label: t("draft").toString(),
-    },
-  ];
+      {
+        key: "PUBLISHED",
+        label: t("published").toString(),
+      },
+      {
+        key: "ENDED",
+        label: t("ended").toString(),
+      },
+      {
+        key: "PENDING",
+        label: t("pending").toString(),
+      },
+      {
+        key: "DRAFT",
+        label: t("draft").toString(),
+      },
+    ];
 
   return (
     <div className="flex h-full w-full flex-col space-y-4 p-4">
@@ -114,7 +131,10 @@ export default function OrganizationPage() {
             radius="none"
             color="primary"
             value={searchTerm}
-            onValueChange={setSearchTerm}
+            onValueChange={(value) => {
+              setSearchTerm(value);
+              setPage(1);
+            }}
             variant="bordered"
             startContent={
               <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
@@ -145,7 +165,13 @@ export default function OrganizationPage() {
                       radius="none"
                       variant="flat"
                     >
-                      {countByStatus(tab.key)}
+                      {tab.key === "PENDING"
+                        ? overviewCounts?.pending_count ?? 0
+                        : tab.key === "PUBLISHED"
+                          ? overviewCounts?.published_count ?? 0
+                          : tab.key === "ENDED"
+                            ? overviewCounts?.ended_count ?? 0
+                            : overviewCounts?.draft_count ?? 0}
                     </Chip>
                   </div>
                 }
@@ -155,7 +181,7 @@ export default function OrganizationPage() {
         </div>
       </div>
       <div className="flex-1">
-        {getEventsQuery.isLoading ? (
+        {getEventsQuery.isLoading || getOverviewQuery.isLoading ? (
           <div className="flex items-center justify-center h-full">
             <Spinner />
           </div>
@@ -163,8 +189,13 @@ export default function OrganizationPage() {
           <EventList
             isAdmin={false}
             status={activeTab}
-            events={getEventsByStatus(activeTab)}
+            events={events}
             onRefresh={onRefresh}
+            pagination={{
+              page,
+              totalPages,
+              onPageChange: setPage,
+            }}
           />
         )}
       </div>
