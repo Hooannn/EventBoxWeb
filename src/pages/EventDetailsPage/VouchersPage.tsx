@@ -2,6 +2,7 @@ import {
   Button,
   Chip,
   Input,
+  Pagination,
   Spinner,
   Table,
   TableBody,
@@ -14,7 +15,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { MdOutlineBookmarkBorder, MdOutlineSearch } from "react-icons/md";
 import useAxiosIns from "../../hooks/useAxiosIns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { priceFormat, stringToDateFormatV3 } from "../../utils";
 import { useParams } from "react-router-dom";
 import { IResponseData, IVoucher } from "../../types";
@@ -22,6 +23,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AddVoucherModal from "./AddVoucherModal";
 import { CheckIcon } from "../CategoryAdminPage/CategoryAdminPage";
 import VoucherCellActions from "./VoucherCellActions";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export default function VouchersPage() {
   const { t } = useTranslation();
@@ -30,30 +32,43 @@ export default function VouchersPage() {
   const queryClient = useQueryClient();
   const eventId = params.eventId;
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
 
   const getVouchersQuery = useQuery({
-    queryKey: ["fetch/vouchers/event/eventId", eventId],
+    queryKey: [
+      "fetch/vouchers/event/eventId",
+      eventId,
+      page,
+      pageSize,
+      debouncedSearchTerm,
+    ],
     queryFn: () => {
       return axios.get<IResponseData<IVoucher[]>>(
-        `/v1/vouchers/event/${eventId}`
+        `/v2/vouchers/event/${eventId}?page=${page - 1}&size=${pageSize}${searchQuery}`,
       );
     },
+    enabled: !!eventId,
     refetchOnWindowFocus: false,
   });
 
   const vouchers = getVouchersQuery.data?.data?.data || [];
+  const totalPages = getVouchersQuery.data?.data?.totalPages ?? 0;
+  const totalElements = getVouchersQuery.data?.data?.totalElements ?? 0;
 
-  const filterVouchers = () => {
-    const filteredBySearchTerm = vouchers.filter((voucher) => {
-      return (
-        voucher.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        voucher.id.toString().includes(searchTerm.toLowerCase()) ||
-        voucher.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-    return filteredBySearchTerm;
-  };
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchTerm, eventId]);
 
   const {
     onClose: onCreateModalClose,
@@ -82,14 +97,17 @@ export default function VouchersPage() {
               {t("vouchers list").toString()}
             </h2>
             <p className="text-base text-gray-500">
-              ({t("total vouchers").toString()}: {vouchers.length})
+              ({t("total vouchers").toString()}: {totalElements})
             </p>
             <div className="flex items-center justify-between gap-2 mt-2">
               <Input
                 radius="none"
                 color="primary"
                 value={searchTerm}
-                onValueChange={setSearchTerm}
+                onValueChange={(value) => {
+                  setSearchTerm(value);
+                  setPage(1);
+                }}
                 variant="bordered"
                 startContent={
                   <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
@@ -112,7 +130,7 @@ export default function VouchersPage() {
                 </div>
               ) : (
                 <>
-                  {filterVouchers().length > 0 ? (
+                  {vouchers.length > 0 ? (
                     <Table radius="none" shadow="sm">
                       <TableHeader>
                         <TableColumn>{t("id")}</TableColumn>
@@ -123,7 +141,7 @@ export default function VouchersPage() {
                         <TableColumn>{t("is active")}</TableColumn>
                         <TableColumn>{t("actions")}</TableColumn>
                       </TableHeader>
-                      <TableBody items={filterVouchers()}>
+                      <TableBody items={vouchers}>
                         {(item) => (
                           <TableRow key={item.id}>
                             <TableCell>{item.id}</TableCell>
@@ -131,7 +149,7 @@ export default function VouchersPage() {
                             <TableCell>
                               <Chip
                                 size="sm"
-                                color={"secondary"}
+                                color="secondary"
                                 radius="none"
                                 variant="flat"
                               >
@@ -198,6 +216,18 @@ export default function VouchersPage() {
                       </div>
                     </div>
                   )}
+                  {totalPages > 1 ? (
+                    <div className="flex w-full justify-center pt-4">
+                      <Pagination
+                        isCompact
+                        showShadow
+                        color="primary"
+                        page={page}
+                        total={totalPages}
+                        onChange={(nextPage) => setPage(nextPage)}
+                      />
+                    </div>
+                  ) : null}
                 </>
               )}
             </div>
