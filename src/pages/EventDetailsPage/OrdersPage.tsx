@@ -28,15 +28,35 @@ import { IEventShow, IOrder, IResponseData } from "../../types";
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUserAvatar, priceFormat, stringToDateFormatV2 } from "../../utils";
-import { utils, writeFile } from "xlsx";
 import OrderCellActions from "./OrderCellActions";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
+
+const getFilenameFromContentDisposition = (contentDisposition?: string | null) => {
+  if (!contentDisposition) {
+    return null;
+  }
+
+  const utf8FilenameMatch = contentDisposition.match(
+    /filename\*\s*=\s*UTF-8''([^;]+)/i,
+  );
+  if (utf8FilenameMatch?.[1]) {
+    return decodeURIComponent(utf8FilenameMatch[1].trim());
+  }
+
+  const filenameMatch = contentDisposition.match(/filename\s*=\s*("?)([^";]+)\1/i);
+  if (filenameMatch?.[2]) {
+    return filenameMatch[2].trim();
+  }
+
+  return null;
+};
 
 export default function OrdersPage() {
   const { t } = useTranslation();
   const axios = useAxiosIns();
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
+  const [isExportingCsv, setIsExportingCsv] = useState(false);
   const pageSize = 10;
   const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
@@ -90,57 +110,43 @@ export default function OrdersPage() {
     setPage(1);
   }, [debouncedSearchTerm, selectedShowId]);
 
-  const exportCSV = () => {
-    const wb = utils.book_new();
-    const ws = utils.aoa_to_sheet([]);
-    utils.book_append_sheet(wb, ws, "Báo cáo");
-
-    if (orders.length === 0) {
-      addToast({
-        title: t("no data"),
-        timeout: 4000,
-        radius: "none",
-        color: "warning",
-      });
+  const exportCSV = async () => {
+    if (!selectedShowId || isExportingCsv) {
       return;
     }
-    const totalPaid = orders.reduce((sum, order) => {
-      return sum + getOrderPrice(order);
-    }, 0);
 
-    utils.sheet_add_aoa(
-      ws,
-      [
-        [`BÁO CÁO ĐƠN HÀNG`],
-        [`Tổng tiền: ${priceFormat(totalPaid)}`],
-        [],
-        [
-          t("id").toString(),
-          t("fulfilled at").toString(),
-          t("user").toString(),
-          t("total").toString(),
-          t("tickets").toString(),
-          t("method").toString(),
-        ],
-      ],
-      { origin: "A1" }
-    );
+    try {
+      setIsExportingCsv(true);
+      const response = await axios.get(
+        `/v2/orders/shows/${selectedShowId}/all/export`,
+        {
+          responseType: "blob",
+        },
+      );
 
-    const dataRows = orders.map((order) => [
-      order.id,
-      stringToDateFormatV2(order.fulfilled_at!),
-      order.user.email,
-      priceFormat(getOrderPrice(order)),
-      order.items.length,
-      "PayPal",
-    ]);
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      const filename =
+        getFilenameFromContentDisposition(
+          response.headers?.["content-disposition"],
+        ) ?? `order_report_${Date.now()}.csv`;
 
-    utils.sheet_add_aoa(ws, dataRows, { origin: "A6" });
-
-    ws["!cols"] = Array(8).fill({ wch: 20 });
-
-    const fileName = `order_report_${Date.now()}.xlsx`;
-    writeFile(wb, fileName);
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      addToast({
+        title: t("failed to export csv").toString(),
+        timeout: 4000,
+        radius: "none",
+        color: "danger",
+      });
+    } finally {
+      setIsExportingCsv(false);
+    }
   };
 
   const getOrderPrice = (order: IOrder) => {
@@ -257,6 +263,8 @@ export default function OrdersPage() {
                   color="secondary"
                   radius="none"
                   className="px-10"
+                  isLoading={isExportingCsv}
+                  isDisabled={isExportingCsv || !selectedShowId}
                   onPress={exportCSV}
                 >
                   <MdOutlineDownload size={24} />
