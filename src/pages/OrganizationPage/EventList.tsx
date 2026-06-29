@@ -15,11 +15,17 @@ export default function EventList({
   status,
   events,
   onRefresh,
+  pagination,
 }: {
   isAdmin: boolean;
   status: IEventStatus;
   events: IEvent[];
   onRefresh: () => void;
+  pagination?: {
+    page: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }) {
   const { t } = useTranslation();
 
@@ -33,7 +39,10 @@ export default function EventList({
 
   const ITEM_PER_PAGE = 10;
   const [page, setPage] = useState(1);
-  const items = events.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE);
+  const currentPage = pagination?.page ?? page;
+  const items = pagination
+    ? events
+    : events.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE);
   return (
     <>
       {events.length == 0 ? (
@@ -59,19 +68,25 @@ export default function EventList({
               onRefresh={onRefresh}
             />
           ))}
-          {events.length > 2 ? (
+          {(pagination ? pagination.totalPages > 1 : events.length > 2) ? (
             <div className="flex w-full justify-center">
               <Pagination
                 isCompact
                 showShadow
                 color="primary"
-                page={page}
+                page={currentPage}
                 total={
-                  events.length % ITEM_PER_PAGE === 0
-                    ? events.length / ITEM_PER_PAGE
-                    : events.length / ITEM_PER_PAGE + 1
+                  pagination
+                    ? pagination.totalPages
+                    : events.length % ITEM_PER_PAGE === 0
+                      ? events.length / ITEM_PER_PAGE
+                      : events.length / ITEM_PER_PAGE + 1
                 }
-                onChange={(page) => setPage(page)}
+                onChange={(nextPage) =>
+                  pagination
+                    ? pagination.onPageChange(nextPage)
+                    : setPage(nextPage)
+                }
               />
             </div>
           ) : null}
