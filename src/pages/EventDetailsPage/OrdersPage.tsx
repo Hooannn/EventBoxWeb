@@ -3,6 +3,7 @@ import {
   Button,
   Divider,
   Input,
+  Pagination,
   Select,
   SelectItem,
   Spinner,
@@ -25,15 +26,19 @@ import useAxiosIns from "../../hooks/useAxiosIns";
 import { useQuery } from "@tanstack/react-query";
 import { IEventShow, IOrder, IResponseData } from "../../types";
 import { useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getUserAvatar, priceFormat, stringToDateFormatV2 } from "../../utils";
 import { utils, writeFile } from "xlsx";
 import OrderCellActions from "./OrderCellActions";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 export default function OrdersPage() {
   const { t } = useTranslation();
   const axios = useAxiosIns();
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
 
   const {
     eventShows,
@@ -49,44 +54,46 @@ export default function OrdersPage() {
     getSelectedShow: () => IEventShow;
   } = useOutletContext();
 
+  const selectedShowId = getSelectedShow()?.id;
+  const searchQuery = debouncedSearchTerm
+    ? `&search=${encodeURIComponent(debouncedSearchTerm)}`
+    : "";
+
   const getOrdersQuery = useQuery({
-    queryKey: ["fetch/event/eventShows/id/orders/all", getSelectedShow()?.id],
+    queryKey: [
+      "fetch/event/eventShows/id/orders/all",
+      selectedShowId,
+      page,
+      pageSize,
+      debouncedSearchTerm,
+    ],
     queryFn: () => {
-      return getSelectedShow()?.id
-        ? axios.get<IResponseData<IOrder[]>>(
-            `/v1/orders/shows/${getSelectedShow()?.id}/all`
-          )
-        : undefined;
+      return axios.get<IResponseData<IOrder[]>>(
+        `/v2/orders/shows/${selectedShowId}/all?page=${page - 1}&size=${pageSize}${searchQuery}`,
+      );
     },
     refetchOnWindowFocus: false,
-    enabled: !!getSelectedShow()?.id,
+    enabled: !!selectedShowId,
   });
 
   const orders = getOrdersQuery.data?.data?.data || [];
+  const totalPages = getOrdersQuery.data?.data?.totalPages ?? 0;
+  const totalElements = getOrdersQuery.data?.data?.totalElements ?? 0;
 
-  const filterOrders = () => {
-    const filteredBySearchTerm = orders.filter((order) => {
-      return (
-        order.user.first_name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        order.user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${order.user.first_name} ${order.user.last_name}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.id.toString().includes(searchTerm.toLowerCase())
-      );
-    });
+  useEffect(() => {
+    if (page > 1 && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
-    return filteredBySearchTerm;
-  };
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchTerm, selectedShowId]);
 
   const exportCSV = () => {
     const wb = utils.book_new();
     const ws = utils.aoa_to_sheet([]);
     utils.book_append_sheet(wb, ws, "Báo cáo");
-    const orders = filterOrders();
 
     if (orders.length === 0) {
       addToast({
@@ -229,14 +236,17 @@ export default function OrdersPage() {
                 {t("orders list").toString()}
               </h2>
               <p className="text-base text-gray-500">
-                ({t("total orders").toString()}: {orders.length})
+                ({t("total orders").toString()}: {totalElements})
               </p>
               <div className="flex items-center justify-between gap-2 mt-2">
                 <Input
                   radius="none"
                   color="primary"
                   value={searchTerm}
-                  onValueChange={setSearchTerm}
+                  onValueChange={(value) => {
+                    setSearchTerm(value);
+                    setPage(1);
+                  }}
                   variant="bordered"
                   startContent={
                     <MdOutlineSearch className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
@@ -261,7 +271,7 @@ export default function OrdersPage() {
                   </div>
                 ) : (
                   <>
-                    {filterOrders().length > 0 ? (
+                    {orders.length > 0 ? (
                       <Table radius="none" shadow="sm">
                         <TableHeader>
                           <TableColumn>{t("id")}</TableColumn>
@@ -272,7 +282,7 @@ export default function OrdersPage() {
                           <TableColumn>{t("method")}</TableColumn>
                           <TableColumn>{t("actions")}</TableColumn>
                         </TableHeader>
-                        <TableBody items={filterOrders()}>
+                        <TableBody items={orders}>
                           {(item) => (
                             <TableRow key={item.id}>
                               <TableCell>{item.id}</TableCell>
@@ -323,6 +333,18 @@ export default function OrdersPage() {
                         </div>
                       </div>
                     )}
+                    {totalPages > 1 ? (
+                      <div className="flex w-full justify-center pt-4">
+                        <Pagination
+                          isCompact
+                          showShadow
+                          color="primary"
+                          page={page}
+                          total={totalPages}
+                          onChange={(nextPage) => setPage(nextPage)}
+                        />
+                      </div>
+                    ) : null}
                   </>
                 )}
               </div>
